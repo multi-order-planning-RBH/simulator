@@ -1,7 +1,7 @@
 from typing import List
 from random import uniform
 
-LocationType = List[float, float]
+LocationType = List[float]
 
 from enum import Enum
 class LocationEnum(Enum):

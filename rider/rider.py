@@ -1,16 +1,18 @@
 from argparse import Action
 from typing import List
-
+import sys, os
+sys.path.append(os.path.abspath("./"))
 from type_enum.location import LocationType, LocationEnum, generateBangkokLocation
 from type_enum.action import ActionEnum
 from type_enum.status import StatusEnum
 from estimator import getEstimatedTimeTraveling
 
 class TempOrder:
-    resraurantLocation : LocationType = [13.744740, 100.531876]
-    destination : LocationType = [13.741291, 100.528645]
-    orderTime = 0
-    readyTime = 30
+    def __init__(self, resraurantLocation, destination, orderTime, readyTime):
+        self.resraurantLocation = resraurantLocation
+        self.destination = destination
+        self.orderTime = orderTime
+        self.readyTime = readyTime
 
 class Destination :
     def __init__(self, location : LocationType, type : LocationEnum, readyTime : int):
@@ -25,7 +27,7 @@ class Action :
         self.time : int = time 
 
 class Rider:
-    def __init__(self, id:int, startingTime = 0, getoffTime = 480, restingTime = 30):
+    def __init__(self, id:int, startingTime:int = 0, getoffTime:int = 480, restingTime:int = 30):
         self.id : int = id
         self.location : LocationType = generateBangkokLocation()
         self.startingTime : int = startingTime
@@ -44,20 +46,21 @@ class Rider:
         # May change 5 to be other number for randomness
         self.destinations.append(Destination(order.destination, LocationEnum.CUSTOMER, 5)) 
 
-    def simulate(self, time):
-        if self.currentAction.action == ActionEnum.NO_ACTION:
-                if len(self.destinations)>0:
-                    next_action = ActionEnum.RIDING
-                    location = self.destinations[0].location
-                    next_time += 1
-                    self.nextAction = Action(next_action, location, next_time)
-        if self.nextAction.time >= time : 
+    def simulate(self, time : int):
+        if self.nextAction == None:
+            if self.currentAction.action == ActionEnum.NO_ACTION and len(self.destinations) > 0: 
+                next_action = ActionEnum.RIDING
+                location = self.destinations[0].location
+                next_time = time + 1
+                self.nextAction = Action(next_action, location, next_time)
+
+        elif time >= self.nextAction.time : 
             self.currentAction = self.nextAction
             
             if self.currentAction.action == ActionEnum.RIDING:
                 next_action = ActionEnum.WAITING
                 location = self.currentAction.location
-                next_time += getEstimatedTimeTraveling()
+                next_time = time + getEstimatedTimeTraveling()
                 self.nextAction = Action(next_action, location, next_time)
 
             elif self.currentAction.action == ActionEnum.WAITING:
@@ -66,11 +69,11 @@ class Rider:
                 destination = self.destinations[0]
                 ready_time = destination.readyTime 
 
-                #Add extension time for waiting customer to come for pick up the order when riding to the customer
+                #Add additional time for waiting customer to come for pick up the order when riding to the customer
                 ready_time += 0 if destination.type == LocationEnum.RESTAURANT else time
 
                 #Compare waiting time and commuting time
-                next_time = max(ready_time, self.currentAction.time)
+                next_time = max(ready_time, self.currentAction.time)+1
 
                 self.nextAction = Action(next_action, location, next_time)
 
@@ -78,8 +81,11 @@ class Rider:
                 self.destinations.pop()
                 next_action = ActionEnum.NO_ACTION
                 location = self.location
-                next_time += 1
+                next_time = time + 1
                 self.nextAction = Action(next_action, location, next_time)
+
+            else :
+                self.nextAction = None
 
         
 
