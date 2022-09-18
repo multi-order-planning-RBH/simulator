@@ -4,6 +4,7 @@ class CentralManager:
         self.rider_simulator = None
         self.restaurant_simulator = None
         self.order_simulator = None
+        self.multi_order_suggester = None
 
     def tick_clock(self):
         self.current_time += 1
@@ -14,5 +15,12 @@ class CentralManager:
     def calculate_rider_availability(self):
         pass
 
-    def simulate(self):
-        pass
+    def simulate(self, total_time):
+        while self.current_time < total_time:
+            self.order_simulator.simulate()
+            self.restaurant_simulator.simulate()
+            self.rider_simulator.simulate()
+
+            self.multi_order_suggester.assign_order_to_rider()
+
+            self.tick_clock()
