@@ -1,6 +1,7 @@
 from argparse import Action
 from typing import List
 import sys, os
+from xmlrpc.client import boolean
 sys.path.append(os.path.abspath("./"))
 from type_enum.location import LocationType, LocationEnum, generateBangkokLocation
 from type_enum.action import ActionEnum
@@ -40,13 +41,15 @@ class Rider:
         #self.log : 
         self.speed : float = 0
 
-    def add_order_destination(self, order : TempOrder):
-        self.destinations.append(Destination(order.resraurantLocation, LocationEnum.RESTAURANT, order.readyTime))
-        
-        # May change 5 to be other number for randomness
-        self.destinations.append(Destination(order.destination, LocationEnum.CUSTOMER, 5)) 
+    def add_order_destination(self, order : TempOrder) -> bool:
+        if self.currentAction != ActionEnum.RESTING:
+            self.destinations.append(Destination(order.resraurantLocation, LocationEnum.RESTAURANT, order.readyTime))
+            # May change 5 to be other number for randomness
+            self.destinations.append(Destination(order.destination, LocationEnum.CUSTOMER, 5)) 
+            return True
+        return False
 
-    def simulate(self, time : int):
+    def simulate(self, time : int) -> ActionEnum:
         if self.nextAction == None:
             if self.currentAction.action == ActionEnum.NO_ACTION and len(self.destinations) > 0: 
                 next_action = ActionEnum.RIDING
@@ -78,14 +81,16 @@ class Rider:
                 self.nextAction = Action(next_action, location, next_time)
 
             elif self.currentAction.action == ActionEnum.PICKUP_OR_DELIVER:
-                self.destinations.pop()
+                self.destinations.pop(0)
                 next_action = ActionEnum.NO_ACTION
                 location = self.location
                 next_time = time + 1
                 self.nextAction = Action(next_action, location, next_time)
 
-            else :
+            elif self.currentAction.action == ActionEnum.NO_ACTION :
                 self.nextAction = None
+            
+            return self.currentAction
 
         
 

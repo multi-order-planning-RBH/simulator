@@ -4,3 +4,4 @@ class ActionEnum(Enum):
     RIDING = 2 
     WAITING = 3
     PICKUP_OR_DELIVER = 4
+    RESTING = 5
