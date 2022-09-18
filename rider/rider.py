@@ -1,7 +1,7 @@
 from argparse import Action
 from typing import List
+import random
 import sys, os
-from xmlrpc.client import boolean
 sys.path.append(os.path.abspath("./"))
 from type_enum.location import LocationType, LocationEnum, generateBangkokLocation
 from type_enum.action import ActionEnum
@@ -34,6 +34,7 @@ class Rider:
         self.startingTime : int = startingTime
         self.getoffTime : int = getoffTime
         self.restingTime : int = restingTime
+        self.restingProb : float = 0.01
         self.destinations : List[Destination] = list()
         self.nextAction : Action = None 
         self.status : StatusEnum = StatusEnum.WORKING
@@ -56,9 +57,15 @@ class Rider:
                 location = self.destinations[0].location
                 next_time = time + 1
                 self.nextAction = Action(next_action, location, next_time)
+            elif random.uniform(0, 1)<self.restingProb: 
+                next_action = ActionEnum.RESTING
+                location = self.location
+                next_time = time + 1
+                self.nextAction = Action(next_action, location, next_time)
 
         elif time >= self.nextAction.time : 
             self.currentAction = self.nextAction
+            self.location = self.currentAction.location if self.currentAction != None else self.location
             
             if self.currentAction.action == ActionEnum.RIDING:
                 next_action = ActionEnum.WAITING
@@ -89,6 +96,12 @@ class Rider:
 
             elif self.currentAction.action == ActionEnum.NO_ACTION :
                 self.nextAction = None
+            
+            elif self.currentAction.action == ActionEnum.RESTING :
+                next_action = ActionEnum.NO_ACTION
+                location = self.location
+                next_time = time + self.restingTime
+                self.nextAction = Action(next_action, location, next_time)
             
             return self.currentAction
 
