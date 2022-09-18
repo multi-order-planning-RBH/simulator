@@ -15,7 +15,7 @@ class CentralManager:
     def calculate_rider_availability(self):
         pass
 
-    def simulate(self, total_time):
+    def simulate(self, total_time: int):
         while self.current_time < total_time:
             self.order_simulator.simulate()
             self.restaurant_simulator.simulate()
