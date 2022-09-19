@@ -15,12 +15,13 @@ class CentralManager:
     def calculate_rider_availability(self):
         pass
 
-    def simulate(self, total_time: int):
+    def simulate(self, total_time: int, time_window: int):
         while self.current_time < total_time:
             self.order_simulator.simulate()
             self.restaurant_simulator.simulate()
             self.rider_simulator.simulate()
 
-            self.multi_order_suggester.assign_order_to_rider()
+            if self.current_time > 0 and self.current_time % time_window == 0:
+                self.multi_order_suggester.assign_order_to_rider()
 
             self.tick_clock()
