@@ -5,10 +5,7 @@ class CentralManager:
         self.restaurant_simulator = None
         self.order_simulator = None
         self.multi_order_suggester = None
-
-    def tick_clock(self):
-        self.current_time += 1
-
+        
     def calculate_customer_waiting_time(self):
         pass
 
@@ -24,4 +21,4 @@ class CentralManager:
             if self.current_time > 0 and self.current_time % time_window == 0:
                 self.multi_order_suggester.assign_order_to_rider()
 
-            self.tick_clock()
+            self.current_time += 1
