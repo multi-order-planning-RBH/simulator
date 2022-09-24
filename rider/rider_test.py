@@ -1,7 +1,5 @@
 from rider import Rider, TempOrder
-from type_enum.location import LocationType, LocationEnum, generateBangkokLocation
 from type_enum.action import ActionEnum
-from type_enum.status import StatusEnum
 
 id = 0
 startingTime = 0

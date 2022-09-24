@@ -93,9 +93,6 @@ class Rider:
                 location = self.location
                 next_time = time + 1
                 self.nextAction = Action(next_action, location, next_time)
-
-            elif self.currentAction.action == ActionEnum.NO_ACTION :
-                self.nextAction = None
             
             elif self.currentAction.action == ActionEnum.RESTING :
                 next_action = ActionEnum.NO_ACTION
@@ -103,7 +100,10 @@ class Rider:
                 next_time = time + self.restingTime
                 self.nextAction = Action(next_action, location, next_time)
             
-            return self.currentAction
+            elif self.currentAction.action == ActionEnum.NO_ACTION :
+                self.nextAction = None
+            
+        return self.currentAction
 
         
 
