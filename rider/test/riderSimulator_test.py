@@ -21,5 +21,5 @@ if __name__ == '__main__':
     riderSimulator.simulate(1)
     riderSimulator.simulate(2)
     riderSimulator.simulate(3)
-    print(riderSimulator.riders[0].currentAction.action, riderSimulator.riders[0].currentAction.action)
+    print(riderSimulator.riders[0].current_action.action, riderSimulator.riders[0].current_action.action)
     print(time.time()-time1)

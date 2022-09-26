@@ -14,12 +14,19 @@ class Order:
         self.status = "Created"
         self.rider=None
 
+        #Complete order 
+        #self.finish_time 
+
         
 class OrderSimulator:
 
     def __init__(self):
         self.order_idx=0
         self.order_list = []
+        #self.assigned_order_list 
+        #self.unassigned_order_list 
+        #self.finish_list 
+
         self.order_id_list = []
 
     def simulate(self,time):

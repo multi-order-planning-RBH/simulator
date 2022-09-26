@@ -1,7 +1,8 @@
 from enum import Enum
 class ActionEnum(Enum):
-    NO_ACTION = 1
-    RIDING = 2 
-    WAITING = 3
-    PICKUP_OR_DELIVER = 4
-    RESTING = 5
+    NO_ACTION = "NO_ACTION"
+    RIDING = "RIDING" 
+    WAITING = "WAITING"
+    PICKUP_OR_DELIVER = "PICKUP_OR_DELIVER"
+    RESTING = "RESTING"
+    UNAVAILABLE = "UNAVAILABLE"

@@ -5,8 +5,8 @@ LocationType = List[float]
 
 from enum import Enum
 class LocationEnum(Enum):
-    RESTAURANT = 1
-    CUSTOMER = 2
+    RESTAURANT = "RESTAURANT"
+    CUSTOMER = "CUSTOMER"
 
 def generateBangkokLocation() -> LocationType:
     x = uniform(13.496034, 13.949613)
