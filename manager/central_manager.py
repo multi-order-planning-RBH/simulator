@@ -1,3 +1,6 @@
+import sys, os
+sys.path.append(os.path.abspath("./"))
+
 from order.order_simulator import OrderSimulator
 from rider.riderSimulator import RiderSimulator
 from restaurant.restaurant_simulator import RestaurantSimulator
@@ -35,3 +38,9 @@ class CentralManager:
                 self.multi_order_suggester.assign_order_to_rider()
 
             self.current_time += 1
+
+def main():
+    print("Main")
+
+if __name__ == "__main__":
+    main()
