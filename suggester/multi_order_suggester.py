@@ -7,8 +7,8 @@ class MultiOrderSuggester:
 
     # randomly assign each order to a rider
     def assign_order_to_rider(self):
-        rider_list = self.rider_simulator.rider_list #list of available Riders
-        order_list = self.order_simulator.order_list #list of Orders
+        rider_list = self.rider_simulator.unassigned_riders
+        order_list = self.order_simulator.unassigned_order_list
 
         for order in order_list:
             rider = random.choice(rider_list)
