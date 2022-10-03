@@ -47,6 +47,8 @@ class Rider:
             self.next_action : Action = Action(ActionEnum.NO_ACTION, self.location, starting_time)
         self.log : Dict[int, list] = dict()
         self.speed : Coordinates = Coordinates()
+        self.utilization_time : int = 0
+        self.working_time : int = self.getoff_time - self.starting_time
 
     def add_order_destination(self, order : Order, time : int) -> bool:
         if self.current_action != ActionEnum.RESTING or \
@@ -59,7 +61,8 @@ class Rider:
             return True
         return False
 
-    def calculate_speed(self, destination : Coordinates, traveling_time : int):
+    def calculate_speed(self, traveling_time : int):
+        destination = self.destinations[0].location
         self.speed = (destination - self.location)/traveling_time
 
     def logging(self, time):
@@ -86,9 +89,11 @@ class Rider:
             self.logging()
             
             if self.current_action.action == ActionEnum.RIDING:
-                self.calculate_speed()
                 next_action = ActionEnum.WAITING
-                next_time = time + getEstimatedTimeTraveling()
+                next_time = getEstimatedTimeTraveling()
+                self.calculate_speed(next_time)
+                self.utilization_time += next_time
+                next_time += time
                 self.next_action = Action(next_action, next_time)
 
             elif self.current_action.action == ActionEnum.WAITING:
