@@ -1,5 +1,5 @@
 from argparse import Action
-from typing import List
+from typing import Dict, List
 import random
 import sys, os
 
@@ -45,13 +45,14 @@ class Rider:
         else :
             self.current_action : Action = Action(ActionEnum.UNAVAILABLE, self.location, 0)
             self.next_action : Action = Action(ActionEnum.NO_ACTION, self.location, starting_time)
-        #self.log : 
+        self.log : Dict[int, list] = dict()
         self.speed : Coordinates = Coordinates()
 
     def add_order_destination(self, order : Order, time : int) -> bool:
         if self.current_action != ActionEnum.RESTING or \
             self.current_action != ActionEnum.UNAVAILABLE or \
             self.getoff_time - time < 1800:
+
             self.destinations.append(Destination(order.resraurant_location, LocationEnum.RESTAURANT, order.ready_time))
             # May change 5 to be other number for randomness
             self.destinations.append(Destination(order.destination, LocationEnum.CUSTOMER, 5)) 
@@ -60,6 +61,13 @@ class Rider:
 
     def calculate_speed(self, destination : Coordinates, traveling_time : int):
         self.speed = (destination - self.location)/traveling_time
+
+    def logging(self, time):
+        action = self.current_action.time
+        destination_x = self.destinations[0].location.x
+        destination_y = self.destinations[0].location.x
+        temp = [time, action, destination_x, destination_y]
+        self.log[time] = temp
 
     def simulate(self, time : int) -> ActionEnum:
         if self.next_action == None:
@@ -75,6 +83,7 @@ class Rider:
         elif time >= self.next_action.time : 
             self.location += self.speed
             self.current_action = self.next_action
+            self.logging()
             
             if self.current_action.action == ActionEnum.RIDING:
                 self.calculate_speed()
@@ -119,6 +128,12 @@ class Rider:
             elif self.current_action.action == ActionEnum.NO_ACTION :
                 self.speed = Coordinates()
                 self.next_action = None
+        
+        elif time >= self.getoff_time:
+            next_action = ActionEnum.UNAVAILABLE
+            next_time = time
+            self.current_action = Action(next_action, next_time)
+            self.next_action = None
             
         return self.current_action
 
