@@ -1,3 +1,4 @@
+from ast import Or
 import sys, os
 sys.path.append(os.path.abspath("./"))
 
@@ -40,7 +41,13 @@ class CentralManager:
             self.current_time += 1
 
 def main():
-    print("Main")
+    order = OrderSimulator()
+    restaurant = RestaurantSimulator()
+    rider = RiderSimulator()
+    multi_order = MultiOrderSuggester(rider_simulator=rider, order_simulator=order)
+
+    manager = CentralManager(rider_simulator=rider, restaurant_simulator=restaurant, order_simulator=order)
+    print("manager")
 
 if __name__ == "__main__":
     main()
