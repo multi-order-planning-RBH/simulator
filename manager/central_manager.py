@@ -45,7 +45,7 @@ def main():
     rider = RiderSimulator()
     multi_order = MultiOrderSuggester(rider_simulator=rider, order_simulator=order)
 
-    manager = CentralManager(rider_simulator=rider, restaurant_simulator=restaurant, order_simulator=order)
+    manager = CentralManager(rider_simulator=rider, restaurant_simulator=restaurant, order_simulator=order, multi_order_suggester=multi_order)
     manager.simulate(100, 10)
 
     print("Customer Waiting Time:", manager.calculate_customer_waiting_time)
