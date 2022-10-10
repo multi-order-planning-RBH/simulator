@@ -91,6 +91,7 @@ class Rider:
         self.log[time] = temp
 
     def simulate(self, time : int) -> ActionEnum:
+        self.location += self.speed
         if self.next_action == None:
             if self.current_action.action == ActionEnum.NO_ACTION and len(self.destinations) > 0: 
                 next_action = ActionEnum.RIDING
@@ -102,7 +103,6 @@ class Rider:
                 self.next_action = Action(next_action, next_time)
 
         elif time >= self.next_action.time : 
-            self.location += self.speed
             self.current_action = self.next_action
             self.logging(time)
             
