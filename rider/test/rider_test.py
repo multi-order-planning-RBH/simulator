@@ -1,5 +1,5 @@
-from rider import Rider, TempOrder
-from type_enum.action import ActionEnum
+from rider.rider import Rider, TempOrder
+from common.action import ActionEnum
 
 id = 0
 startingTime = 0

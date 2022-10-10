@@ -19,24 +19,34 @@ class Coordinates():
             location = args[0]
             self.x = location.x
             self.y = location.y
+
         elif len(args) == 0:
             self.x = 0
             self.y = 0
 
     def __add__(self, other):
-        self.x += other.x
-        self.y += other.y
-        return self
+        temp = Coordinates(self)
+        temp.x += other.x
+        temp.y += other.y
+        return temp
 
     def __sub__(self, other):
-        self.x -= other.x
-        self.y -= other.y
-        return self
+        temp = Coordinates(self)
+        temp.x -= other.x
+        temp.y -= other.y
+        return temp
 
     def __truediv__(self, other):
-        self.x /= other
-        self.y /= other
-        return self
+        temp = Coordinates(self)
+        temp.x /= other
+        temp.y /= other
+        return temp
+
+    def __str__(self):
+        return "("+str(self.x)+","+str(self.y)+")"
+
+    def __float__(self):
+        return (self.x**2+self.y**2)**(1/2)
 
 
 def generateBangkokLocation_2() -> Coordinates:
