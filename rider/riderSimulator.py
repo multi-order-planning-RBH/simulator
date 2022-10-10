@@ -1,7 +1,7 @@
 from typing import Dict, List
 from rider.rider import Rider
 from order.order_simulator import Order
-from type_enum.action import ActionEnum
+from common.action import ActionEnum
 
 class RiderSimulator():
     def __init__(self):

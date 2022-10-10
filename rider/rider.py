@@ -3,16 +3,31 @@ from typing import Dict, List
 import random
 import sys, os
 
-from type_enum.order import OrderEnum
+from common.order import OrderEnum
 sys.path.append(os.path.abspath("./"))
-from type_enum.location import Coordinates, LocationEnum, generateBangkokLocation_2
-from type_enum.action import ActionEnum
-from type_enum.status import StatusEnum
-from order.order_simulator import Order
-from estimator import getEstimatedTimeTraveling
+from common.location import Coordinates, LocationEnum, generateBangkokLocation_2
+from common.action import ActionEnum
+from common.status import StatusEnum
+#from order.order_simulator import Order
+from rider.estimator import getEstimatedTimeTraveling
+
+class Order:
+
+    def __init__(self, destination,resraurant_location,order_idx,created_time,ready_time):
+        self.id = order_idx
+        self.resraurant_location = resraurant_location
+        self.destination = destination
+        self.created_time = created_time
+        self.ready_time = ready_time
+        self.status = "Created"
+        self.rider=None
+
+        #Complete order 
+        #self.finish_time 
+
 
 class Destination :
-    def __init__(self, location : Coordinates, type : LocationEnum, readyTime : int, order : Order):
+    def __init__(self, order : Order, location : Coordinates, type : LocationEnum, readyTime : int):
         self.location : Coordinates = location
         self.type : LocationEnum = type
         self.readyTime : int = readyTime
@@ -41,10 +56,10 @@ class Rider:
         self.next_action : Action = None 
         self.status : StatusEnum = StatusEnum.WORKING
         if starting_time == 0:
-            self.current_action : Action = Action(ActionEnum.NO_ACTION, self.location, 0)
+            self.current_action : Action = Action(ActionEnum.NO_ACTION, 0)
         else :
-            self.current_action : Action = Action(ActionEnum.UNAVAILABLE, self.location, 0)
-            self.next_action : Action = Action(ActionEnum.NO_ACTION, self.location, starting_time)
+            self.current_action : Action = Action(ActionEnum.UNAVAILABLE, 0)
+            self.next_action : Action = Action(ActionEnum.NO_ACTION, starting_time)
         self.log : Dict[int, list] = dict()
         self.speed : Coordinates = Coordinates()
         self.utilization_time : int = 0
@@ -55,9 +70,9 @@ class Rider:
             self.current_action != ActionEnum.UNAVAILABLE or \
             self.getoff_time - time < 1800:
 
-            self.destinations.append(Destination(order.resraurant_location, LocationEnum.RESTAURANT, order.ready_time))
+            self.destinations.append(Destination(order, order.resraurant_location, LocationEnum.RESTAURANT, order.ready_time))
             # May change 5 to be other number for randomness
-            self.destinations.append(Destination(order.destination, LocationEnum.CUSTOMER, 5)) 
+            self.destinations.append(Destination(order, order.destination, LocationEnum.CUSTOMER, 5)) 
             return True
         return False
 
@@ -67,8 +82,11 @@ class Rider:
 
     def logging(self, time):
         action = self.current_action.time
-        destination_x = self.destinations[0].location.x
-        destination_y = self.destinations[0].location.x
+        if len(self.destinations) > 0:
+            destination_x = self.destinations[0].location.x
+            destination_y = self.destinations[0].location.y
+        else :
+            destination_x = destination_y = None
         temp = [time, action, destination_x, destination_y]
         self.log[time] = temp
 
@@ -86,7 +104,7 @@ class Rider:
         elif time >= self.next_action.time : 
             self.location += self.speed
             self.current_action = self.next_action
-            self.logging()
+            self.logging(time)
             
             if self.current_action.action == ActionEnum.RIDING:
                 next_action = ActionEnum.WAITING
@@ -117,7 +135,6 @@ class Rider:
                 self.destinations.pop(0)
                 if len(self.destinations) == 0:
                     next_action = ActionEnum.NO_ACTION
-                    self.next_action = Action(next_action, next_time)
                 else:
                     next_action = ActionEnum.RIDING
                 next_time = time + 1
@@ -134,9 +151,10 @@ class Rider:
                 self.speed = Coordinates()
                 self.next_action = None
         
-        elif time >= self.getoff_time:
+        #Need to concern about remaining order
+        if time >= self.getoff_time:
             next_action = ActionEnum.UNAVAILABLE
-            next_time = time
+            next_time = time+1
             self.current_action = Action(next_action, next_time)
             self.next_action = None
             
