@@ -64,12 +64,12 @@ class Rider:
         self.speed : Coordinates = Coordinates()
         self.utilization_time : int = 0
         self.working_time : int = self.getoff_time - self.starting_time
+        self.current_destination : Destination = None
 
     def add_order_destination(self, order : Order, time : int) -> bool:
-        if self.current_action != ActionEnum.RESTING or \
-            self.current_action != ActionEnum.UNAVAILABLE or \
-            self.getoff_time - time < 1800:
-
+        if (self.current_action != ActionEnum.RESTING or \
+            self.current_action != ActionEnum.UNAVAILABLE) and \
+            self.getoff_time - time > 30:
             self.destinations.append(Destination(order, order.resraurant_location, LocationEnum.RESTAURANT, order.ready_time))
             # May change 5 to be other number for randomness
             self.destinations.append(Destination(order, order.destination, LocationEnum.CUSTOMER, 5)) 
@@ -107,6 +107,7 @@ class Rider:
             self.logging(time)
             
             if self.current_action.action == ActionEnum.RIDING:
+                self.current_destination = self.destinations.pop(0)
                 next_action = ActionEnum.WAITING
                 next_time = getEstimatedTimeTraveling()
                 self.calculate_speed(next_time)
@@ -143,16 +144,19 @@ class Rider:
             
             elif self.current_action.action == ActionEnum.RESTING :
                 self.speed = Coordinates()
+                self.current_destination = None
                 next_action = ActionEnum.NO_ACTION
                 next_time = time + self.resting_time
                 self.next_action = Action(next_action, next_time)
             
             elif self.current_action.action == ActionEnum.NO_ACTION :
                 self.speed = Coordinates()
+                self.current_destination = None
                 self.next_action = None
         
         #Need to concern about remaining order
         if time >= self.getoff_time:
+            self.current_destination = None
             next_action = ActionEnum.UNAVAILABLE
             next_time = time+1
             self.current_action = Action(next_action, next_time)
