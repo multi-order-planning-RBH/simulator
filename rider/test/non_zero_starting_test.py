@@ -13,12 +13,12 @@ restingTime = 30
 
 rider = Rider(id, startingTime , getoffTime, restingTime)
 
-resraurant_location = Coordinates(13.744740, 100.531876)
+restaurant_location = Coordinates(13.744740, 100.531876)
 destination_location = Coordinates(13.744740, 100.531876)
 created_time = 110
 ready_time = 150
 
-order = Order(destination_location, resraurant_location, 1, created_time, ready_time)
+order = Order(destination_location, restaurant_location, 1, created_time, ready_time)
 
 assert_statement = rider.current_action.action == ActionEnum.UNAVAILABLE
 assert assert_statement, "Should be the rider holding UNAVAILABLE status"
@@ -52,7 +52,7 @@ assert_statement = rider.current_action.action == ActionEnum.RIDING and \
                     rider.current_action.time == 111 and \
                     rider.next_action.action == ActionEnum.WAITING and \
                     rider.next_action.time == 141 and \
-                    rider.current_destination.location == resraurant_location
+                    rider.current_destination.location == restaurant_location
 assert assert_statement, "Should be the rider holding RIDING status at 111 mins"
 
 rider.simulate(141)
@@ -61,7 +61,7 @@ assert_statement = rider.current_action.action == ActionEnum.WAITING and \
                     rider.current_action.time == 141 and \
                     rider.next_action.action == ActionEnum.PICKUP_OR_DELIVER and \
                     rider.next_action.time == 151 and \
-                    rider.current_destination.location == resraurant_location
+                    rider.current_destination.location == restaurant_location
 assert assert_statement, "The rider should be holding Waiting status at 141 mins"
 
 rider.simulate(150)
@@ -74,7 +74,7 @@ assert_statement = rider.current_action.action == ActionEnum.PICKUP_OR_DELIVER a
                     rider.current_action.time == 151 and \
                     rider.next_action.action == ActionEnum.RIDING and \
                     rider.next_action.time == 152 and \
-                    rider.current_destination.location == resraurant_location
+                    rider.current_destination.location == restaurant_location
 assert assert_statement, "The rider should be holding PICKUP status at 151 mins"
 
 rider.simulate(152)
@@ -172,7 +172,7 @@ for t in range(266, 479):
         assert_value = 0
     assert assert_statement, "The rider should be holding" + str(assert_value)+"destinations at "+str(t)+" mins"
 
-order = Order(destination_location, resraurant_location, 1, created_time, ready_time)
+order = Order(destination_location, restaurant_location, 1, created_time, ready_time)
 assert_statement = not rider.add_order_destination(order, 451)
 assert assert_statement, "Should not be the rider recieving a new order before 30 minute of getting of time"
 

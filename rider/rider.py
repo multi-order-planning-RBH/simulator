@@ -9,27 +9,14 @@ from common.action import ActionEnum
 from common.status import StatusEnum
 #from order.order_simulator import Order
 from rider.estimator import getEstimatedTimeTraveling
-
-class Order:
-
-    def __init__(self, destination,resraurant_location,order_idx,created_time,ready_time):
-        self.id = order_idx
-        self.resraurant_location = resraurant_location
-        self.destination = destination
-        self.created_time = created_time
-        self.ready_time = ready_time
-        self.status = "Created"
-        self.rider=None
-
-        #Complete order 
-        #self.finish_time 
+from order_restaurant.order_restaurant_simulator import Order
 
 
 class Destination :
-    def __init__(self, order : Order, location : Coordinates, type : LocationEnum, readyTime : int):
+    def __init__(self, order : Order, location : Coordinates, type : LocationEnum, ready_time : int):
         self.location : Coordinates = location
         self.type : LocationEnum = type
-        self.readyTime : int = readyTime
+        self.ready_time : int = ready_time
         self.order : Order = order
     
     def pick_up_or_deliver(self):
@@ -69,7 +56,7 @@ class Rider:
         if (self.current_action != ActionEnum.RESTING or \
             self.current_action != ActionEnum.UNAVAILABLE) and \
             self.getoff_time - time > 30:
-            self.destinations.append(Destination(order, order.resraurant_location, LocationEnum.RESTAURANT, order.ready_time))
+            self.destinations.append(Destination(order, order.restaurant_location, LocationEnum.RESTAURANT, order.ready_time))
             # May change 5 to be other number for randomness
             self.destinations.append(Destination(order, order.destination, LocationEnum.CUSTOMER, 5)) 
             return True
@@ -118,7 +105,7 @@ class Rider:
                 self.speed = Coordinates()
                 next_action = ActionEnum.PICKUP_OR_DELIVER
                 destination = self.current_destination
-                ready_time = destination.readyTime 
+                ready_time = destination.ready_time 
 
                 #Add additional time for waiting customer to come for pick up the order when riding to the customer
                 ready_time += 0 if destination.type == LocationEnum.RESTAURANT else time

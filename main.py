@@ -1,13 +1,12 @@
 from manager.central_manager import CentralManager
-from rider.riderSimulator import RiderSimulator
-from order.order_simulator import OrderSimulator
-from restaurant.restaurant_simulator import RestaurantSimulator
+from rider.rider_simulator import rider_simulator
+from order_restaurant.order_restaurant_simulator import order_simulator, restaurant_simulator
 from suggester.multi_order_suggester import MultiOrderSuggester
 
 def main():
-    order = OrderSimulator()
-    restaurant = RestaurantSimulator()
-    rider = RiderSimulator()
+    order = order_simulator
+    restaurant = restaurant_simulator
+    rider = rider_simulator
     multi_order = MultiOrderSuggester(rider_simulator=rider, order_simulator=order)
 
     manager = CentralManager(rider_simulator=rider, restaurant_simulator=restaurant, order_simulator=order, multi_order_suggester=multi_order)

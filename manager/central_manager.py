@@ -19,11 +19,12 @@ class CentralManager:
 
     def simulate(self, total_time: int, time_window: int):
         while self.current_time < total_time:
-            self.order_simulator.simulate()
-            self.restaurant_simulator.simulate()
-            self.rider_simulator.simulate()
+            time = self.current_time
+            self.order_simulator.simulate(time)
+            self.restaurant_simulator.simulate(time)
+            self.rider_simulator.simulate(time)
 
             if self.current_time > 0 and self.current_time % time_window == 0:
-                self.multi_order_suggester.assign_order_to_rider()
+                self.multi_order_suggester.assign_order_to_rider(time)
 
             self.current_time += 1

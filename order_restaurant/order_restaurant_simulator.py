@@ -15,8 +15,8 @@ class Restaurant:
         self.location = location
         # queue of orderId
         self.order_id_queue = []
-        self.preparing_time_mean=mean
-        self.preparing_time_std=std
+        self.mean=mean
+        self.std=std
  
     def rider_pickup_order(self,pickup_order):
         # check if pickup_order ready if yes
@@ -26,11 +26,11 @@ class Restaurant:
         self.order_id_queue=[o_id for o_id in self.order_id_queue if o_id!=pickup_order.id]
 
     def preparing_current_order(self,time):
-
-        current_order = order_simulator.get_order_by_id(self.order_id_queue[0])
-        if time>=current_order.readyTime and current_order.status==OrderEnum.READY:
-            #change status of order by order id
-            OrderSimulator.change_order_status(self.order_id_queue[0],OrderEnum.READY)
+        if len(self.order_id_queue) > 0:
+            current_order = order_simulator.get_order_by_id(self.order_id_queue[0])
+            if time>=current_order.ready_time and current_order.status==OrderEnum.READY:
+                #change status of order by order id
+                order_simulator.change_order_status(self.order_id_queue[0],OrderEnum.READY)
 
     def estimate_order_ready_time(self,order):
         # Estimate Time from Gaussian
@@ -44,11 +44,12 @@ class RestaurantSimulator :
         self.restaurant_idx=0
         self.restaurant_list = []
         self.restaurant_id_list = []
-        res_list = pd.read_csv("restaurant/restaurant_sample.csv")
+        res_list = pd.read_csv("order_restaurant/restaurant_sample.csv")
         for idx,res in res_list.iterrows():
             new_res=Restaurant([res["Merchant.Lat"],res["Merchant.Lng"]],self.restaurant_idx,res["mean_preparing_time"],res["std_preparing_time"])
             self.restaurant_idx+=1
             self.restaurant_list.append(new_res)
+            self.restaurant_id_list.append(idx)
 
     def simulate(self,time):
 
@@ -70,8 +71,7 @@ class RestaurantSimulator :
 
         res_id = self.restaurant_id_list.index(restaurant_id)
 
-        order.readyTime = self.estimate_real_ready_time(restaurant_id,order)
-        self.restaurant_list[res_id].order_queue(order)
+        self.restaurant_list[res_id].order_id_queue.append(order.id)
 
     def get_restaurant_by_id(self,res_id):
         try :
@@ -107,7 +107,7 @@ class OrderSimulator:
 
     def simulate(self,time):
         # num order should be randomed from some distribution
-        restaurant_id=random.choice(RestaurantSimulator.get_all_restaurant_id())
+        restaurant_id=random.choice(restaurant_simulator.get_all_restaurant_id())
         destination = generateBangkokLocation_2()
         self.create_order(destination,restaurant_id,time)
 
@@ -117,10 +117,9 @@ class OrderSimulator:
         
         new_order.ready_time= restaurant_simulator.estimate_real_ready_time(restaurant_id,new_order)
         
-        self.order_list[self.order_idx]=new_order
+        self.order_dict[self.order_idx]=new_order
 
         self.unassigned_order_list.append(new_order)
-        self.order_id_list.append(new_order.id)
 
         restaurant_simulator.assign_order_to_restaurant(restaurant_id,new_order)
         
