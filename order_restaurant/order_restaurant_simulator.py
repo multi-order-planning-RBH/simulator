@@ -86,9 +86,10 @@ class RestaurantSimulator :
 
 class Order:
 
-    def __init__(self, destination,restaurant_id,order_idx,created_time):
+    def __init__(self, destination,restaurant_id,restaurant_location,order_idx,created_time):
         self.id = order_idx
         self.restaurant = restaurant_id
+        self.restaurant_location = restaurant_location
         self.destination = destination
         self.created_time = created_time
         self.ready_time = None
@@ -112,8 +113,10 @@ class OrderSimulator:
         self.create_order(destination,restaurant_id,time)
 
     def create_order(self,destination,restaurant_id,created_time):
+        
+        restaurant = restaurant_simulator.get_restaurant_by_id(restaurant_id)
 
-        new_order=Order(destination, restaurant_id, self.order_idx, created_time)
+        new_order=Order(destination, restaurant_id, restaurant.location, self.order_idx, created_time)
         
         new_order.ready_time= restaurant_simulator.estimate_real_ready_time(restaurant_id,new_order)
         
