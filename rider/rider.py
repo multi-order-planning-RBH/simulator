@@ -2,9 +2,8 @@ from argparse import Action
 from typing import Dict, List
 import random
 import sys, os
-
-from common.order import OrderEnum
 sys.path.append(os.path.abspath("./"))
+from common.order import OrderEnum
 from common.location import Coordinates, LocationEnum, generateBangkokLocation_2
 from common.action import ActionEnum
 from common.status import StatusEnum
@@ -107,10 +106,10 @@ class Rider:
             self.logging(time)
             
             if self.current_action.action == ActionEnum.RIDING:
-                self.current_destination = self.destinations.pop(0)
                 next_action = ActionEnum.WAITING
                 next_time = getEstimatedTimeTraveling()
                 self.calculate_speed(next_time)
+                self.current_destination = self.destinations.pop(0)
                 self.utilization_time += next_time
                 next_time += time
                 self.next_action = Action(next_action, next_time)
@@ -118,7 +117,7 @@ class Rider:
             elif self.current_action.action == ActionEnum.WAITING:
                 self.speed = Coordinates()
                 next_action = ActionEnum.PICKUP_OR_DELIVER
-                destination = self.destinations[0]
+                destination = self.current_destination
                 ready_time = destination.readyTime 
 
                 #Add additional time for waiting customer to come for pick up the order when riding to the customer
@@ -131,9 +130,7 @@ class Rider:
 
             elif self.current_action.action == ActionEnum.PICKUP_OR_DELIVER:
                 self.speed = Coordinates()
-                destination = self.destinations[0]
-                destination.pick_up_or_deliver()
-                self.destinations.pop(0)
+                self.current_destination.pick_up_or_deliver()
                 if len(self.destinations) == 0:
                     next_action = ActionEnum.NO_ACTION
                 else:
@@ -162,7 +159,7 @@ class Rider:
             self.current_action = Action(next_action, next_time)
             self.next_action = None
             
-        return self.current_action
+        return self.current_action.action
 
         
 

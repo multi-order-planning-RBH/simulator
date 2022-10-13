@@ -1,6 +1,7 @@
+from argparse import Action
 from typing import Dict, List
-from rider.rider import Rider
-from order.order_simulator import Order
+from rider.rider import Rider, Order
+#from order.order_simulator import Order
 from common.action import ActionEnum
 
 class RiderSimulator():
@@ -13,20 +14,13 @@ class RiderSimulator():
         self.unassigned_riders : List[Rider] = list() # ว่างงาน และต้อง Working ด้วย
         self.time = 0
 
-        #Mock up rider summoning
-        for _ in range(100):
-            rider = self.create_rider_innitial_location()
-            if rider.status == ActionEnum.NO_ACTION:
-                self.unassigned_riders.append(rider)
-                self.working_riders.append(rider)
-
-    def create_rider_innitial_location(self):
-        rider = Rider(id = len(self.riders))
+    def create_rider_innitial_location(self, starting_time = 420, getoff_time = 1020):
+        rider = Rider(id = len(self.riders), starting_time = starting_time, getoff_time = getoff_time)
         self.riders.append(rider)
         return rider
 
-    def assign_order_to_a_rider(self, order:Order, rider:Rider) -> bool:
-        rider.add_order_destination(order)
+    def assign_order_to_a_rider(self, order:Order, rider:Rider, time:int) -> bool:
+        rider.add_order_destination(order, time)
         return True
     
     def instance_simulate(self, index:int):
@@ -38,17 +32,20 @@ class RiderSimulator():
 
     def simulate(self, time : int):
         for rider in self.riders:
-            old_status = rider.status
-            new_status = rider.simulate(time)
-            if new_status != old_status:
-                if old_status == ActionEnum.NO_ACTION:
-                    self.unassigned_riders.remove(rider)
-                elif new_status == ActionEnum.NO_ACTION and len(rider.destinations) == 0:
-                    self.unassigned_riders.append(rider)
-                elif new_status == ActionEnum.UNAVAILABLE:
-                    self.unassigned_riders.remove(rider)
+            old_action = rider.current_action.action
+            new_action = rider.simulate(time)
+            if new_action != old_action:
+                if new_action == ActionEnum.UNAVAILABLE:
+                    if rider in self.unassigned_riders:
+                        self.unassigned_riders.remove(rider)
                     self.working_riders.remove(rider)
-                elif new_status == ActionEnum.RESTING:
+                elif old_action == ActionEnum.NO_ACTION:
+                    self.unassigned_riders.remove(rider)
+                elif new_action == ActionEnum.NO_ACTION:
+                    self.unassigned_riders.append(rider)
+                    if old_action == ActionEnum.UNAVAILABLE:
+                        self.working_riders.append(rider)
+                elif new_action == ActionEnum.RESTING:
                     self.unassigned_riders.remove(rider)
                 
         return True
