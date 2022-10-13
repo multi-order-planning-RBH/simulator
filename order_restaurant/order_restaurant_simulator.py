@@ -97,6 +97,7 @@ class Order:
         self.destination = destination
         self.created_time = created_time
         self.ready_time = None
+        self.finished_time = 0
         self.status = OrderEnum.CREATED
         self.rider=None
 
@@ -137,7 +138,7 @@ class OrderSimulator:
         # estimate by ML
         return 10
     
-    def change_order_status(self,order_id,status):
+    def change_order_status(self,order_id,status,time=0):
         
         try :
             self.order_dict[order_id].status=status
@@ -148,6 +149,7 @@ class OrderSimulator:
 
             if status==OrderEnum.DELIVERED:
                 self.assigned_order_list = [o for o in self.assigned_order_list if o.id!=order_id]
+                self.order_dict[order_id].finished_time = time
                 self.finished_order_list.append(self.order_dict[order_id])
 
         except:
