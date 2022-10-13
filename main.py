@@ -10,10 +10,10 @@ def main():
     multi_order = MultiOrderSuggester(rider_simulator=rider, order_simulator=order)
 
     manager = CentralManager(rider_simulator=rider, restaurant_simulator=restaurant, order_simulator=order, multi_order_suggester=multi_order)
-    manager.simulate(100, 10)
+    manager.simulate(10000, 10)
 
     print("Customer Waiting Time:", manager.calculate_customer_waiting_time())
-    print("Rider Availability:", manager.calculate_rider_availability())
+    print("Rider Utilization:", manager.calculate_rider_utilization_time())
 
 if __name__ == "__main__":
     main()

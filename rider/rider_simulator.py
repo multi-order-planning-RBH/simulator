@@ -1,8 +1,9 @@
-from argparse import Action
-from typing import Dict, List
+from typing import List
 from rider.rider import Rider, Order
 #from order.order_simulator import Order
+from common.order import OrderEnum
 from common.action import ActionEnum
+from order_restaurant.order_restaurant_simulator import order_simulator
 
 class RiderSimulator():
     def __init__(self):
@@ -17,13 +18,15 @@ class RiderSimulator():
         for _ in range(500):
             self.create_rider_innitial_location()
 
-    def create_rider_innitial_location(self, starting_time = 0, getoff_time = 100):
+    def create_rider_innitial_location(self, starting_time = 0, getoff_time = 10000):
         rider = Rider(id = len(self.riders), starting_time = starting_time, getoff_time = getoff_time)
         self.riders.append(rider)
         return rider
 
     def assign_order_to_a_rider(self, order:Order, rider:Rider, time:int) -> bool:
-        rider.add_order_destination(order, time)
+        res = rider.add_order_destination(order, time)
+        if res :
+            order_simulator.change_order_status(order.id,OrderEnum.ASSIGNED)
         return True
     
     def instance_simulate(self, index:int):
@@ -41,7 +44,8 @@ class RiderSimulator():
                 if new_action == ActionEnum.UNAVAILABLE:
                     if rider in self.unassigned_riders:
                         self.unassigned_riders.remove(rider)
-                    self.working_riders.remove(rider)
+                    if rider in self.working_riders:
+                        self.working_riders.remove(rider)
                 elif old_action == ActionEnum.NO_ACTION and rider in self.unassigned_riders:
                     self.unassigned_riders.remove(rider)
                 elif new_action == ActionEnum.NO_ACTION:

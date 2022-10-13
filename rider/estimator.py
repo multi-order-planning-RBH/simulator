@@ -1,2 +1,2 @@
 def getEstimatedTimeTraveling():   
-    return 30
+    return 600

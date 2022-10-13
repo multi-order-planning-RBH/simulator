@@ -142,6 +142,7 @@ class OrderSimulator:
         
         try :
             self.order_dict[order_id].status=status
+            
 
             if status==OrderEnum.ASSIGNED:
                 self.unassigned_order_list = [o for o in self.unassigned_order_list if o.id!=order_id]

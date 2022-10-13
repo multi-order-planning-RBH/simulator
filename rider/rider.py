@@ -9,7 +9,7 @@ from common.action import ActionEnum
 from common.status import StatusEnum
 #from order.order_simulator import Order
 from rider.estimator import getEstimatedTimeTraveling
-from order_restaurant.order_restaurant_simulator import Order
+from order_restaurant.order_restaurant_simulator import Order, order_simulator
 
 
 class Destination :
@@ -19,11 +19,12 @@ class Destination :
         self.ready_time : int = ready_time
         self.order : Order = order
     
-    def pick_up_or_deliver(self):
+    def pick_up_or_deliver(self, time):
         if self.type == LocationEnum.RESTAURANT:
             self.order.status = OrderEnum.PICKED_UP
         elif self.type == LocationEnum.CUSTOMER:
             self.order.status = OrderEnum.DELIVERED
+            order_simulator.change_order_status(self.order.id,OrderEnum.DELIVERED, time)
 
 class Action : 
     def __init__(self, action : ActionEnum, time : int):
@@ -91,7 +92,11 @@ class Rider:
         elif time >= self.next_action.time : 
             self.current_action = self.next_action
             self.logging(time)
-            
+            """if self.current_destination != None:
+                order = self.current_destination.order
+                print(self.id, self.current_action.action, self.current_action.time)
+                print(order.ready_time, order.id)"""
+
             if self.current_action.action == ActionEnum.RIDING:
                 next_action = ActionEnum.WAITING
                 next_time = getEstimatedTimeTraveling()
@@ -117,7 +122,7 @@ class Rider:
 
             elif self.current_action.action == ActionEnum.PICKUP_OR_DELIVER:
                 self.speed = Coordinates()
-                self.current_destination.pick_up_or_deliver()
+                self.current_destination.pick_up_or_deliver(time)
                 if len(self.destinations) == 0:
                     next_action = ActionEnum.NO_ACTION
                 else:
@@ -137,7 +142,7 @@ class Rider:
                 self.speed = Coordinates()
                 self.current_destination = None
                 self.next_action = None
-        
+
         #Need to concern about remaining order
         if time >= self.getoff_time:
             self.current_destination = None
