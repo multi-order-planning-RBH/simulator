@@ -35,7 +35,11 @@ class Restaurant:
     def estimate_order_ready_time(self,order):
         # Estimate Time from Gaussian
         # preparing time distribution.estimate sth like that
-        return int(np.random.normal(self.mean,self.std))
+        ready_time = int(np.random.normal(self.mean,self.std))
+
+        if ready_time<=0:
+            ready_time = 60
+        return ready_time
 
         # return 10
 
