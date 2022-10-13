@@ -1,17 +1,17 @@
 import random
-
-from restaurant_simulator import RestaurantSimulator
-
+from restaurant.restaurant_simulator import RestaurantSimulator
+from type_enum.location import generateBangkokLocation
+from type_enum.order_status import OrderStatusEnum
 
 class Order:
 
-    def __init__(self, destination,restaurant_id,order_idx,created_time,ready_time):
+    def __init__(self, destination,restaurant_id,order_idx,created_time):
         self.id = order_idx
         self.restaurant = restaurant_id
         self.destination = destination
         self.created_time = created_time
-        self.ready_time = ready_time
-        self.status = "Created"
+        self.ready_time = None
+        self.status = OrderStatusEnum.CREATED
         self.rider=None
 
         #Complete order 
@@ -22,31 +22,30 @@ class OrderSimulator:
 
     def __init__(self):
         self.order_idx=0
-        self.order_list = []
-        #self.assigned_order_list 
-        #self.unassigned_order_list 
-        #self.finish_list 
-
-        self.order_id_list = []
+        self.order_dict= {}
+        self.finished_order_list = []
+        self.unassigned_order_list = []
+        self.assigned_order_list = []
 
     def simulate(self,time):
         # num order should be randomed from some distribution
-        num_order = random.randint(0,100)
-        for i in range(num_order):
-            restaurant_id=random.choice(RestaurantSimulator.get_all_restaurant_id())
-            destination = generateBangkokLocation()
-            self.create_order(destination,restaurant_id,time)
+        restaurant_id=random.choice(RestaurantSimulator.get_all_restaurant_id())
+        destination = generateBangkokLocation()
+        self.create_order(destination,restaurant_id,time)
 
     def create_order(self,destination,restaurant_id,created_time):
 
-        restuarant = RestaurantSimulator.get_restaurant_by_id(restaurant_id)
-        estimated_real_ready_time=restuarant.estimate_order_ready_time()
-
-        new_order=Order(destination, restaurant_id, self.order_idx, created_time, estimated_real_ready_time)
+        new_order=Order(destination, restaurant_id, self.order_idx, created_time)
         
-        self.order_list.append(new_order)
+        new_order.ready_time= RestaurantSimulator.estimate_real_ready_time(restaurant_id,new_order)
+        
+        self.order_list[self.order_idx]=new_order
+
+        self.unassigned_order_list.append(new_order)
         self.order_id_list.append(new_order.id)
 
+        RestaurantSimulator.assign_order_to_restaurant(restaurant_id,new_order)
+        
         self.order_idx+=1
 
     def estimate_ready_time(self,restaurant_id,order):
@@ -57,18 +56,29 @@ class OrderSimulator:
     def change_order_status(self,order_id,status):
         
         try :
-            idx=self.order_id_list.index(order_id)
-            self.order_list[idx].status=status
+            self.order_dict[order_id].status=status
+
+            if status==OrderStatusEnum.ASSIGNED:
+                self.unassigned_order_list = [o for o in self.unassigned_order_list if o.id!=order_id]
+                self.assigned_order_list.append(self.order_dict[order_id])
+
+            if status==OrderStatusEnum.DELIVERED:
+                self.assigned_order_list = [o for o in self.assigned_order_list if o.id!=order_id]
+                self.finished_order_list.append(self.order_dict[order_id])
+
         except:
             print("Order with Id",order_id,"is not found.")
     
     def get_order_by_id(self,order_id):
         try :
-            idx=self.order_id_list.index(order_id)
-            return self.order_list[idx] 
+            return self.order_dict[order_id]
         except:
             print("Order with Id",order_id,"is not found.")
-            return None
 
+    def assigned_rider_to_order(self,order_id,rider_id):
+        try :
+            self.order_dict[order_id].rider=rider_id
+        except:
+            print("Order with Id",order_id,"is not found.")
 
 
