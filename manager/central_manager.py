@@ -1,16 +1,5 @@
-import sys, os
-sys.path.append(os.path.abspath("./"))
-
-from order.order_simulator import OrderSimulator
-from rider.riderSimulator import RiderSimulator
-from restaurant.restaurant_simulator import RestaurantSimulator
-from suggester.multi_order_suggester import MultiOrderSuggester
-
-
 class CentralManager:
-    def __init__(self, rider_simulator: RiderSimulator, restaurant_simulator: RestaurantSimulator, 
-        order_simulator: OrderSimulator, multi_order_suggester: MultiOrderSuggester):
-
+    def __init__(self, rider_simulator, restaurant_simulator, order_simulator, multi_order_suggester):
         self.current_time = 0
         self.rider_simulator = rider_simulator
         self.restaurant_simulator = restaurant_simulator
@@ -38,18 +27,3 @@ class CentralManager:
                 self.multi_order_suggester.assign_order_to_rider()
 
             self.current_time += 1
-
-def main():
-    order = OrderSimulator()
-    restaurant = RestaurantSimulator()
-    rider = RiderSimulator()
-    multi_order = MultiOrderSuggester(rider_simulator=rider, order_simulator=order)
-
-    manager = CentralManager(rider_simulator=rider, restaurant_simulator=restaurant, order_simulator=order, multi_order_suggester=multi_order)
-    manager.simulate(100, 10)
-
-    print("Customer Waiting Time:", manager.calculate_customer_waiting_time())
-    print("Rider Availability:", manager.calculate_rider_availability())
-
-if __name__ == "__main__":
-    main()
