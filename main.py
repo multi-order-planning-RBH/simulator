@@ -1,7 +1,6 @@
 from manager.central_manager import CentralManager
 from rider.riderSimulator import RiderSimulator
 from order.order_simulator import OrderSimulator
-
 from restaurant.restaurant_simulator import RestaurantSimulator
 from suggester.multi_order_suggester import MultiOrderSuggester
 
