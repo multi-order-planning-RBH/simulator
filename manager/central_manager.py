@@ -1,13 +1,18 @@
 class CentralManager:
-    def __init__(self):
+    def __init__(self, rider_simulator, restaurant_simulator, order_simulator, multi_order_suggester):
         self.current_time = 0
-        self.rider_simulator = None
-        self.restaurant_simulator = None
-        self.order_simulator = None
-        self.multi_order_suggester = None
+        self.rider_simulator = rider_simulator
+        self.restaurant_simulator = restaurant_simulator
+        self.order_simulator = order_simulator
+        self.multi_order_suggester = multi_order_suggester
         
     def calculate_customer_waiting_time(self):
-        pass
+        sum_waiting_time = 0
+        for order in self.order_simulator.finished_order_list:
+            sum_waiting_time = order.finished_time - order.created_time
+        
+        return sum_waiting_time / len(self.order_simulator.finished_order_list)
+            
 
     def calculate_rider_availability(self):
         pass

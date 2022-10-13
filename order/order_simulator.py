@@ -14,6 +14,9 @@ class Order:
         self.status = OrderStatusEnum.CREATED
         self.rider=None
 
+        #Complete order 
+        #self.finish_time 
+
         
 class OrderSimulator:
 
