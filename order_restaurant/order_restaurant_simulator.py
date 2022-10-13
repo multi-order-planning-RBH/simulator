@@ -3,9 +3,11 @@ import os
 sys.path.append(os.path.abspath("..\\simulator"))
 # from type_enum.order_status import OrderStatusEnum
 import numpy as np
+import pandas as pd
 import random
 from common.location import generateBangkokLocation_2
 from common.order import OrderEnum
+
 
 class Restaurant:
 
@@ -29,7 +31,7 @@ class Restaurant:
         current_order = order_simulator.get_order_by_id(self.order_id_queue[0])
         if time>=current_order.readyTime and current_order.status==OrderEnum.READY:
             #change status of order by order id
-            OrderSimulator.change_order_status(self.order_id_queue[0],OrderEnum.READY)
+            order_simulator.change_order_status(self.order_id_queue[0],OrderEnum.READY)
 
     def estimate_order_ready_time(self,order):
         # Estimate Time from Gaussian
@@ -43,13 +45,18 @@ class RestaurantSimulator :
         self.restaurant_idx=0
         self.restaurant_list = []
         self.restaurant_id_list = []
+        res_list = pd.read_csv("restaurant/restaurant_sample.csv")
+        for idx,res in res_list.iterrows():
+            new_res=Restaurant([res["Merchant.Lat"],res["Merchant.Lng"]],self.restaurant_idx,res["mean_preparing_time"],res["std_preparing_time"])
+            self.restaurant_idx+=1
+            self.restaurant_list.append(new_res)
 
     def simulate(self,time):
 
         # loop check each restaurant
         for res_id in range(len(self.restaurant_list)):
             res=self.restaurant_list[res_id]
-                
+
             # complete current order
             res.preparing_current_order(time)
             
