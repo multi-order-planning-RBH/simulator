@@ -1,25 +1,32 @@
-from multiprocessing import freeze_support
-from riderSimulator import RiderSimulator
-from rider import TempOrder
+import sys, os
+sys.path.append(os.path.abspath("./"))
+from common.location import generateBangkokLocation_2
+from rider.riderSimulator import RiderSimulator
+from rider.rider import Order
 import time
+import random
 
-resraurantLocation = [13.744740, 100.531876]
-destination = [13.741291, 100.528645]
-orderTime = 0
-readyTime = 30
-order = TempOrder(resraurantLocation, destination, orderTime, readyTime)
+number_of_rider = 10000
 
 if __name__ == '__main__':
     riderSimulator = RiderSimulator()
     time1 = time.time()
-    for _ in range(50000):
+    
+    for _ in range(number_of_rider):
         riderSimulator.create_rider_innitial_location()
 
-    riderSimulator.assign_order_to_a_rider(order=order, rider=riderSimulator.riders[0])
+    order_id = 0
 
-    riderSimulator.simulate(0)
-    riderSimulator.simulate(1)
-    riderSimulator.simulate(2)
-    riderSimulator.simulate(3)
-    print(riderSimulator.riders[0].current_action.action, riderSimulator.riders[0].current_action.action)
+    for t in range(1440):
+        resraurant_location = generateBangkokLocation_2()
+        destination_location = generateBangkokLocation_2()
+        created_time = t
+        ready_time = t+30
+        order_id += 1
+        order = Order(destination_location, resraurant_location, 1, created_time, ready_time)
+
+        rider_index = random.randrange(0, number_of_rider)
+        riderSimulator.assign_order_to_a_rider(order, riderSimulator.riders[rider_index], t)
+        riderSimulator.simulate(t)
+    
     print(time.time()-time1)
