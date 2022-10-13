@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath("..\\simulator"))
 import numpy as np
 import pandas as pd
 import random
-from common.location import generateBangkokLocation_2
+from common.location import generateBangkokLocation_2 ,Coordinates
 from common.order import OrderEnum
 
 class Restaurant:
@@ -46,7 +46,7 @@ class RestaurantSimulator :
         self.restaurant_id_list = []
         res_list = pd.read_csv("order_restaurant/restaurant_sample.csv")
         for idx,res in res_list.iterrows():
-            new_res=Restaurant([res["Merchant.Lat"],res["Merchant.Lng"]],self.restaurant_idx,res["mean_preparing_time"],res["std_preparing_time"])
+            new_res=Restaurant(Coordinates(res["Merchant.Lat"],res["Merchant.Lng"]),self.restaurant_idx,res["mean_preparing_time"],res["std_preparing_time"])
             self.restaurant_idx+=1
             self.restaurant_list.append(new_res)
             self.restaurant_id_list.append(idx)
