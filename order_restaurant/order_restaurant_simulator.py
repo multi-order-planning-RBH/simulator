@@ -3,6 +3,7 @@ import os
 sys.path.append(os.path.abspath("..\\simulator"))
 # from type_enum.order_status import OrderStatusEnum
 import numpy as np
+import pandas as pd
 import random
 from common.location import generateBangkokLocation_2
 from common.order import OrderEnum
@@ -43,6 +44,11 @@ class RestaurantSimulator :
         self.restaurant_idx=0
         self.restaurant_list = []
         self.restaurant_id_list = []
+        res_list = pd.read_csv("restaurant/restaurant_sample.csv")
+        for idx,res in res_list.iterrows():
+            new_res=Restaurant([res["Merchant.Lat"],res["Merchant.Lng"]],self.restaurant_idx,res["mean_preparing_time"],res["std_preparing_time"])
+            self.restaurant_idx+=1
+            self.restaurant_list.append(new_res)
 
     def simulate(self,time):
 
