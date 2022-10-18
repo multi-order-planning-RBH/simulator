@@ -1,3 +1,4 @@
+from argparse import Action
 from typing import List
 from rider.rider import Rider, Order
 #from order.order_simulator import Order
@@ -14,20 +15,27 @@ class RiderSimulator():
         self.working_riders : List[Rider] = list()
         self.unassigned_riders : List[Rider] = list() # ว่างงาน และต้อง Working ด้วย
         self.time = 0
+        self.count = 0 
+        self.success_count = 0 
 
-        for _ in range(500):
+        for _ in range(5000):
             self.create_rider_innitial_location()
 
     def create_rider_innitial_location(self, starting_time = 0, getoff_time = 10000):
         rider = Rider(id = len(self.riders), starting_time = starting_time, getoff_time = getoff_time)
         self.riders.append(rider)
+        if rider.current_action.action == ActionEnum.NO_ACTION:
+            self.working_riders.append(rider)
+            self.unassigned_riders.append(rider)
         return rider
 
     def assign_order_to_a_rider(self, order:Order, rider:Rider, time:int) -> bool:
+        self.count += 1
         res = rider.add_order_destination(order, time)
-        if res :
-            order_simulator.change_order_status(order.id,OrderEnum.ASSIGNED)
-        return True
+        if res == True :
+            self.success_count += 1
+            order_simulator.change_order_status(order.id,OrderEnum.ASSIGNED, time)
+        return res
     
     def instance_simulate(self, index:int):
         self.riders[index].simulate(self.time)

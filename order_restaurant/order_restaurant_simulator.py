@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath("..\\simulator"))
 import numpy as np
 import pandas as pd
 import random
-from common.location import generateBangkokLocation_2 ,Coordinates
+from common.location import generateBangkokLocation ,Coordinates
 from common.order import OrderEnum
 
 class Restaurant:
@@ -96,6 +96,9 @@ class Order:
         self.restaurant_location = restaurant_location
         self.destination = destination
         self.created_time = created_time
+        self.assigned_time = None
+        self.meal_finished_time = None
+        self.picked_up_time = None
         self.ready_time = None
         self.finished_time = 0
         self.status = OrderEnum.CREATED
@@ -114,7 +117,7 @@ class OrderSimulator:
     def simulate(self,time):
         # num order should be randomed from some distribution
         restaurant_id=random.choice(restaurant_simulator.get_all_restaurant_id())
-        destination = generateBangkokLocation_2()
+        destination = generateBangkokLocation()
         self.create_order(destination,restaurant_id,time)
 
     def create_order(self,destination,restaurant_id,created_time):
@@ -145,10 +148,15 @@ class OrderSimulator:
             
 
             if status==OrderEnum.ASSIGNED:
+                self.order_dict[order_id].assigned_time = time
+                self.order_dict[order_id].meal_finished_time = time + self.order_dict[order_id].ready_time
                 self.unassigned_order_list = [o for o in self.unassigned_order_list if o.id!=order_id]
                 self.assigned_order_list.append(self.order_dict[order_id])
 
-            if status==OrderEnum.DELIVERED:
+            elif status==OrderEnum.PICKED_UP:
+                self.order_dict[order_id].picked_up_time = time
+
+            elif status==OrderEnum.DELIVERED:
                 self.assigned_order_list = [o for o in self.assigned_order_list if o.id!=order_id]
                 self.order_dict[order_id].finished_time = time
                 self.finished_order_list.append(self.order_dict[order_id])

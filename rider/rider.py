@@ -4,13 +4,12 @@ import random
 import sys, os
 sys.path.append(os.path.abspath("./"))
 from common.order import OrderEnum
-from common.location import Coordinates, LocationEnum, generateBangkokLocation_2
+from common.location import Coordinates, LocationEnum, generateBangkokLocation
 from common.action import ActionEnum
 from common.status import StatusEnum
 #from order.order_simulator import Order
 from rider.estimator import getEstimatedTimeTraveling
 from order_restaurant.order_restaurant_simulator import Order, order_simulator
-
 
 class Destination :
     def __init__(self, order : Order, location : Coordinates, type : LocationEnum, ready_time : int):
@@ -22,6 +21,7 @@ class Destination :
     def pick_up_or_deliver(self, time):
         if self.type == LocationEnum.RESTAURANT:
             self.order.status = OrderEnum.PICKED_UP
+            order_simulator.change_order_status(self.order.id,OrderEnum.PICKED_UP, time)
         elif self.type == LocationEnum.CUSTOMER:
             self.order.status = OrderEnum.DELIVERED
             order_simulator.change_order_status(self.order.id,OrderEnum.DELIVERED, time)
@@ -34,7 +34,7 @@ class Action :
 class Rider:
     def __init__(self, id:int, starting_time:int = 0, getoff_time:int = 480, resting_time:int = 30):
         self.id : int = id
-        self.location : Coordinates = generateBangkokLocation_2()
+        self.location : Coordinates = generateBangkokLocation()
         self.starting_time : int = starting_time
         self.getoff_time : int = getoff_time
         self.resting_time : int = resting_time
@@ -52,11 +52,13 @@ class Rider:
         self.utilization_time : int = 0
         self.working_time : int = self.getoff_time - self.starting_time
         self.current_destination : Destination = None
+        self.order_count : int = 0
 
     def add_order_destination(self, order : Order, time : int) -> bool:
         if (self.current_action != ActionEnum.RESTING or \
             self.current_action != ActionEnum.UNAVAILABLE) and \
-            self.getoff_time - time > 30:
+            self.getoff_time - time > 1800:
+            self.order_count += 1
             self.destinations.append(Destination(order, order.restaurant_location, LocationEnum.RESTAURANT, order.ready_time))
             # May change 5 to be other number for randomness
             self.destinations.append(Destination(order, order.destination, LocationEnum.CUSTOMER, 5)) 
@@ -92,10 +94,6 @@ class Rider:
         elif time >= self.next_action.time : 
             self.current_action = self.next_action
             self.logging(time)
-            """if self.current_destination != None:
-                order = self.current_destination.order
-                print(self.id, self.current_action.action, self.current_action.time)
-                print(order.ready_time, order.id)"""
 
             if self.current_action.action == ActionEnum.RIDING:
                 next_action = ActionEnum.WAITING
@@ -110,10 +108,10 @@ class Rider:
                 self.speed = Coordinates()
                 next_action = ActionEnum.PICKUP_OR_DELIVER
                 destination = self.current_destination
-                ready_time = destination.ready_time 
+                order = destination.order
 
                 #Add additional time for waiting customer to come for pick up the order when riding to the customer
-                ready_time += 0 if destination.type == LocationEnum.RESTAURANT else time
+                ready_time = order.meal_finished_time if destination.type == LocationEnum.RESTAURANT else time
 
                 #Compare waiting time and commuting time
                 next_time = max(ready_time, self.current_action.time)+1

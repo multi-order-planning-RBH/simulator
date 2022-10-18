@@ -1,6 +1,6 @@
 import sys, os
 sys.path.append(os.path.abspath("./"))
-from common.location import generateBangkokLocation_2
+from common.location import generateBangkokLocation
 from rider.rider_simulator import RiderSimulator
 from rider.rider import Order
 import time
@@ -18,8 +18,8 @@ if __name__ == '__main__':
     order_id = 0
 
     for t in range(1440):
-        restaurant_location = generateBangkokLocation_2()
-        destination_location = generateBangkokLocation_2()
+        restaurant_location = generateBangkokLocation()
+        destination_location = generateBangkokLocation()
         created_time = t
         ready_time = t+30
         order_id += 1

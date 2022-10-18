@@ -49,12 +49,7 @@ class Coordinates():
         return (self.x**2+self.y**2)**(1/2)
 
 
-def generateBangkokLocation_2() -> Coordinates:
+def generateBangkokLocation() -> Coordinates:
     x = uniform(13.496034, 13.949613)
     y = uniform(100.410055, 100.912941)
     return Coordinates(x, y)
-
-def generateBangkokLocation() -> LocationType:
-    x = uniform(13.496034, 13.949613)
-    y = uniform(100.410055, 100.912941)
-    return [x,y]
