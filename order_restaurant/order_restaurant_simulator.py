@@ -29,11 +29,11 @@ class Restaurant:
     def preparing_current_order(self,time):
         if len(self.order_id_queue) > 0:
             current_order = order_simulator.get_order_by_id(self.order_id_queue[0])
-            if time>=current_order.ready_time and current_order.status==OrderEnum.ASSIGNED:
+            if time>=current_order.cooking_duration and current_order.status==OrderEnum.ASSIGNED:
                 #change status of order by order id
                 order_simulator.change_order_status(self.order_id_queue[0],OrderEnum.READY)
 
-    def estimate_order_ready_time(self,order):
+    def estimate_order_cooking_duration(self,order):
         # Estimate Time from Gaussian
         # preparing time distribution.estimate sth like that
 
@@ -43,13 +43,13 @@ class Restaurant:
         lower_bound = 200
         upper_bound = 3000
 
-        ready_time = int(scipy.stats.truncnorm.rvs((lower_bound-self.mean)/self.std,
+        cooking_duration = int(scipy.stats.truncnorm.rvs((lower_bound-self.mean)/self.std,
                                             (upper_bound-self.mean)/self.std,
                                             loc=self.mean,scale=self.std,size=1)[0])
-        # ready_time = int(np.random.normal(self.mean,self.std))
-        if ready_time<=0:
-            ready_time = 800
-        return ready_time
+        # cooking_duration = int(np.random.normal(self.mean,self.std))
+        if cooking_duration<=0:
+            cooking_duration = 800
+        return cooking_duration
 
         # return 10
 
@@ -75,11 +75,11 @@ class RestaurantSimulator :
             res.preparing_current_order(time)
             
 
-    def estimate_real_ready_time(self,restaurant_id,order):
+    def estimate_real_cooking_duration(self,restaurant_id,order):
 
         res_id = self.restaurant_id_list.index(restaurant_id)
 
-        return self.restaurant_list[res_id].estimate_order_ready_time(order)
+        return self.restaurant_list[res_id].estimate_order_cooking_duration(order)
 
     def assign_order_to_restaurant(self,restaurant_id,order):
 
@@ -109,7 +109,7 @@ class Order:
         self.assigned_time = None
         self.meal_finished_time = None
         self.picked_up_time = None
-        self.ready_time = None
+        self.cooking_duration = None
         self.finished_time = 0
         self.status = OrderEnum.CREATED
         self.rider=None
@@ -136,7 +136,7 @@ class OrderSimulator:
 
         new_order=Order(destination, restaurant_id, restaurant.location, self.order_idx, created_time)
         
-        new_order.ready_time= restaurant_simulator.estimate_real_ready_time(restaurant_id,new_order)
+        new_order.cooking_duration= restaurant_simulator.estimate_real_cooking_duration(restaurant_id,new_order)
         
         self.order_dict[self.order_idx]=new_order
 
@@ -146,10 +146,10 @@ class OrderSimulator:
         
         self.order_idx+=1
 
-    def estimate_ready_time(self,restaurant_id,order):
+    def estimate_cooking_duration(self,restaurant_id,order):
 
         # estimate by ML
-        return 10
+        return 800
     
     def change_order_status(self,order_id,status,time=0):
         
@@ -159,7 +159,7 @@ class OrderSimulator:
 
             if status==OrderEnum.ASSIGNED:
                 self.order_dict[order_id].assigned_time = time
-                self.order_dict[order_id].meal_finished_time = time + self.order_dict[order_id].ready_time
+                self.order_dict[order_id].meal_finished_time = time + self.order_dict[order_id].cooking_duration
                 self.unassigned_order_list = [o for o in self.unassigned_order_list if o.id!=order_id]
                 self.assigned_order_list.append(self.order_dict[order_id])
 

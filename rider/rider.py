@@ -59,7 +59,7 @@ class Rider:
             self.current_action != ActionEnum.UNAVAILABLE) and \
             self.getoff_time - time > 1800:
             self.order_count += 1
-            self.destinations.append(Destination(order, order.restaurant_location, LocationEnum.RESTAURANT, order.ready_time))
+            self.destinations.append(Destination(order, order.restaurant_location, LocationEnum.RESTAURANT, order.cooking_duration))
             # May change 5 to be other number for randomness
             self.destinations.append(Destination(order, order.destination, LocationEnum.CUSTOMER, 5)) 
             return True
