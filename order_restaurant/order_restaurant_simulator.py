@@ -7,6 +7,7 @@ import pandas as pd
 import random
 from common.location import generateBangkokLocation ,Coordinates
 from common.order import OrderEnum
+import scipy.stats
 
 class Restaurant:
 
@@ -28,17 +29,26 @@ class Restaurant:
     def preparing_current_order(self,time):
         if len(self.order_id_queue) > 0:
             current_order = order_simulator.get_order_by_id(self.order_id_queue[0])
-            if time>=current_order.ready_time and current_order.status==OrderEnum.READY:
+            if time>=current_order.ready_time and current_order.status==OrderEnum.ASSIGNED:
                 #change status of order by order id
                 order_simulator.change_order_status(self.order_id_queue[0],OrderEnum.READY)
 
     def estimate_order_ready_time(self,order):
         # Estimate Time from Gaussian
         # preparing time distribution.estimate sth like that
-        ready_time = int(np.random.normal(self.mean,self.std))
 
+        if self.std==0:
+            self.std=100
+
+        lower_bound = 200
+        upper_bound = 3000
+
+        ready_time = int(scipy.stats.truncnorm.rvs((lower_bound-self.mean)/self.std,
+                                            (upper_bound-self.mean)/self.std,
+                                            loc=self.mean,scale=self.std,size=1)[0])
+        # ready_time = int(np.random.normal(self.mean,self.std))
         if ready_time<=0:
-            ready_time = 60
+            ready_time = 800
         return ready_time
 
         # return 10
