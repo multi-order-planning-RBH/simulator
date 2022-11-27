@@ -11,7 +11,7 @@ import scipy.stats
 
 class Restaurant:
 
-    def __init__(self,location,restaurant_idx,mean=800,std=100):
+    def __init__(self,location,restaurant_idx,mean=1000,std=300):
         self.id = restaurant_idx
         self.location = location
         # queue of orderId
@@ -41,14 +41,14 @@ class Restaurant:
             self.std=100
 
         lower_bound = 200
-        upper_bound = 3000
+        upper_bound = 2500
 
         cooking_duration = int(scipy.stats.truncnorm.rvs((lower_bound-self.mean)/self.std,
                                             (upper_bound-self.mean)/self.std,
                                             loc=self.mean,scale=self.std,size=1)[0])
         # cooking_duration = int(np.random.normal(self.mean,self.std))
         if cooking_duration<=0:
-            cooking_duration = 800
+            cooking_duration = 1000
         return cooking_duration
 
         # return 10
@@ -58,7 +58,8 @@ class RestaurantSimulator :
         self.restaurant_idx=0
         self.restaurant_list = []
         self.restaurant_id_list = []
-        res_list = pd.read_csv("order_restaurant/restaurant_sample.csv")
+        # res_list = pd.read_csv("order_restaurant/restaurant_sample.csv")
+        res_list = pd.read_csv("order_restaurant/restaurant_sample_10000.csv")
         for idx,res in res_list.iterrows():
             new_res=Restaurant(Coordinates(res["Merchant.Lat"],res["Merchant.Lng"]),self.restaurant_idx,res["mean_preparing_time"],res["std_preparing_time"])
             self.restaurant_idx+=1
