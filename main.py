@@ -17,6 +17,7 @@ def main():
     print("Customer Waiting Time:           ", manager.calculate_customer_waiting_time())
     print("Rider onroad time:               ", manager.calculate_rider_utilization_time())
     print("Number of order:                 ", manager.calculate_rider_order_count())
+    print("Number of cancelled order:                 ", len(order.cancelled_order_list))
     print("Computation time:                ", time.time()-start)
     print("Number of assigning:             ", rider_simulator.count)
     print("Number of success assigning:     ", rider_simulator.success_count)

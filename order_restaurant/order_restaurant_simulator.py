@@ -123,9 +123,18 @@ class OrderSimulator:
         self.finished_order_list = []
         self.unassigned_order_list = []
         self.assigned_order_list = []
+        self.cancelled_order_list = []
 
     def simulate(self,time):
         # num order should be randomed from some distribution
+        cancelled_id = []
+        for order in self.unassigned_order_list:
+            if time - order.created_time> 600:
+                self.cancelled_order_list.append(order)
+                cancelled_id.append(order.id)
+        
+        self.unassigned_order_list = [o for o in self.unassigned_order_list if o.id not in cancelled_id]
+
         restaurant_id=random.choice(restaurant_simulator.get_all_restaurant_id())
         destination = generateBangkokLocation()
         self.create_order(destination,restaurant_id,time)
