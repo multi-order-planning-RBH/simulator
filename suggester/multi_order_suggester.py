@@ -6,6 +6,7 @@ from suggester.types.batch import Batch
 from rider.rider import Destination
 from common.location import Coordinates, LocationEnum
 from itertools import permutations
+from rider.rider import Rider
 
 
 class MultiOrderSuggester:
@@ -44,7 +45,7 @@ class MultiOrderSuggester:
                 if neighbor == batch:
                     continue
 
-                edges[neighbor] = self.calculate_order_graph_weight(
+                edges[neighbor], _ = self.calculate_order_graph_weight(
                     batch, neighbor)
 
             order_graph[batch] = edges
@@ -53,10 +54,11 @@ class MultiOrderSuggester:
 
     # ML
     def estimate_traveling_time(self, start: Coordinates, stop: Coordinates) -> int:
-        return 0
+        return 600
 
     # time it takes for an order to finish using a journey(destinations)
-    def calculate_expected_delivery_time(self, order: Order, destinations: list[Destination]) -> int:
+    # using destinations[0] as initial localtion
+    def calculate_expected_delivery_time_order_graph(self, order: Order, destinations: list[Destination]) -> int:
         for idx in range(len(destinations)):
             if idx == 0:
                 current_time = destinations[idx].ready_time
@@ -76,14 +78,15 @@ class MultiOrderSuggester:
         return (order.meal_finished_time - order.created_time) + self.estimate_traveling_time(order.restaurant_location, order.destination)
 
     # expected - shortest
-    def calculate_extra_delivery_time(self, order: Order, destinations: list[Destination]) -> int:
-        return self.calculate_expected_delivery_time(order, destinations) - self.calculate_shortest_delivery_time(order)
+    def calculate_extra_delivery_time_order_graph(self, order: Order, destinations: list[Destination]) -> int:
+        return self.calculate_expected_delivery_time_order_graph(order, destinations) - self.calculate_shortest_delivery_time(order)
 
     # cost of a journey
-    def calculate_cost(self, orders: list[Order], destinations: list[Destination]) -> int:
+    def calculate_cost_order_graph(self, orders: list[Order], destinations: list[Destination]) -> int:
         cost = 0
         for order in orders:
-            cost += self.calculate_extra_delivery_time(order, destinations)
+            cost += self.calculate_extra_delivery_time_order_graph(
+                order, destinations)
         return cost
 
     # check if restaurant destination are always before customer destination
@@ -102,14 +105,59 @@ class MultiOrderSuggester:
         all_destinations = batch.destinations + neighbor.destinations
 
         best_destinations = list(all_destinations)
-        min_cost = self.calculate_cost(orders, all_destinations)
+        min_cost = self.calculate_cost_order_graph(orders, all_destinations)
         for permutation in list(permutations(all_destinations)):
             destinations = list(permutation)
             if not self.is_valid_journey(destinations):
                 continue
-            cost = self.calculate_cost(orders, destinations)
+            cost = self.calculate_cost_order_graph(orders, destinations)
             if cost < min_cost:
                 best_destinations = list(destinations)
                 min_cost = cost
 
-        return min_cost, best_destinations
+        weight = min_cost - \
+            self.calculate_cost_order_graph(batch.orders, batch.destinations) - \
+            self.calculate_cost_order_graph(
+                neighbor.orders, neighbor.destinations)
+
+        return weight, best_destinations
+
+    def construct_food_graph(self, batches: list[Batch], riders: list[Rider]) -> dict[Rider, dict[Batch, int]]:
+        food_graph = dict()
+        for rider in riders:
+            edges = dict()
+            for batch in batches:
+                edges[batch] = self.calculate_food_graph_weight(batch, rider)
+            food_graph[rider] = edges
+        return food_graph
+
+    def calculate_food_graph_weight(self, batch: Batch, rider: Rider) -> int:
+        cost = 0
+        for order in batch.orders:
+            cost += self.calculate_extra_delivery_time_food_graph(
+                order, batch.destinations, rider)
+        return cost
+
+    # time it takes for an order to finish using a journey(destinations)
+    # using rider as initial localtion
+    def calculate_expected_delivery_time_food_graph(self, order: Order, destinations: list[Destination], rider: Rider) -> int:
+        for idx in range(len(destinations)):
+            if idx == 0:
+                current_time = self.estimate_traveling_time(
+                    rider.location, destinations[idx].location)
+
+                current_time = max(current_time, destinations[idx].ready_time)
+                continue
+
+            current_time += self.estimate_traveling_time(
+                destinations[idx - 1].location, destinations[idx].location)
+
+            if destinations[idx].type == LocationEnum.RESTAURANT:
+                current_time = max(current_time, destinations[idx].ready_time)
+
+            if destinations[idx].order == order and destinations[idx].type == LocationEnum.CUSTOMER:
+                return current_time - order.created_time
+
+    # expected - shortest
+    def calculate_extra_delivery_time_food_graph(self, order: Order, destinations: list[Destination], rider: Rider) -> int:
+        return self.calculate_expected_delivery_time_food_graph(order, destinations, rider) - self.calculate_shortest_delivery_time(order)
