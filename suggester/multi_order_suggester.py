@@ -122,29 +122,30 @@ class MultiOrderSuggester:
 
         return weight, best_destinations
 
-    def construct_food_graph(self, batches: list[Batch], riders: list[Rider]) -> dict[Rider, dict[Batch, int]]:
+    def construct_food_graph(self, batches: list[Batch], riders: list[Rider], current_time: int) -> dict[Rider, dict[Batch, int]]:
         food_graph = dict()
         for rider in riders:
             edges = dict()
             for batch in batches:
-                edges[batch] = self.calculate_food_graph_weight(batch, rider)
+                edges[batch] = self.calculate_food_graph_weight(
+                    batch, rider, current_time)
             food_graph[rider] = edges
         return food_graph
 
     # sum of extra delivery time
-    def calculate_food_graph_weight(self, batch: Batch, rider: Rider) -> int:
+    def calculate_food_graph_weight(self, batch: Batch, rider: Rider, current_time: int) -> int:
         cost = 0
         for order in batch.orders:
             cost += self.calculate_extra_delivery_time_food_graph(
-                order, batch.destinations, rider)
+                order, batch.destinations, rider, current_time)
         return cost
 
     # time it takes to finish an order using a journey(destinations)
     # using rider as initial localtion
-    def calculate_expected_delivery_time_food_graph(self, order: Order, destinations: list[Destination], rider: Rider) -> int:
+    def calculate_expected_delivery_time_food_graph(self, order: Order, destinations: list[Destination], rider: Rider, current_time: int) -> int:
         for idx in range(len(destinations)):
             if idx == 0:
-                current_time = self.estimate_traveling_time(
+                current_time += self.estimate_traveling_time(
                     rider.location, destinations[idx].location)
 
                 current_time = max(current_time, destinations[idx].ready_time)
@@ -160,5 +161,5 @@ class MultiOrderSuggester:
                 return current_time - order.created_time
 
     # expected - shortest
-    def calculate_extra_delivery_time_food_graph(self, order: Order, destinations: list[Destination], rider: Rider) -> int:
-        return self.calculate_expected_delivery_time_food_graph(order, destinations, rider) - self.calculate_shortest_delivery_time(order)
+    def calculate_extra_delivery_time_food_graph(self, order: Order, destinations: list[Destination], rider: Rider, current_time: int) -> int:
+        return self.calculate_expected_delivery_time_food_graph(order, destinations, rider, current_time) - self.calculate_shortest_delivery_time(order)
