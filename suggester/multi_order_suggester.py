@@ -99,7 +99,7 @@ class MultiOrderSuggester:
                 return False
         return True
 
-    # brute-force
+    # [brute-force] finding best journey and calculate weight
     def calculate_order_graph_weight(self, batch: Batch, neighbor: Batch) -> tuple[int, list[Destination]]:
         orders = batch.orders + neighbor.orders
         all_destinations = batch.destinations + neighbor.destinations
