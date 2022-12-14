@@ -46,9 +46,4 @@ class MultiOrderSuggester:
     
     def calculate_order_graph_weight(self, batch: Batch, neighbor: Batch) -> int:
         return 0
-
-        
-
-                
-        
-        
+    
