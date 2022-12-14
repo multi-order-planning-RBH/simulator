@@ -56,7 +56,7 @@ class MultiOrderSuggester:
     def estimate_traveling_time(self, start: Coordinates, stop: Coordinates) -> int:
         return 600
 
-    # time it takes for an order to finish using a journey(destinations)
+    # time it takes to finish an order using a journey(destinations)
     # using destinations[0] as initial localtion
     def calculate_expected_delivery_time_order_graph(self, order: Order, destinations: list[Destination]) -> int:
         for idx in range(len(destinations)):
@@ -115,9 +115,9 @@ class MultiOrderSuggester:
                 best_destinations = list(destinations)
                 min_cost = cost
 
-        weight = min_cost - \
-            self.calculate_cost_order_graph(batch.orders, batch.destinations) - \
-            self.calculate_cost_order_graph(
+        weight = min_cost\
+            - self.calculate_cost_order_graph(batch.orders, batch.destinations)\
+            - self.calculate_cost_order_graph(
                 neighbor.orders, neighbor.destinations)
 
         return weight, best_destinations
@@ -131,6 +131,7 @@ class MultiOrderSuggester:
             food_graph[rider] = edges
         return food_graph
 
+    # sum of extra delivery time
     def calculate_food_graph_weight(self, batch: Batch, rider: Rider) -> int:
         cost = 0
         for order in batch.orders:
@@ -138,7 +139,7 @@ class MultiOrderSuggester:
                 order, batch.destinations, rider)
         return cost
 
-    # time it takes for an order to finish using a journey(destinations)
+    # time it takes to finish an order using a journey(destinations)
     # using rider as initial localtion
     def calculate_expected_delivery_time_food_graph(self, order: Order, destinations: list[Destination], rider: Rider) -> int:
         for idx in range(len(destinations)):
