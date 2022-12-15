@@ -61,13 +61,24 @@ def solve_integer_programming(batch_rider_order_time_array):
     constraints = LinearConstraint(A, b_l, b_u)
 
     res = milp(c=c, constraints=constraints, integrality=integrality)
-    return res
+    return res, rider_unique
 
-def transform_res_to_graph(res):
-    pass
+def transform_res_to_graph(res, batch_rider_order_time_array, rider_unique):
+    x = res.x
+    selected_x = x == 1
+    selected_pair = batch_rider_order_time_array[selected_x][:, :2]
+
+    suggested_order_rider_graph = defaultdict(list)
+
+    for rider in rider_unique:
+        selected_batch = selected_pair[selected_pair[:, 0] == rider][:, 1]
+        for batch in selected_batch:
+            suggested_order_rider_graph[rider].append(batch)
+
+    return suggested_order_rider_graph
 
 def rider_suggester(food_graph: Dict[Rider, Dict[Batch, int]]) -> Dict[Rider, List[Batch]]:
     batch_rider_order_time_array = get_batch_to_rider(food_graph)
-    res = solve_integer_programming(batch_rider_order_time_array)
-    
-    return 
+    res, rider_unique = solve_integer_programming(batch_rider_order_time_array)
+    suggested_order_rider_graph = transform_res_to_graph(res, batch_rider_order_time_array, rider_unique)
+    return suggested_order_rider_graph
