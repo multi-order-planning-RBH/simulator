@@ -1,11 +1,14 @@
-from scipy.optimize import milp, LinearConstraint
+from scipy.optimize import milp, LinearConstraint, Bounds
 from collections import defaultdict
 import numpy as np
 from math import ceil
 
-from typing import Dict, List, Tuple
+from typing import Dict, List
+
+import sys, os
+sys.path.append(os.path.abspath("./"))
 from rider.rider import Rider
-from batch import Batch
+from suggester.batch_mode.batch import Batch
 
 def get_batch_to_rider(food_graph: Dict[Rider, Dict[Batch, int]]):
     batch_rider_pair_list = []
@@ -18,15 +21,15 @@ def get_batch_to_rider(food_graph: Dict[Rider, Dict[Batch, int]]):
     return batch_rider_order_time_array
 
 def solve_integer_programming(batch_rider_order_time_array): 
-    rider_unique = np.unique(batch_rider_order_time_array[:,0])
+    rider_unique = set(batch_rider_order_time_array[:,0])
     len_rider = len(rider_unique)
-    batch_unique = np.unique(batch_rider_order_time_array[:,1])
+    batch_unique = set(batch_rider_order_time_array[:,1])
     len_batch = len(batch_unique)
     len_A = len_rider+len_batch
 
     n = len(batch_rider_order_time_array)
     A = np.zeros((len_A, n))
-    c = batch_rider_order_time_array[:,2]
+    c = batch_rider_order_time_array[:,3]
 
     count = 0
     for rider in rider_unique:
@@ -35,12 +38,15 @@ def solve_integer_programming(batch_rider_order_time_array):
         count += 1
 
     for batch in batch_unique:
-        temp = batch_rider_order_time_array[:, 0] == batch 
+        temp = batch_rider_order_time_array[:, 1] == batch 
         A[count, temp] = 1
         count += 1
 
-    b_u = np.zeros_like(batch_rider_order_time_array[:, 0])
+    b_u = np.zeros_like(A[:, 0])
     b_l = np.zeros_like(b_u)
+
+    u = np.full_like(A[0, :], 1)
+    l = np.zeros_like(u)
 
     if len_rider < len_batch:
         b_u[:len_rider] = 2
@@ -48,19 +54,18 @@ def solve_integer_programming(batch_rider_order_time_array):
         b_l[:len_rider] = 1
         b_l[len_rider:] = ceil(len_rider/len_batch)
     elif len_rider == len_batch:
-        b_u = 2
-        b_l = 2
+        b_u[:] = 2
+        b_l[:] = 2
     if len_rider > len_batch:
         b_u[:len_rider] = ceil(len_batch/len_rider)
         b_u[len_rider:] = 2
         b_l[:len_rider] = ceil(len_batch/len_rider)
         b_l[len_rider:] = 1
 
-
     integrality = np.ones_like(batch_rider_order_time_array[:, 0])
     constraints = LinearConstraint(A, b_l, b_u)
-
-    res = milp(c=c, constraints=constraints, integrality=integrality)
+    bounds = Bounds(lb = l, ub = u)
+    res = milp(c=c, constraints=constraints, integrality=integrality, bounds=bounds)
     return res, rider_unique
 
 def transform_res_to_graph(res, batch_rider_order_time_array, rider_unique):
@@ -71,7 +76,7 @@ def transform_res_to_graph(res, batch_rider_order_time_array, rider_unique):
     suggested_order_rider_graph = defaultdict(list)
 
     for rider in rider_unique:
-        selected_batch = selected_pair[selected_pair[:, 0] == rider][:, 1]
+        selected_batch = selected_pair[selected_pair[:, 0] == rider, :][:, 1]
         for batch in selected_batch:
             suggested_order_rider_graph[rider].append(batch)
 
