@@ -13,6 +13,7 @@ class MultiOrderSuggester:
     def __init__(self, rider_simulator: RiderSimulator, order_simulator: OrderSimulator):
         self.rider_simulator = rider_simulator
         self.order_simulator = order_simulator
+        self.max_order_per_batch = 3
 
     # randomly assign each order to a rider
     def assign_order_to_rider(self, time):
@@ -30,6 +31,62 @@ class MultiOrderSuggester:
                 self.rider_simulator.assign_order_to_a_rider(
                     order, rider, time)
                 rider_list.remove(rider)"""
+
+    # merge orders into batch
+    def batch_order(self,orders_graph: dict[Batch, dict[Batch, int]]) -> list[Batch]:
+
+        # this should be params in next update
+        max_order = 3
+
+        all_cost = sum([self.calculate_cost_order_graph(batch.orders,batch.destinations) for batch in orders_graph])
+        num_batch = len(orders_graph)
+
+        # default value from paper, should tune this value too
+        threhold_cost = 60
+        while all_cost/num_batch > threhold_cost:
+
+            # find min weight in the graph
+            # heap should be used  
+            min_batch = min_neighbor = None
+            min_edge_weight = float('inf')
+            for batch in orders_graph:
+                for neighbor in orders_graph[batch]:
+                    if orders_graph[batch][neighbor] < min_edge_weight \
+                        and len(batch.orders) + len(neighbor.orders)<=max_order:
+
+                        min_batch = batch
+                        min_neighbor = min_neighbor
+                        min_edge_weight = orders_graph[batch][neighbor]
+            
+            # if cannot find edge that meet requirement 
+            if not min_batch:
+                break
+            
+            # remove batches to merge
+            orders_graph.pop(min_batch,None)
+            orders_graph.pop(min_neighbor,None)
+
+            # create new batch 
+            new_orders =min_batch.orders+min_neighbor.orders
+            _,new_destinations = self.calculate_order_graph_weight(min_batch,min_neighbor)
+
+            new_batch = Batch(orders=new_orders,destinations=new_destinations)
+            new_edge = [self.calculate_order_graph_weight(new_batch,neighbor) \
+                                for neighbor in orders_graph]
+            new_edge_weight = {neighbor:edge[0] for edge in new_edge}
+            orders_graph[new_batch] = new_edge_weight
+
+            # remove edge to unmerged batch + add new edge to merged batch
+            for batch in orders_graph:
+                orders_graph[batch].pop(min_batch,None)
+                orders_graph[batch].pop(min_neighbor,None)
+                orders_graph[batch][new_batch] = orders_graph[new_batch][batch]
+
+            all_cost+=min_edge_weight
+            num_batch-=1
+        return [batch for batch in orders_graph]
+
+
 
     def construct_order_graph(self, orders: list[Order]) -> dict[Batch, dict[Batch, int]]:
         batches = list()
@@ -61,7 +118,7 @@ class MultiOrderSuggester:
     def calculate_expected_delivery_time_order_graph(self, order: Order, destinations: list[Destination]) -> int:
         for idx in range(len(destinations)):
             if idx == 0:
-                current_time = destinations[idx].ready_time
+                current_time = destinations[idx].order
                 continue
 
             current_time += self.estimate_traveling_time(

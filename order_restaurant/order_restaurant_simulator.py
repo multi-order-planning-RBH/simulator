@@ -130,6 +130,7 @@ class OrderSimulator:
         # num order should be randomed from some distribution
         cancelled_id = []
         for order in self.unassigned_order_list:
+            # this can be params too
             if time - order.created_time> 600:
                 self.cancelled_order_list.append(order)
                 cancelled_id.append(order.id)
