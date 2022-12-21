@@ -35,7 +35,7 @@ class Restaurant:
                 order_simulator.change_order_status(self.order_id_queue[0],OrderEnum.READY)
 
     def estimate_order_cooking_duration(self,order):
-        # Estimate Time from Gaussian
+        # Estimate "Real" cooking Time from Gaussian
         # preparing time distribution.estimate sth like that
 
         if self.std==0:

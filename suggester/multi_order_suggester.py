@@ -7,13 +7,15 @@ from rider.rider import Destination
 from common.location import Coordinates, LocationEnum
 from itertools import permutations
 from rider.rider import Rider
-
+import scipy
 
 class MultiOrderSuggester:
     def __init__(self, rider_simulator: RiderSimulator, order_simulator: OrderSimulator):
         self.rider_simulator = rider_simulator
         self.order_simulator = order_simulator
+        # this should be params 
         self.max_order_per_batch = 3
+        self.order_estimated_finish_time = {}
 
     # randomly assign each order to a rider
     def assign_order_to_rider(self, time):
@@ -35,15 +37,15 @@ class MultiOrderSuggester:
     # merge orders into batch
     def batch_order(self,orders_graph: dict[Batch, dict[Batch, int]]) -> list[Batch]:
 
-        # this should be params in next update
-        max_order = 3
+        
+        max_order = self.max_order_per_batch
 
         all_cost = sum([self.calculate_cost_order_graph(batch.orders,batch.destinations) for batch in orders_graph])
         num_batch = len(orders_graph)
 
         # default value from paper, should tune this value too
         threhold_cost = 60
-        while all_cost/num_batch > threhold_cost:
+        while all_cost/num_batch <= threhold_cost:
 
             # find min weight in the graph
             # heap should be used  
@@ -55,7 +57,7 @@ class MultiOrderSuggester:
                         and len(batch.orders) + len(neighbor.orders)<=max_order:
 
                         min_batch = batch
-                        min_neighbor = min_neighbor
+                        min_neighbor = neighbor
                         min_edge_weight = orders_graph[batch][neighbor]
             
             # if cannot find edge that meet requirement 
@@ -71,17 +73,18 @@ class MultiOrderSuggester:
             _,new_destinations = self.calculate_order_graph_weight(min_batch,min_neighbor)
 
             new_batch = Batch(orders=new_orders,destinations=new_destinations)
-            new_edge = [self.calculate_order_graph_weight(new_batch,neighbor) \
-                                for neighbor in orders_graph]
-            new_edge_weight = {neighbor:edge[0] for edge in new_edge}
-            orders_graph[new_batch] = new_edge_weight
 
+  
+            new_edge_weight = {neighbor:self.calculate_order_graph_weight(new_batch,neighbor)[0] for neighbor in orders_graph}
+            
             # remove edge to unmerged batch + add new edge to merged batch
             for batch in orders_graph:
                 orders_graph[batch].pop(min_batch,None)
                 orders_graph[batch].pop(min_neighbor,None)
-                orders_graph[batch][new_batch] = orders_graph[new_batch][batch]
 
+                orders_graph[batch][new_batch] = new_edge_weight[batch]
+
+            orders_graph[new_batch] = new_edge_weight
             all_cost+=min_edge_weight
             num_batch-=1
         return [batch for batch in orders_graph]
@@ -89,10 +92,15 @@ class MultiOrderSuggester:
 
 
     def construct_order_graph(self, orders: list[Order]) -> dict[Batch, dict[Batch, int]]:
+
+        self.order_estimated_finish_time= {}
+        for order in orders:
+            self.order_estimated_finish_time[order]=self.estimate_meal_finished_time(order)
+
         batches = list()
         for order in orders:
             batch = Batch(
-                [order], [order.restaurant_location, order.destination])
+                [order], [order.restaurant_destination, order.customer_destination])
             batches.append(batch)
 
         order_graph = dict()
@@ -112,27 +120,46 @@ class MultiOrderSuggester:
     # ML
     def estimate_traveling_time(self, start: Coordinates, stop: Coordinates) -> int:
         return 600
+    
+    # ML
+    def estimate_meal_finished_time(self, order: Order) -> int:
+
+        # tmp wait for ML
+        mean =1000
+        std=300
+
+        lower_bound = 200
+        upper_bound = 2500
+
+        cooking_duration = int(scipy.stats.truncnorm.rvs((lower_bound-mean)/std,
+                                            (upper_bound-mean)/std,
+                                            loc=mean,scale=std,size=1)[0])
+        if cooking_duration<=0:
+            cooking_duration = 1000
+        return cooking_duration
 
     # time it takes to finish an order using a journey(destinations)
     # using destinations[0] as initial localtion
     def calculate_expected_delivery_time_order_graph(self, order: Order, destinations: list[Destination]) -> int:
         for idx in range(len(destinations)):
             if idx == 0:
-                current_time = destinations[idx].order
+                # current_time = destinations[idx].ready_time
+                current_time = self.order_estimated_finish_time[order]
                 continue
 
             current_time += self.estimate_traveling_time(
                 destinations[idx - 1].location, destinations[idx].location)
 
             if destinations[idx].type == LocationEnum.RESTAURANT:
-                current_time = max(current_time, destinations[idx].ready_time)
+                # current_time = max(current_time, destinations[idx].ready_time)
+                current_time = max(current_time, self.order_estimated_finish_time[order])
 
             if destinations[idx].order == order and destinations[idx].type == LocationEnum.CUSTOMER:
                 return current_time - order.created_time
 
     # shortest time possible
     def calculate_shortest_delivery_time(self, order: Order) -> int:
-        return (order.meal_finished_time - order.created_time) + self.estimate_traveling_time(order.restaurant_location, order.destination)
+        return (self.order_estimated_finish_time[order]- order.created_time) + self.estimate_traveling_time(order.restaurant_destination, order.customer_destination)
 
     # expected - shortest
     def calculate_extra_delivery_time_order_graph(self, order: Order, destinations: list[Destination]) -> int:
