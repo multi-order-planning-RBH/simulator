@@ -7,7 +7,7 @@ from rider.rider import Destination
 from common.location import Coordinates, LocationEnum
 from itertools import permutations
 from rider.rider import Rider
-import scipy
+from ml_estimator.traveling_time import estimate_traveling_time
 import heapq
 
 
@@ -17,12 +17,6 @@ class MultiOrderSuggester:
         self.order_simulator = order_simulator
         # this should be params 
         self.max_order_per_batch = 2
-        self.order_estimated_finish_time = {}
-        self.calculate_new_order_time = 0
-        self.calculate_new_dest_time = 0
-        self.construct_batch_time = 0
-        self.calculate_new_weight = 0
-        self.calculate_new_weight_wo_dict = 0
 
 
     # randomly assign each order to a rider
@@ -92,10 +86,6 @@ class MultiOrderSuggester:
 
     def construct_order_graph(self, orders: list[Order]) -> dict[Batch, dict[Batch, int]]:
 
-        self.order_estimated_finish_time= {}
-        for order in orders:
-            self.order_estimated_finish_time[order]=self.estimate_meal_finished_time(order)
-
         edge_list = []
         
         batches = list()
@@ -124,49 +114,26 @@ class MultiOrderSuggester:
         heapq.heapify(edge_list)
         return order_graph ,edge_list
 
-    # ML
-    def estimate_traveling_time(self, start: Coordinates, stop: Coordinates) -> int:
-        return 600
-    
-    # ML
-    def estimate_meal_finished_time(self, order: Order) -> int:
-
-        # tmp wait for ML
-        mean =1000
-        std=300
-
-        lower_bound = 200
-        upper_bound = 2500
-
-        cooking_duration = int(scipy.stats.truncnorm.rvs((lower_bound-mean)/std,
-                                            (upper_bound-mean)/std,
-                                            loc=mean,scale=std,size=1)[0])
-        if cooking_duration<=0:
-            cooking_duration = 1000
-        return cooking_duration
-
     # time it takes to finish an order using a journey(destinations)
     # using destinations[0] as initial localtion
     def calculate_expected_delivery_time_order_graph(self, order: Order, destinations: list[Destination]) -> int:
         for idx in range(len(destinations)):
             if idx == 0:
-                # current_time = destinations[idx].ready_time
-                current_time = self.order_estimated_finish_time[order]
+                current_time = destinations[idx].estimated_ready_time
                 continue
 
-            current_time += self.estimate_traveling_time(
+            current_time += estimate_traveling_time(
                 destinations[idx - 1].location, destinations[idx].location)
 
             if destinations[idx].type == LocationEnum.RESTAURANT:
-                # current_time = max(current_time, destinations[idx].ready_time)
-                current_time = max(current_time, self.order_estimated_finish_time[order])
+                current_time = max(current_time, destinations[idx].estimated_ready_time)
 
             if destinations[idx].order == order and destinations[idx].type == LocationEnum.CUSTOMER:
                 return current_time - order.created_time
 
     # shortest time possible
     def calculate_shortest_delivery_time(self, order: Order) -> int:
-        return (self.order_estimated_finish_time[order]- order.created_time) + self.estimate_traveling_time(order.restaurant_destination, order.customer_destination)
+        return (order.estimated_cooking_duration- order.created_time) + estimate_traveling_time(order.restaurant_destination, order.customer_destination)
 
     # expected - shortest
     def calculate_extra_delivery_time_order_graph(self, order: Order, destinations: list[Destination]) -> int:
@@ -236,17 +203,17 @@ class MultiOrderSuggester:
     def calculate_expected_delivery_time_food_graph(self, order: Order, destinations: list[Destination], rider: Rider, current_time: int) -> int:
         for idx in range(len(destinations)):
             if idx == 0:
-                current_time += self.estimate_traveling_time(
+                current_time += estimate_traveling_time(
                     rider.location, destinations[idx].location)
 
-                current_time = max(current_time, destinations[idx].ready_time)
+                current_time = max(current_time, destinations[idx].estimated_ready_time)
                 continue
 
-            current_time += self.estimate_traveling_time(
+            current_time += estimate_traveling_time(
                 destinations[idx - 1].location, destinations[idx].location)
 
             if destinations[idx].type == LocationEnum.RESTAURANT:
-                current_time = max(current_time, destinations[idx].ready_time)
+                current_time = max(current_time, destinations[idx].estimated_ready_time)
 
             if destinations[idx].order == order and destinations[idx].type == LocationEnum.CUSTOMER:
                 return current_time - order.created_time

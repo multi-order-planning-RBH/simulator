@@ -9,6 +9,7 @@ from common.location import generateBangkokLocation, Coordinates
 from common.order import OrderEnum
 import scipy.stats
 from common.location import Coordinates, LocationEnum, generateBangkokLocation
+from ml_estimator.cooking_duration import estimate_cooking_duration
 
 class Restaurant:
 
@@ -34,7 +35,7 @@ class Restaurant:
                 #change status of order by order id
                 order_simulator.change_order_status(self.order_id_queue[0],OrderEnum.READY)
 
-    def estimate_order_cooking_duration(self,order):
+    def real_cooking_duration(self,order):
         # Estimate "Real" cooking Time from Gaussian
         # preparing time distribution.estimate sth like that
 
@@ -52,7 +53,8 @@ class Restaurant:
             cooking_duration = 1000
         return cooking_duration
 
-        # return 10
+    
+
 
 class RestaurantSimulator :
     def __init__(self):
@@ -77,11 +79,11 @@ class RestaurantSimulator :
             res.preparing_current_order(time)
             
 
-    def estimate_real_cooking_duration(self,restaurant_id,order):
+    def real_cooking_duration(self,restaurant_id,order):
 
         res_id = self.restaurant_id_list.index(restaurant_id)
 
-        return self.restaurant_list[res_id].estimate_order_cooking_duration(order)
+        return self.restaurant_list[res_id].real_cooking_duration(order)
 
     def assign_order_to_restaurant(self,restaurant_id,order):
 
@@ -112,6 +114,7 @@ class Order:
         self.meal_finished_time : int = None
         self.picked_up_time : int = None
         self.cooking_duration : int = None
+        self.estimated_cooking_duration : int = None
         self.finished_time : int = 0
         self.status : OrderEnum = OrderEnum.CREATED
         self.rider =None
@@ -146,10 +149,12 @@ class OrderSimulator:
         
         restaurant = restaurant_simulator.get_restaurant_by_id(restaurant_id)
         new_order=Order(restaurant_id, self.order_idx, created_time)
-        new_order.cooking_duration= restaurant_simulator.estimate_real_cooking_duration(restaurant_id,new_order)
+        new_order.cooking_duration= restaurant_simulator.real_cooking_duration(restaurant_id,new_order)
+        new_order.estimated_cooking_duration= estimate_cooking_duration(new_order)
         
-        new_order.restaurant_destination = Destination(new_order, restaurant.location, LocationEnum.RESTAURANT, new_order.cooking_duration)
-        new_order.customer_destination = Destination(new_order, customer_destination, LocationEnum.CUSTOMER, 5)
+
+        new_order.restaurant_destination = Destination(new_order, restaurant.location, LocationEnum.RESTAURANT, new_order.cooking_duration, new_order.estimated_cooking_duration)
+        new_order.customer_destination = Destination(new_order, customer_destination, LocationEnum.CUSTOMER, 5 , None)
 
         self.order_dict[self.order_idx]=new_order
 
@@ -158,11 +163,6 @@ class OrderSimulator:
         restaurant_simulator.assign_order_to_restaurant(restaurant_id,new_order)
         
         self.order_idx+=1
-
-    def estimate_cooking_duration(self,restaurant_id,order):
-
-        # estimate by ML
-        return 800
     
     def change_order_status(self,order_id,status,time=0):
         
@@ -200,10 +200,11 @@ class OrderSimulator:
             print("Order with Id",order_id,"is not found.")
 
 class Destination :
-    def __init__(self, order : Order, location : Coordinates, type : LocationEnum, ready_time : int):
+    def __init__(self, order : Order, location : Coordinates, type : LocationEnum, ready_time : int, estimated_ready_time : int):
         self.location : Coordinates = location
         self.type : LocationEnum = type
         self.ready_time : int = ready_time
+        self.estimated_ready_time : int = estimated_ready_time
         self.order : Order = order
     
     def pick_up_or_deliver(self, time):
@@ -213,5 +214,8 @@ class Destination :
         elif self.type == LocationEnum.CUSTOMER:
             self.order.status = OrderEnum.DELIVERED
             order_simulator.change_order_status(self.order.id,OrderEnum.DELIVERED, time)
+
+
+
 order_simulator = OrderSimulator()
 restaurant_simulator = RestaurantSimulator()
