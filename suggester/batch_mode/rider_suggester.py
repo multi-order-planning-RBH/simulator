@@ -49,23 +49,27 @@ def solve_integer_programming(batch_rider_order_time_array):
     l = np.zeros_like(u)
 
     if len_rider < len_batch:
-        b_u[:len_rider] = 2
-        b_u[len_rider:] = ceil(len_rider/len_batch)
-        b_l[:len_rider] = 1
-        b_l[len_rider:] = ceil(len_rider/len_batch)
+        temp = ceil(len_batch/len_rider)
+        b_u[:len_rider] = temp
+        b_u[len_rider:] = 2
+        b_l[:len_rider] = temp
+        b_l[len_rider:] = 1
+
     elif len_rider == len_batch:
         b_u[:] = 2
         b_l[:] = 2
     if len_rider > len_batch:
-        b_u[:len_rider] = ceil(len_batch/len_rider)
-        b_u[len_rider:] = 2
-        b_l[:len_rider] = ceil(len_batch/len_rider)
-        b_l[len_rider:] = 1
+        temp = ceil(len_rider/len_batch)
+        b_u[:len_rider] = 2
+        b_u[len_rider:] = temp
+        b_l[:len_rider] = 1
+        b_l[len_rider:] = temp
 
     integrality = np.ones_like(batch_rider_order_time_array[:, 0])
     constraints = LinearConstraint(A, b_l, b_u)
     bounds = Bounds(lb = l, ub = u)
     res = milp(c=c, constraints=constraints, integrality=integrality, bounds=bounds)
+
     return res, rider_unique
 
 def transform_res_to_graph(res, batch_rider_order_time_array, rider_unique):
@@ -73,17 +77,16 @@ def transform_res_to_graph(res, batch_rider_order_time_array, rider_unique):
     selected_x = x == 1
     selected_pair = batch_rider_order_time_array[selected_x][:, :2]
 
-    suggested_order_rider_graph = defaultdict(list)
-
+    suggested_rider_batch_graph = defaultdict(list)
     for rider in rider_unique:
         selected_batch = selected_pair[selected_pair[:, 0] == rider, :][:, 1]
         for batch in selected_batch:
-            suggested_order_rider_graph[rider].append(batch)
+            suggested_rider_batch_graph[rider].append(batch)
 
-    return suggested_order_rider_graph
+    return suggested_rider_batch_graph
 
 def rider_suggester(food_graph: Dict[Rider, Dict[Batch, int]]) -> Dict[Rider, List[Batch]]:
     batch_rider_order_time_array = get_batch_to_rider(food_graph)
     res, rider_unique = solve_integer_programming(batch_rider_order_time_array)
-    suggested_order_rider_graph = transform_res_to_graph(res, batch_rider_order_time_array, rider_unique)
-    return suggested_order_rider_graph
+    suggested_rider_batch_graph = transform_res_to_graph(res, batch_rider_order_time_array, rider_unique)
+    return suggested_rider_batch_graph
