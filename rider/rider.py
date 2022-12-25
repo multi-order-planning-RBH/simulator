@@ -9,22 +9,9 @@ from common.action import ActionEnum
 from common.status import StatusEnum
 #from order.order_simulator import Order
 from rider.estimator import getEstimatedTimeTraveling
-from order_restaurant.order_restaurant_simulator import Order, order_simulator
+from order_restaurant.order_restaurant_simulator import Order, order_simulator, Destination
 
-class Destination :
-    def __init__(self, order : Order, location : Coordinates, type : LocationEnum, ready_time : int):
-        self.location : Coordinates = location
-        self.type : LocationEnum = type
-        self.ready_time : int = ready_time
-        self.order : Order = order
-    
-    def pick_up_or_deliver(self, time):
-        if self.type == LocationEnum.RESTAURANT:
-            self.order.status = OrderEnum.PICKED_UP
-            order_simulator.change_order_status(self.order.id,OrderEnum.PICKED_UP, time)
-        elif self.type == LocationEnum.CUSTOMER:
-            self.order.status = OrderEnum.DELIVERED
-            order_simulator.change_order_status(self.order.id,OrderEnum.DELIVERED, time)
+
 
 class Action : 
     def __init__(self, action : ActionEnum, time : int):
@@ -59,9 +46,11 @@ class Rider:
             self.current_action != ActionEnum.UNAVAILABLE) and \
             self.getoff_time - time > 1800:
             self.order_count += 1
-            self.destinations.append(Destination(order, order.restaurant_location, LocationEnum.RESTAURANT, order.cooking_duration))
+            
+            # self.destinations.append(Destination(order, order.restaurant_location, LocationEnum.RESTAURANT, order.cooking_duration))
+            self.destinations.append(order.restaurant_destination)
             # May change 5 to be other number for randomness
-            self.destinations.append(Destination(order, order.destination, LocationEnum.CUSTOMER, 5)) 
+            self.destinations.append(order.customer_destination) 
             return True
         return False
 
