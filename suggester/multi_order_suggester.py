@@ -123,7 +123,7 @@ class MultiOrderSuggester:
     def calculate_expected_delivery_time_order_graph(self, order: Order, destinations: list[Destination]) -> int:
         for idx in range(len(destinations)):
             if idx == 0:
-                current_time = destinations[idx].estimated_ready_time
+                current_time = destinations[idx].preparing_duration
                 continue
 
             current_time += estimate_traveling_time(
@@ -131,7 +131,7 @@ class MultiOrderSuggester:
 
             if destinations[idx].type == LocationEnum.RESTAURANT:
                 current_time = max(
-                    current_time, destinations[idx].estimated_ready_time)
+                    current_time, destinations[idx].preparing_duration)
 
             if destinations[idx].order == order and destinations[idx].type == LocationEnum.CUSTOMER:
                 return current_time - order.created_time
@@ -206,10 +206,10 @@ class MultiOrderSuggester:
     # time it takes to finish an order using a journey(destinations)
     # using rider as initial localtion
     def calculate_expected_delivery_time_food_graph(self, order: Order, destinations: list[Destination], rider: Rider, current_time: int) -> int:
-        meal_finished_times = []
+        ready_times = []
         for idx in range(len(destinations)):
-            meal_finished_times.append(
-                current_time + destinations[idx].estimated_ready_time)
+            ready_times.append(
+                current_time + destinations[idx].preparing_duration)
 
         for idx in range(len(destinations)):
             if idx == 0:
@@ -217,7 +217,7 @@ class MultiOrderSuggester:
                     rider.location, destinations[idx].location)
 
                 current_time = max(
-                    current_time, meal_finished_times[idx])
+                    current_time, ready_times[idx])
                 continue
 
             current_time += estimate_traveling_time(
@@ -225,7 +225,7 @@ class MultiOrderSuggester:
 
             if destinations[idx].type == LocationEnum.RESTAURANT:
                 current_time = max(
-                    current_time, meal_finished_times[idx])
+                    current_time, ready_times[idx])
 
             if destinations[idx].order == order and destinations[idx].type == LocationEnum.CUSTOMER:
                 return current_time - order.created_time
