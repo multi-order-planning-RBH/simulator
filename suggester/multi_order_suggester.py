@@ -15,11 +15,11 @@ class MultiOrderSuggester:
     def __init__(self, rider_simulator: RiderSimulator, order_simulator: OrderSimulator):
         self.rider_simulator = rider_simulator
         self.order_simulator = order_simulator
-        # this should be params 
+        # this should be params
         self.max_order_per_batch = 2
 
-
     # randomly assign each order to a rider
+
     def assign_order_to_rider(self, time):
         rider_list = self.rider_simulator.unassigned_riders
         order_list = self.order_simulator.unassigned_order_list
@@ -37,57 +37,60 @@ class MultiOrderSuggester:
                 rider_list.remove(rider)"""
 
     # merge orders into batch
-    def batch_order(self,orders_graph: dict[Batch, dict[Batch, int]], edge_heap: list[int,Batch,Batch]) -> list[Batch]:
+    def batch_order(self, orders_graph: dict[Batch, dict[Batch, int]], edge_heap: list[int, Batch, Batch]) -> list[Batch]:
 
         max_order = self.max_order_per_batch
         merged_order = set()
-        all_cost = sum([self.calculate_cost_order_graph(batch.orders,batch.destinations) for batch in orders_graph])
+        all_cost = sum([self.calculate_cost_order_graph(
+            batch.orders, batch.destinations) for batch in orders_graph])
         num_batch = len(orders_graph)
 
         # default value from paper, should tune this value too
         threhold_cost = 60
-        while all_cost/num_batch <= threhold_cost and len(edge_heap)>0:
-            
-            min_edge_weight,min_batch,min_neighbor = heapq.heappop(edge_heap)
+        while all_cost/num_batch <= threhold_cost and len(edge_heap) > 0:
+
+            min_edge_weight, min_batch, min_neighbor = heapq.heappop(edge_heap)
             if len(min_batch.orders) + len(min_neighbor.orders) > max_order:
                 continue
             if min_batch in merged_order or min_neighbor in merged_order:
                 continue
-            
+
             # remove batches to merge
 
             merged_order.add(min_batch)
             merged_order.add(min_neighbor)
-            orders_graph.pop(min_batch,None)
-            orders_graph.pop(min_neighbor,None)
+            orders_graph.pop(min_batch, None)
+            orders_graph.pop(min_neighbor, None)
 
-            # create new batch 
-            new_orders =min_batch.orders+min_neighbor.orders
-            _,new_destinations = self.calculate_order_graph_weight(min_batch,min_neighbor)
-            new_batch = Batch(orders=new_orders,destinations=new_destinations)
-            new_edge_weight = {neighbor:self.calculate_order_graph_weight(new_batch,neighbor)[0] for neighbor in orders_graph if len(neighbor.orders)+len(new_batch.orders)<=max_order}
-            
-            # remove edge to unmerged batch + add new edge to merged batch 
+            # create new batch
+            new_orders = min_batch.orders+min_neighbor.orders
+            _, new_destinations = self.calculate_order_graph_weight(
+                min_batch, min_neighbor)
+            new_batch = Batch(orders=new_orders, destinations=new_destinations)
+            new_edge_weight = {neighbor: self.calculate_order_graph_weight(new_batch, neighbor)[
+                0] for neighbor in orders_graph if len(neighbor.orders)+len(new_batch.orders) <= max_order}
+
+            # remove edge to unmerged batch + add new edge to merged batch
             for batch in orders_graph:
-                orders_graph[batch].pop(min_batch,None)
-                orders_graph[batch].pop(min_neighbor,None)
+                orders_graph[batch].pop(min_batch, None)
+                orders_graph[batch].pop(min_neighbor, None)
 
                 if batch not in new_edge_weight:
                     continue
 
                 orders_graph[batch][new_batch] = new_edge_weight[batch]
-                heapq.heappush(edge_heap,[new_edge_weight[batch],batch,new_batch])
+                heapq.heappush(
+                    edge_heap, [new_edge_weight[batch], batch, new_batch])
 
             orders_graph[new_batch] = new_edge_weight
-            all_cost+=min_edge_weight
-            num_batch-=1
+            all_cost += min_edge_weight
+            num_batch -= 1
         return [batch for batch in orders_graph]
-
 
     def construct_order_graph(self, orders: list[Order]) -> dict[Batch, dict[Batch, int]]:
 
         edge_list = []
-        
+
         batches = list()
         for order in orders:
             batch = Batch(
@@ -104,15 +107,16 @@ class MultiOrderSuggester:
                 edges[neighbor], _ = self.calculate_order_graph_weight(
                     batch, neighbor)
             order_graph[batch] = edges
-        
+
         for i in range(len(batches)):
-            for j in range(i+1,len(batches)):
-                batch=batches[i]
-                neighbor=batches[j]
-                edge_list.append([order_graph[batch][neighbor],batch,neighbor])
-        
+            for j in range(i+1, len(batches)):
+                batch = batches[i]
+                neighbor = batches[j]
+                edge_list.append(
+                    [order_graph[batch][neighbor], batch, neighbor])
+
         heapq.heapify(edge_list)
-        return order_graph ,edge_list
+        return order_graph, edge_list
 
     # time it takes to finish an order using a journey(destinations)
     # using destinations[0] as initial localtion
@@ -126,14 +130,15 @@ class MultiOrderSuggester:
                 destinations[idx - 1].location, destinations[idx].location)
 
             if destinations[idx].type == LocationEnum.RESTAURANT:
-                current_time = max(current_time, destinations[idx].estimated_ready_time)
+                current_time = max(
+                    current_time, destinations[idx].estimated_ready_time)
 
             if destinations[idx].order == order and destinations[idx].type == LocationEnum.CUSTOMER:
                 return current_time - order.created_time
 
     # shortest time possible
     def calculate_shortest_delivery_time(self, order: Order) -> int:
-        return (order.estimated_cooking_duration- order.created_time) + estimate_traveling_time(order.restaurant_destination, order.customer_destination)
+        return order.estimated_cooking_duration + estimate_traveling_time(order.restaurant_destination, order.customer_destination)
 
     # expected - shortest
     def calculate_extra_delivery_time_order_graph(self, order: Order, destinations: list[Destination]) -> int:
@@ -201,19 +206,26 @@ class MultiOrderSuggester:
     # time it takes to finish an order using a journey(destinations)
     # using rider as initial localtion
     def calculate_expected_delivery_time_food_graph(self, order: Order, destinations: list[Destination], rider: Rider, current_time: int) -> int:
+        meal_finished_times = []
+        for idx in range(len(destinations)):
+            meal_finished_times.append(
+                current_time + destinations[idx].estimated_ready_time)
+
         for idx in range(len(destinations)):
             if idx == 0:
                 current_time += estimate_traveling_time(
                     rider.location, destinations[idx].location)
 
-                current_time = max(current_time, destinations[idx].estimated_ready_time)
+                current_time = max(
+                    current_time, meal_finished_times[idx])
                 continue
 
             current_time += estimate_traveling_time(
                 destinations[idx - 1].location, destinations[idx].location)
 
             if destinations[idx].type == LocationEnum.RESTAURANT:
-                current_time = max(current_time, destinations[idx].estimated_ready_time)
+                current_time = max(
+                    current_time, meal_finished_times[idx])
 
             if destinations[idx].order == order and destinations[idx].type == LocationEnum.CUSTOMER:
                 return current_time - order.created_time
