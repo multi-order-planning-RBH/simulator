@@ -2,13 +2,12 @@ from scipy.optimize import milp, LinearConstraint, Bounds
 from collections import defaultdict
 import numpy as np
 from math import ceil
-
 from typing import Dict, List
 
 import sys, os
 sys.path.append(os.path.abspath("./"))
 from rider.rider import Rider
-from suggester.batch_mode.batch import Batch
+from suggester.types.batch import Batch
 
 def get_batch_to_rider(food_graph: Dict[Rider, Dict[Batch, int]]):
     batch_rider_pair_list = []

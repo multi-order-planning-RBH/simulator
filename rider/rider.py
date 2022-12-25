@@ -3,13 +3,12 @@ from typing import Dict, List
 import random
 import sys, os
 sys.path.append(os.path.abspath("./"))
-from common.order import OrderEnum
 from common.location import Coordinates, LocationEnum, generateBangkokLocation
 from common.action import ActionEnum
 from common.status import StatusEnum
 #from order.order_simulator import Order
 from rider.estimator import getEstimatedTimeTraveling
-from order_restaurant.order_restaurant_simulator import Order, order_simulator, Destination
+from order_restaurant.order_restaurant_simulator import Order, Destination
 
 
 
