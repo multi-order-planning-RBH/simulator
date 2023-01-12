@@ -2,7 +2,7 @@ from scipy.optimize import milp, LinearConstraint, Bounds
 from collections import defaultdict
 import numpy as np
 from math import ceil
-from typing import Dict, List
+from typing import Dict, List, Tuple, Set
 import sys, os
 import heapq
 
@@ -129,6 +129,7 @@ class BatchMode:
             food_graph[rider] = edges
         return food_graph
 
+    #Suggest rider-batch pairs based on food graph
     def rider_suggester(self, food_graph: Dict[Rider, Dict[Batch, int]]) -> Dict[Rider, List[Batch]]:
         batch_rider_order_time_array = self.get_batch_to_rider(food_graph)
         res, rider_unique = self.solve_integer_programming(batch_rider_order_time_array)
@@ -241,7 +242,8 @@ class BatchMode:
     def calculate_extra_delivery_time_food_graph(self, order: Order, destinations: list[Destination], rider: Rider, current_time: int) -> int:
         return self.calculate_expected_delivery_time_food_graph(order, destinations, rider, current_time) - self.calculate_shortest_delivery_time(order)
     
-    def get_batch_to_rider(self, food_graph: Dict[Rider, Dict[Batch, int]]):
+    #Transform food graph to table which its schema is rider batch number cost
+    def get_batch_to_rider(self, food_graph: Dict[Rider, Dict[Batch, int]]) -> np.ndarray:
         batch_rider_pair_list = []
         count = 0 
         for k_r, v_r in food_graph.items():
@@ -251,7 +253,8 @@ class BatchMode:
         batch_rider_order_time_array = np.array(batch_rider_pair_list)
         return batch_rider_order_time_array
 
-    def solve_integer_programming(self, batch_rider_order_time_array): 
+    #Construct matrices and the solve integer programming 
+    def solve_integer_programming(self, batch_rider_order_time_array : np.ndarray) -> Tuple[np.ndarray, Set]: 
         rider_unique = set(batch_rider_order_time_array[:,0])
         len_rider = len(rider_unique)
         batch_unique = set(batch_rider_order_time_array[:,1])
@@ -303,7 +306,8 @@ class BatchMode:
 
         return res, rider_unique
 
-    def transform_res_to_graph(self, res, batch_rider_order_time_array, rider_unique):
+    #Converse integer programming result to 
+    def transform_res_to_graph(self, res: np.ndarray, batch_rider_order_time_array: np.ndarray, rider_unique: Set)-> Dict[Rider, List[Batch]]:
         x = res.x
         selected_x = x == 1
         selected_pair = batch_rider_order_time_array[selected_x][:, :2]

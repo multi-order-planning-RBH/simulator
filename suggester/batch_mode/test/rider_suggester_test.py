@@ -3,7 +3,7 @@ sys.path.append(os.path.abspath("./"))
 
 from rider.rider import Rider
 from suggester.types.batch import Batch
-from suggester.batch_mode.rider_suggester import rider_suggester
+from suggester.batch_mode.batch_mode import batchmode
 
 # Case 1 - Test trivial case in equal size sets of riders and batches, 
 # specify unselected edge by heavy weight.
@@ -21,7 +21,7 @@ for i, r in enumerate(riders):
     for j, b in enumerate(batches):
         food_graph[r][b] = weights[i][j]
         
-suggested_rider_batch_graph = rider_suggester(food_graph)
+suggested_rider_batch_graph = batchmode.rider_suggester(food_graph)
 
 for r in suggested_rider_batch_graph:
     for b in suggested_rider_batch_graph[r]:
@@ -47,7 +47,7 @@ for i, r in enumerate(riders):
     for j, b in enumerate(batches):
         food_graph[r][b] = weights[i][j]
         
-suggested_rider_batch_graph = rider_suggester(food_graph)
+suggested_rider_batch_graph = batchmode.rider_suggester(food_graph)
 
 for r in suggested_rider_batch_graph:
     for b in suggested_rider_batch_graph[r]:
@@ -71,7 +71,7 @@ for i, r in enumerate(riders):
     for j, b in enumerate(batches):
         food_graph[r][b] = weights[i][j]
         
-suggested_rider_batch_graph = rider_suggester(food_graph)
+suggested_rider_batch_graph = batchmode.rider_suggester(food_graph)
 
 for r in suggested_rider_batch_graph:
     for b in suggested_rider_batch_graph[r]:
@@ -94,11 +94,11 @@ for i, r in enumerate(riders):
     for j, b in enumerate(batches):
         food_graph[r][b] = weights[i][j]
         
-suggested_rider_batch_graph = rider_suggester(food_graph)
+suggested_rider_batch_graph = batchmode.rider_suggester(food_graph)
 
-for r in suggested_rider_batch_graph:
+"""for r in suggested_rider_batch_graph:
     for b in suggested_rider_batch_graph[r]:
-        print(riders.index(r), batches.index(b), food_graph[r][b])
+        print(riders.index(r), batches.index(b), food_graph[r][b])"""
 
 
 # Case 5 - Test trivial case in equal size sets of riders and batches, 
@@ -121,11 +121,12 @@ for i, r in enumerate(riders):
     for j, b in enumerate(batches):
         food_graph[r][b] = weights[i][j]
         
-suggested_rider_batch_graph = rider_suggester(food_graph)
-print()
+suggested_rider_batch_graph = batchmode.rider_suggester(food_graph)
+
+"""print()
 for r in suggested_rider_batch_graph:
     for b in suggested_rider_batch_graph[r]:
-        print(riders.index(r), batches.index(b), food_graph[r][b])
+        print(riders.index(r), batches.index(b), food_graph[r][b])"""
 
 # Case 6 - Test trivial case in equal size sets of riders and batches, 
 # specify unselected edge by heavy weight.
@@ -143,11 +144,12 @@ for i, r in enumerate(riders):
     for j, b in enumerate(batches):
         food_graph[r][b] = weights[i][j]
         
-suggested_rider_batch_graph = rider_suggester(food_graph)
-print()
+suggested_rider_batch_graph = batchmode.rider_suggester(food_graph)
+
+"""print()
 for r in suggested_rider_batch_graph:
     for b in suggested_rider_batch_graph[r]:
-        print(riders.index(r), batches.index(b), food_graph[r][b])
+        print(riders.index(r), batches.index(b), food_graph[r][b])"""
 
 
 # Case 7 - Test trivial case in equal size sets of riders and batches, 
@@ -168,14 +170,14 @@ for i, r in enumerate(riders):
     for j, b in enumerate(batches):
         food_graph[r][b] = weights[i][j]
         
-suggested_rider_batch_graph = rider_suggester(food_graph)
+suggested_rider_batch_graph = batchmode.rider_suggester(food_graph)
 
-print()
+"""print()
 print(weights)
 print()
 for r in suggested_rider_batch_graph:
     for b in suggested_rider_batch_graph[r]:
-        print(riders.index(r), batches.index(b), food_graph[r][b])
+        print(riders.index(r), batches.index(b), food_graph[r][b])"""
 
 # Case 7 - Test trivial case in equal size sets of riders and batches, 
 # specify unselected edge by heavy weight.
@@ -195,9 +197,8 @@ for i, r in enumerate(riders):
     for j, b in enumerate(batches):
         food_graph[r][b] = weights[i][j]
         
-suggested_rider_batch_graph = rider_suggester(food_graph)
+suggested_rider_batch_graph = batchmode.rider_suggester(food_graph)
 
-print()
+"""print()
 print(weights)
-print()
-this should be params
+print()"""
