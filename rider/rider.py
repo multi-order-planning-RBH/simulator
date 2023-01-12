@@ -3,13 +3,12 @@ from typing import Dict, List
 import random
 import sys, os
 sys.path.append(os.path.abspath("./"))
-from common.order import OrderEnum
 from common.location import Coordinates, LocationEnum, generateBangkokLocation
 from common.action import ActionEnum
 from common.status import StatusEnum
 #from order.order_simulator import Order
 from rider.estimator import getEstimatedTimeTraveling
-from order_restaurant.order_restaurant_simulator import Order, order_simulator, Destination
+from order_restaurant.order_restaurant_simulator import Order, Destination
 
 
 
@@ -100,10 +99,10 @@ class Rider:
                 order = destination.order
 
                 #Add additional time for waiting customer to come for pick up the order when riding to the customer
-                ready_time = order.meal_finished_time if destination.type == LocationEnum.RESTAURANT else time
+                meal_finished_time = order.meal_finished_time if destination.type == LocationEnum.RESTAURANT else time
 
                 #Compare waiting time and commuting time
-                next_time = max(ready_time, self.current_action.time)+1
+                next_time = max(meal_finished_time, self.current_action.time)+1
 
                 self.next_action = Action(next_action, next_time)
 
