@@ -39,6 +39,17 @@ class CentralManager:
         else:
             return -1
 
+    def count_no_order_rider(self):
+        no_order_count = 0
+        riders = self.rider_simulator.riders
+        for rider in riders:
+            if rider.order_count==0:
+                no_order_count += rider.order_count
+        if len(riders)>0:
+            return no_order_count
+        else:
+            return -1
+
     def simulate(self, total_time: int, time_window: int):
         while self.current_time < total_time:
             time = self.current_time
@@ -63,5 +74,8 @@ class CentralManager:
 
             if self.current_time > 0 and self.current_time % time_window == 0:
                 self.multi_order_suggester.assign_order_to_rider(time)
+
+                # for batch mode
+                # self.multi_order_suggester.suggest_batch_mode(time)
 
             self.current_time += 1

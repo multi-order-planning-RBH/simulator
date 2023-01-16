@@ -5,6 +5,7 @@ from rider.rider import Rider, Order
 from common.order import OrderEnum
 from common.action import ActionEnum
 from order_restaurant.order_restaurant_simulator import order_simulator
+from suggester.types.batch import Batch
 
 class RiderSimulator():
     def __init__(self):
@@ -18,7 +19,7 @@ class RiderSimulator():
         self.count = 0 
         self.success_count = 0 
 
-        for _ in range(5000):
+        for _ in range(2000):
             self.create_rider_innitial_location()
 
     def create_rider_innitial_location(self, starting_time = 0, getoff_time = 10000):
@@ -28,6 +29,17 @@ class RiderSimulator():
             self.working_riders.append(rider)
             self.unassigned_riders.append(rider)
         return rider
+
+    # batch mode assigning 
+    def assign_batch_to_a_rider(self, batch:Batch, rider:Rider, time:int) -> bool:
+        self.count += len(batch.orders)
+
+        res = rider.add_batch_destination(batch, time)
+        if res == True :
+            self.success_count += 1
+            for order in batch.orders:
+                order_simulator.change_order_status(order.id,OrderEnum.ASSIGNED, time)
+        return res
 
     def assign_order_to_a_rider(self, order:Order, rider:Rider, time:int) -> bool:
         self.count += 1

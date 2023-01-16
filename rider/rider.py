@@ -9,7 +9,7 @@ from common.status import StatusEnum
 #from order.order_simulator import Order
 from rider.estimator import getEstimatedTimeTraveling
 from order_restaurant.order_restaurant_simulator import Order, Destination
-
+from suggester.types.batch import Batch
 
 
 class Action : 
@@ -44,12 +44,27 @@ class Rider:
         if (self.current_action != ActionEnum.RESTING or \
             self.current_action != ActionEnum.UNAVAILABLE) and \
             self.getoff_time - time > 1800:
+
             self.order_count += 1
             
             # self.destinations.append(Destination(order, order.restaurant_location, LocationEnum.RESTAURANT, order.cooking_duration))
             self.destinations.append(order.restaurant_destination)
             # May change 5 to be other number for randomness
             self.destinations.append(order.customer_destination) 
+
+            return True
+        return False
+
+    # batch mode
+    def add_batch_destination(self, batch : Batch, time : int) -> bool:
+        if (self.current_action != ActionEnum.RESTING or \
+            self.current_action != ActionEnum.UNAVAILABLE) and \
+            self.getoff_time - time > 1800:
+
+            self.order_count += len(batch.orders)
+            
+            self.destinations+=batch.destinations
+
             return True
         return False
 
