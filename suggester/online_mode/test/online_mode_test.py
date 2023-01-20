@@ -11,10 +11,5 @@ for time in range(10):
     restaurant_simulator.simulate(time)
     rider_simulator.simulate(time)
 
-orders = [o for o in order_simulator.order_dict.values()]
-riders = rider_simulator.riders
-
-for i in range(10):
-    rider, _ = online_mode.find_best_insertion(orders[i], riders, i)
-    rider_simulator.assign_order_to_a_rider(orders[i], rider, i)
-    print(rider.order_count)
+    rider, _ = online_mode.find_best_insertion(order_simulator.unassigned_order_list[0], rider_simulator.riders, time)
+    rider_simulator.assign_order_to_a_rider(order_simulator.unassigned_order_list[0], rider, time)

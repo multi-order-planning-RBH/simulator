@@ -37,10 +37,9 @@ class OnlineMode:
             cost = new_finished_time - old_finished_time
             return cost, new_destinations
 
-        current_idx = rider.destinations.index(rider.current_destination)
         min_cost = np.inf
-        for i in range(current_idx, len(rider.destinations) + 1, 1):
-            for j in range(i + 1, len(rider.destinations) + 2, 1):
+        for i in range(len(rider.destinations)):
+            for j in range(i + 1, len(rider.destinations) + 2):
                 new_destinations = list(rider.destinations)
                 new_destinations.insert(i, order.restaurant_destination)
                 new_destinations.insert(j, order.customer_destination)
@@ -49,18 +48,22 @@ class OnlineMode:
                 new_finished_time = self.calculate_finished_time(new_destinations, rider.current_destination, time)
                 cost = new_finished_time - old_finished_time
                 if min_cost > cost:
+                    min_cost = cost
                     best_destinations = new_destinations
 
         return min_cost, best_destinations
 
     def calculate_finished_time(self, destinations: list[Destination], current_destination: Destination, time: int):
-        if len(destinations) == 0 or current_destination is None:
+        if current_destination is None:
             return time
 
         current_time = time
-        current_idx = destinations.index(current_destination)
-        for idx in range(current_idx + 1, len(destinations)):
-            current_time += estimate_traveling_time(destinations[idx - 1].location, destinations[idx].location)
+        for idx in range(len(destinations)):
+            if idx == 0:
+                current_time += estimate_traveling_time(current_destination.location, destinations[idx].location)
+            else:
+                current_time += estimate_traveling_time(destinations[idx - 1].location, destinations[idx].location)
+
             if destinations[idx].type == LocationEnum.RESTAURANT:
                 if destinations[idx].order.assigned_time is None:
                     # new order has not been assigned. so we use time + estimated preparing time
