@@ -13,3 +13,5 @@ for time in range(10):
 
     rider, _ = online_mode.find_best_insertion(order_simulator.unassigned_order_list[0], rider_simulator.riders, time)
     rider_simulator.assign_order_to_a_rider(order_simulator.unassigned_order_list[0], rider, time)
+
+    print(rider, len(rider.destinations))

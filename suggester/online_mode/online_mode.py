@@ -22,7 +22,7 @@ class OnlineMode:
                 min_cost = cost
                 best_rider = rider
                 best_destinations = destinations
-                
+
         return best_rider, best_destinations
 
     def plain_insertion(self, order: Order, rider: Rider, time: int):
