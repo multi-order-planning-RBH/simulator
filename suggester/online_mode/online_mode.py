@@ -14,10 +14,6 @@ class OnlineMode:
         # TODO: add max order
         pass
 
-    def suggest(self, order: Order, riders: list[Rider], time: int):
-        rider, destinations = self.find_best_insertion(order, riders, time)
-        # TODO: assign new destinations list to the rider
-
     def find_best_insertion(self, order: Order, riders: list[Rider], time: int):
         min_cost = np.inf
         for rider in riders:
