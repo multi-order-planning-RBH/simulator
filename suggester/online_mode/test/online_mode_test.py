@@ -15,6 +15,6 @@ orders = [o for o in order_simulator.order_dict.values()]
 riders = rider_simulator.riders
 
 for i in range(10):
-    rider, _ = online_mode.find_best_insertion(orders[i], riders, 10)
-    rider_simulator.assign_order_to_a_rider(orders[i], rider, time)
+    rider, _ = online_mode.find_best_insertion(orders[i], riders, i)
+    rider_simulator.assign_order_to_a_rider(orders[i], rider, i)
     print(rider.order_count)
