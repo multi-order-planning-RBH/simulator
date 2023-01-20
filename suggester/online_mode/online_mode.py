@@ -19,6 +19,7 @@ class OnlineMode:
         for rider in riders:
             cost, destinations = self.plain_insertion(order, rider, time)
             if cost < min_cost:
+                min_cost = cost
                 best_rider = rider
                 best_destinations = destinations
                 
@@ -30,7 +31,10 @@ class OnlineMode:
             new_destinations = list(rider.destinations)
             new_destinations.append(order.restaurant_destination)
             new_destinations.append(order.customer_destination)
-            cost = self.calculate_cost(new_destinations, order.restaurant_destination, time)
+
+            old_finished_time = self.calculate_finished_time(rider.destinations, None, time)
+            new_finished_time = self.calculate_finished_time(new_destinations, order.restaurant_destination, time)
+            cost = new_finished_time - old_finished_time
             return cost, new_destinations
 
         current_idx = rider.destinations.index(rider.current_destination)
@@ -41,16 +45,18 @@ class OnlineMode:
                 new_destinations.insert(i, order.restaurant_destination)
                 new_destinations.insert(j, order.customer_destination)
 
-                cost = self.calculate_cost(new_destinations, rider.current_destination, time)
+                old_finished_time = self.calculate_finished_time(rider.destinations, rider.current_destination, time)
+                new_finished_time = self.calculate_finished_time(new_destinations, rider.current_destination, time)
+                cost = new_finished_time - old_finished_time
                 if min_cost > cost:
                     best_destinations = new_destinations
 
         return min_cost, best_destinations
-        
-    def calculate_cost(self, old_destinations: list[Destination], new_destinations: list[Destination], current_destination: Destination, time: int):
-        return self.calculate_finished_time(new_destinations, current_destination, time) - self.calculate_finished_time(old_destinations, current_destination, time)
 
     def calculate_finished_time(self, destinations: list[Destination], current_destination: Destination, time: int):
+        if len(destinations) == 0 or current_destination is None:
+            return time
+
         current_time = time
         current_idx = destinations.index(current_destination)
         for idx in range(current_idx + 1, len(destinations)):
@@ -64,3 +70,5 @@ class OnlineMode:
                     current_time = max(current_time, destinations[idx].order.assigned_time + destinations[idx].preparing_duration)
                 
         return current_time
+
+online_mode = OnlineMode()
