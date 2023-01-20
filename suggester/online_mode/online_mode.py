@@ -6,6 +6,7 @@ sys.path.append(os.path.abspath("./"))
 from order_restaurant.order_restaurant_simulator import Order
 from rider.rider import Rider
 from rider.rider import Destination
+from common.location import LocationEnum
 from ml_estimator.traveling_time import estimate_traveling_time
 
 class OnlineMode:
@@ -50,6 +51,20 @@ class OnlineMode:
 
         return min_cost, best_destinations
         
-    def calculate_cost(self, destinations: list[Destination], current_destination: Destination, time: int):
-        # TODO: calculate cost for adding restaurant destination and customer destination to the list
-        return 1
+    def calculate_cost(self, old_destinations: list[Destination], new_destinations: list[Destination], current_destination: Destination, time: int):
+        return self.calculate_finished_time(new_destinations, current_destination, time) - self.calculate_finished_time(old_destinations, current_destination, time)
+
+    def calculate_finished_time(self, destinations: list[Destination], current_destination: Destination, time: int):
+        current_time = time
+        current_idx = destinations.index(current_destination)
+        for idx in range(current_idx + 1, len(destinations)):
+            current_time += estimate_traveling_time(destinations[idx - 1].location, destinations[idx].location)
+            if destinations[idx].type == LocationEnum.RESTAURANT:
+                if destinations[idx].order.assigned_time is None:
+                    # new order has not been assigned. so we use time + estimated preparing time
+                    current_time = max(current_time, time + destinations[idx].preparing_duration)
+                else:
+                    # assigned order
+                    current_time = max(current_time, destinations[idx].order.assigned_time + destinations[idx].preparing_duration)
+                
+        return current_time
