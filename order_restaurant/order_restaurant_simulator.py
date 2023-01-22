@@ -1,13 +1,17 @@
-from ml_estimator.cooking_duration import estimate_cooking_duration
-from common.location import Coordinates, LocationEnum, generateBangkokLocation
-import scipy.stats
-from common.order import OrderEnum
-from common.location import generateBangkokLocation, Coordinates
 import random
 import pandas as pd
 import numpy as np
 import sys
 import os
+
+import scipy.stats
+from shapely import Point
+
+from common.order import OrderEnum
+from common.location import LocationEnum
+from ml_estimator.cooking_duration import estimate_cooking_duration
+from map.map import sample_uniform_bangkok_location
+
 sys.path.append(os.path.abspath("..\\simulator"))
 # from type_enum.order_status import OrderStatusEnum
 
@@ -16,7 +20,7 @@ class Restaurant:
 
     def __init__(self, location, restaurant_idx, mean=1000, std=300):
         self.id: int = restaurant_idx
-        self.location: Coordinates = location
+        self.location: Point = location
         # queue of orderId
         self.order_id_queue: list[int] = []
         self.mean: int = mean
@@ -67,7 +71,7 @@ class RestaurantSimulator:
         # res_list = pd.read_csv("order_restaurant/restaurant_sample.csv")
         res_list = pd.read_csv("order_restaurant/restaurant_sample_10000.csv")
         for idx, res in res_list.iterrows():
-            new_res = Restaurant(Coordinates(res["Merchant.Lat"], res["Merchant.Lng"]),
+            new_res = Restaurant(Point(res["Merchant.Lng"], res["Merchant.Lat"]),
                                  self.restaurant_idx, res["mean_preparing_time"], res["std_preparing_time"])
             self.restaurant_idx += 1
             self.restaurant_list.append(new_res)
@@ -148,7 +152,7 @@ class OrderSimulator:
 
         restaurant_id = random.choice(
             restaurant_simulator.get_all_restaurant_id())
-        customer_destination = generateBangkokLocation()
+        customer_destination = sample_uniform_bangkok_location()
         self.create_order(customer_destination, restaurant_id, time)
 
     def create_order(self, customer_destination, restaurant_id, created_time):
@@ -213,14 +217,14 @@ class OrderSimulator:
 
 
 class Destination:
-    def __init__(self, order: Order, location: Coordinates, type: LocationEnum, ready_time: int, preparing_duration: int):
-        self.location: Coordinates = location
+    def __init__(self, order: Order, location: Point, type: LocationEnum, ready_time: int, preparing_duration: int):
+        self.location: Point = location
         self.type: LocationEnum = type
         self.ready_time: int = ready_time
         self.preparing_duration: int = preparing_duration
         self.order: Order = order
 
-    def pick_up_or_deliver(self, time):
+    def action(self, time):
         if self.type == LocationEnum.RESTAURANT:
             self.order.status = OrderEnum.PICKED_UP
             order_simulator.change_order_status(
