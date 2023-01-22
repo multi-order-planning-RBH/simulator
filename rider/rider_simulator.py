@@ -1,4 +1,3 @@
-from argparse import Action
 from typing import List
 from rider.rider import Rider, Order
 #from order.order_simulator import Order
@@ -6,6 +5,8 @@ from common.order import OrderEnum
 from common.action import ActionEnum
 from order_restaurant.order_restaurant_simulator import order_simulator
 from suggester.types.batch import Batch
+from config import Config
+from map.map import sample_points_on_graph
 
 class RiderSimulator():
     def __init__(self):
@@ -18,19 +19,19 @@ class RiderSimulator():
         self.time = 0
         self.count = 0 
         self.success_count = 0 
+        rider_initial_point = sample_points_on_graph(Config.RIDER_NUMBER)
+        for i in range(Config.RIDER_NUMBER):
+            self.create_rider_innitial_location(rider_initial_point[i])
 
-        for _ in range(2000):
-            self.create_rider_innitial_location()
-
-    def create_rider_innitial_location(self, starting_time = 0, getoff_time = 10000):
-        rider = Rider(id = len(self.riders), starting_time = starting_time, getoff_time = getoff_time)
+    def create_rider_innitial_location(self, location, starting_time = Config.RIDER_STARTING_TIME, getoff_time = Config.RIDER_GETOFF_TIME):
+        rider = Rider(id = len(self.riders), location = location, starting_time = starting_time, getoff_time = getoff_time)
         self.riders.append(rider)
-        if rider.current_action.action == ActionEnum.NO_ACTION:
+        if rider.current_action == ActionEnum.NO_ACTION:
             self.working_riders.append(rider)
             self.unassigned_riders.append(rider)
         return rider
 
-    # batch mode assigning 
+    # batch mode assignment
     def assign_batch_to_a_rider(self, batch:Batch, rider:Rider, time:int) -> bool:
         self.count += len(batch.orders)
 
@@ -58,7 +59,7 @@ class RiderSimulator():
 
     def simulate(self, time : int):
         for rider in self.riders:
-            old_action = rider.current_action.action
+            old_action = rider.current_action
             new_action = rider.simulate(time)
             if new_action != old_action:
                 if new_action == ActionEnum.UNAVAILABLE:
