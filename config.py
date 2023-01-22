@@ -1,2 +1,11 @@
-class Confing:
-    rider_speed = 2.0843974744180143e-05
+class Config:
+    #rider
+    RIDER_SPEED = 2.0843974744180143e-05
+    RIDER_LOGGING_PERIOD = 30
+    RIDER_NUMBER = 2000
+
+    #map
+    MAP_NORTH = 13.914579
+    MAP_SOUTH = 13.738166 
+    MAP_EAST = 100.661622
+    MAP_WEST = 100.484028
