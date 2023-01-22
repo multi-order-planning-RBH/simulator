@@ -6,3 +6,4 @@ class ActionEnum(Enum):
     ACTION = "ACTION"
     RESTING = "RESTING"
     UNAVAILABLE = "UNAVAILABLE"
+    GETOFF = "GETOFF"

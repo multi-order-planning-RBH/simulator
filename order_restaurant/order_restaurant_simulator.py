@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import sys
 import os
+sys.path.append(os.path.abspath("..\\simulator"))
 
 import scipy.stats
 from shapely import Point
@@ -12,7 +13,6 @@ from common.location import LocationEnum
 from ml_estimator.cooking_duration import estimate_cooking_duration
 from map.map import sample_uniform_bangkok_location
 
-sys.path.append(os.path.abspath("..\\simulator"))
 # from type_enum.order_status import OrderStatusEnum
 
 

@@ -11,7 +11,6 @@ sys.path.append(os.path.abspath("./"))
 from common.location import LocationEnum
 from common.action import ActionEnum
 from common.status import StatusEnum
-from rider.estimator import getEstimatedTimeTraveling
 from order_restaurant.order_restaurant_simulator import Order, Destination
 from suggester.types.batch import Batch
 from map.map import get_geometry_of_path
@@ -34,13 +33,13 @@ class Rider:
         self.destinations : List[Destination] = list()
         self.next_action : Action = None 
         self.status : StatusEnum = StatusEnum.WORKING
+
         self.current_action : ActionEnum = ActionEnum.NO_ACTION
         self.done_current_action_time : int = 0
-        # if starting_time == 0:
-        #     self.current_action : Action = Action(ActionEnum.NO_ACTION, 0)
-        # else :
-        #     self.current_action : Action = Action(ActionEnum.UNAVAILABLE, 0)
-        #     self.next_action : Action = Action(ActionEnum.NO_ACTION, starting_time)
+        if starting_time != 0 :
+            self.current_action = ActionEnum.UNAVAILABLE
+            self.done_current_action_time = starting_time
+
         self.log : Dict[int, list] = dict()
         self.speed : float = Config.RIDER_SPEED
         self.working_time : int = self.getoff_time - self.starting_time
@@ -79,9 +78,17 @@ class Rider:
             return True
         return False
 
-    def calculate_speed(self, traveling_time : int):
-        destination = self.destinations[0].location
-        self.speed = (destination - self.location)/traveling_time
+    # online mode
+    def add_online_destination(self, batch : Batch, time : int) -> bool:
+        if (self.current_action != ActionEnum.RESTING or \
+            self.current_action != ActionEnum.UNAVAILABLE) and \
+            self.getoff_time - time > 1800:
+            return False
+        return False
+
+    # def calculate_speed(self, traveling_time : int):
+    #     destination = self.destinations[0].location
+    #     self.speed = (destination - self.location)/traveling_time
 
     def logging(self, time):
         action = self.current_action
@@ -130,14 +137,18 @@ class Rider:
 
         elif self.current_action == ActionEnum.RESTING:
             if time > self.done_current_action_time:
-                self.current_action = ActionEnum.ACTION
+                self.current_action = ActionEnum.NO_ACTION
+        
+        elif self.current_action == ActionEnum.UNAVAILABLE:
+            if time > self.done_current_action_time:
+                self.current_action = ActionEnum.NO_ACTION
 
         else:
             pass
 
-        if time >= self.getoff_time:
-            self.current_destination = None
-            self.current_action = ActionEnum.UNAVAILABLE 
+        # if time >= self.getoff_time:
+        #     self.current_destination = None
+        #     self.current_action = ActionEnum.GETOFF 
             
         return self.current_action
 

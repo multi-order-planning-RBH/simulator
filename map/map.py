@@ -1,4 +1,4 @@
-from osmnx import graph_from_bbox, graph_to_gdfs
+from osmnx import graph_from_bbox, graph_to_gdfs, config as ox_config
 from osmnx.distance import nearest_nodes, shortest_path
 from osmnx.utils_geo import sample_points as osmnx_sample_points
 from shapely.geometry import LineString, Point, MultiLineString
@@ -6,6 +6,7 @@ from random import uniform
 
 from config import Config
 
+ox_config(use_cache=True)
 north, south, east, west = Config.MAP_NORTH, Config.MAP_SOUTH, Config.MAP_EAST, Config.MAP_WEST#13.914579, 13.738166, 100.661622, 100.484028
 graph = graph_from_bbox(north, south, east, west, network_type='drive')
 nodes, streets = graph_to_gdfs(graph)
@@ -64,12 +65,10 @@ def get_geometry_and_length_of_walking_and_riding_path(origin_point, dest_point,
   return path_linear_string_geometry#, a, b, c
 
 def get_geometry_of_path(origin, dest) -> MultiLineString:
-    origin_node = nearest_nodes(graph, origin[1], origin[0], return_dist=False)
-    destination_node = nearest_nodes(graph, dest[1], dest[0], return_dist=False)
-    path = shortest_path(graph, origin_node, destination_node)
+  origin_node = nearest_nodes(graph, origin.x, origin.y, return_dist=False)
+  destination_node = nearest_nodes(graph, dest.x, dest.y, return_dist=False)
+  path = shortest_path(graph, origin_node, destination_node)
 
-    origin_point = Point(origin[1], origin[0])
-    dest_point = Point(dest[1], dest[0])
-    geo = get_geometry_and_length_of_walking_and_riding_path(origin_point, dest_point, path)
+  geo = get_geometry_and_length_of_walking_and_riding_path(origin, dest, path)
 
-    return geo
+  return geo

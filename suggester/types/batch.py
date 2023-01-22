@@ -1,6 +1,4 @@
-from order_restaurant.order_restaurant_simulator import Order
-from rider.rider import Destination
-
+from order_restaurant.order_restaurant_simulator import Order, Destination
 
 class Batch:
     def __init__(self, orders: list[Order], destinations: list[Destination]):
