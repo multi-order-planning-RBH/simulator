@@ -4,7 +4,7 @@ sys.path.append(os.path.abspath("./"))
 
 from rider.rider import Rider, Order
 from common.action import ActionEnum
-from common.location import Coordinates
+from shapely.geometry import Point
 
 id = 0
 startingTime = 100
@@ -13,8 +13,8 @@ restingTime = 30
 
 rider = Rider(id, startingTime , getoffTime, restingTime)
 
-restaurant_location = Coordinates(13.744740, 100.531876)
-destination_location = Coordinates(13.744740, 100.531876)
+restaurant_location = Point(13.744740, 100.531876)
+destination_location = Point(13.744740, 100.531876)
 created_time = 110
 ready_time = 150
 

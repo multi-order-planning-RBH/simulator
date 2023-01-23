@@ -1,4 +1,5 @@
 # ML
-from common.location import Coordinates
-def estimate_traveling_time(start: Coordinates, stop: Coordinates) -> int:
+from shapely.geometry import Point
+
+def estimate_traveling_time(start: Point, stop: Point) -> int:
     return 600
