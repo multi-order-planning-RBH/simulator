@@ -1,8 +1,9 @@
+import time
+
 from manager.central_manager import CentralManager
 from rider.rider_simulator import rider_simulator
 from order_restaurant.order_restaurant_simulator import order_simulator, restaurant_simulator
 from suggester.multi_order_suggester import MultiOrderSuggester
-import time
 
 def main():
     start = time.time()
@@ -22,5 +23,6 @@ def main():
     print("Computation time:                ", time.time()-start)
     print("Number of assigning:             ", rider_simulator.count)
     print("Number of success assigning:     ", rider_simulator.success_count)
+
 if __name__ == "__main__":
     main()

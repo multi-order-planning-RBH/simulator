@@ -51,7 +51,7 @@ class LocationEnum(Enum):
 #         return (self.x**2+self.y**2)**(1/2)
 
 
-def generateBangkokLocation() -> Point:
-    x = uniform(13.496034, 13.949613)
-    y = uniform(100.410055, 100.912941)
-    return Point(x, y)
+# def generateBangkokLocation() -> Point:
+#     x = uniform(13.496034, 13.949613)
+#     y = uniform(100.410055, 100.912941)
+#     return Point(x, y)
