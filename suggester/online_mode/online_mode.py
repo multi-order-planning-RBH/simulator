@@ -43,12 +43,12 @@ class OnlineMode:
             new_destinations.append(order.customer_destination)
 
             new_finished_time = self.calculate_finished_time(
-                new_destinations, order.restaurant_destination, time)
+                new_destinations, rider, time)
             cost = new_finished_time - time
             return cost, new_destinations
 
         old_finished_time = self.calculate_finished_time(
-            rider.destinations, rider.current_destination, time)
+            rider.destinations, rider, time)
         min_cost = np.inf
         for i in range(len(rider.destinations)):
             for j in range(i + 1, len(rider.destinations) + 2):
@@ -57,7 +57,7 @@ class OnlineMode:
                 new_destinations.insert(j, order.customer_destination)
 
                 new_finished_time = self.calculate_finished_time(
-                    new_destinations, rider.current_destination, time)
+                    new_destinations, rider, time)
                 cost = new_finished_time - old_finished_time
                 if min_cost > cost:
                     min_cost = cost
@@ -65,28 +65,29 @@ class OnlineMode:
 
         return min_cost, best_destinations
 
-    def calculate_finished_time(self, destinations: list[Destination], current_destination: Destination, time: int):
-        if current_destination is None:
-            return time
-
+    def calculate_finished_time(self, destinations: list[Destination], rider: Rider, time: int):
         current_time = time
-        for idx in range(len(destinations)):
-            if idx == 0:
-                current_time += estimate_traveling_time(
-                    current_destination.location, destinations[idx].location)
-            else:
-                current_time += estimate_traveling_time(
-                    destinations[idx - 1].location, destinations[idx].location)
+        current_location = rider.location
 
-            if destinations[idx].type == LocationEnum.RESTAURANT:
-                if destinations[idx].order.assigned_time is None:
+        if rider.current_destination is not None:
+            current_time += estimate_traveling_time(
+                current_location, rider.current_destination.location)
+            current_location = rider.current_destination.location
+
+        for destination in destinations:
+            current_time += estimate_traveling_time(
+                current_location, destination.location)
+            current_location = destination.location
+
+            if destination.type == LocationEnum.RESTAURANT:
+                if destination.order.assigned_time is None:
                     # new order has not been assigned. so we use time + estimated preparing time
                     current_time = max(current_time, time +
-                                       destinations[idx].preparing_duration)
+                                       destination.preparing_duration)
                 else:
                     # assigned order
                     current_time = max(
-                        current_time, destinations[idx].order.assigned_time + destinations[idx].preparing_duration)
+                        current_time, destination.order.assigned_time + destination.preparing_duration)
 
         return current_time
 
