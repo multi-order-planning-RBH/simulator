@@ -1,5 +1,6 @@
 from typing import List
 from random import uniform
+from shapely.geometry import Point
 
 LocationType = List[float]
 
@@ -50,7 +51,7 @@ class LocationEnum(Enum):
 #         return (self.x**2+self.y**2)**(1/2)
 
 
-# def generateBangkokLocation() -> Coordinates:
+# def generateBangkokLocation() -> Point:
 #     x = uniform(13.496034, 13.949613)
 #     y = uniform(100.410055, 100.912941)
-#     return Coordinates(x, y)
+#     return Point(x, y)

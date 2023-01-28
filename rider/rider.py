@@ -10,7 +10,6 @@ sys.path.append(os.path.abspath("./"))
 
 from common.location import LocationEnum
 from common.action import ActionEnum
-from common.status import StatusEnum
 from order_restaurant.order_restaurant_simulator import Order, Destination
 from suggester.types.batch import Batch
 from map.map import get_geometry_of_path
@@ -26,13 +25,13 @@ class Rider:
     def __init__(self, id:int, location:Point, starting_time:int = 0, getoff_time:int = 480, resting_time:int = 30):
         self.id : int = id
         self.location : Point = location
+        self.path = None
+
         self.starting_time : int = starting_time
         self.getoff_time : int = getoff_time
         self.resting_time : int = resting_time
         self.resting_prob : float = 0.01
-        self.destinations : List[Destination] = list()
-        self.next_action : Action = None 
-        self.status : StatusEnum = StatusEnum.WORKING
+    
 
         self.current_action : ActionEnum = ActionEnum.NO_ACTION
         self.done_current_action_time : int = 0
@@ -42,12 +41,15 @@ class Rider:
 
         self.log : Dict[int, list] = dict()
         self.speed : float = Config.RIDER_SPEED
-        self.working_time : int = self.getoff_time - self.starting_time
+
+        self.destinations : List[Destination] = list()
         self.current_destination : Destination = None
+
         self.order_count : int = 0
 
-        self.path = None
-        self.time_traveling = 0
+        self.current_traveling_time = 0
+        self.current_traveling_time = 0
+        self.utilization_time = 0
         self.t = 0
 
     def add_order_destination(self, order : Order, time : int) -> bool:
@@ -104,11 +106,13 @@ class Rider:
         if self.current_action == ActionEnum.NO_ACTION:
             if len(self.destinations) > 0:
                 self.current_action = ActionEnum.RIDING
-                # Need to specify
+                self.current_destination = self.destinations.pop(0)
+
                 origin = self.location
-                dest = self.destinations[0].location
+                dest = self.current_destination.location
                 self.path = get_geometry_of_path(origin, dest)
-                self.time_traveling = ceil(self.path.length/self.speed)
+
+                self.current_traveling_time = ceil(self.path.length/self.speed)
                 self.t = 1
 
             elif random.uniform(0, 1)<self.resting_prob: 
@@ -116,23 +120,29 @@ class Rider:
                 self.done_current_action_time = time + self.resting_time
 
         elif self.current_action == ActionEnum.RIDING:
+            self.utilization_time += 1
             self.location = self.path.interpolate(self.speed*self.t)
             self.t += 1
-            if self.t > self.time_traveling:
+            if self.t > self.current_traveling_time:
                 self.current_action = ActionEnum.WAITING
                 destination = self.current_destination
-                order = destination.order
-                if order and destination.type == LocationEnum.RESTAURANT:
-                    self.done_current_action_time = order.meal_finished_time
-                else : 
-                    self.done_current_action_time = time
+                if destination:
+                    order = destination.order
+                    if order and destination.type == LocationEnum.RESTAURANT:
+                        self.done_current_action_time = order.meal_finished_time
+                    else : 
+                        self.done_current_action_time = time
 
         elif self.current_action == ActionEnum.WAITING:
             if time > self.done_current_action_time:
                 self.current_action = ActionEnum.ACTION
 
         elif self.current_action == ActionEnum.ACTION:
-            self.current_destination.action(time)
+            destination = self.current_destination
+            if destination:
+                destination.action(time)
+                if destination.type == LocationEnum.CUSTOMER:
+                        self.order_count -= 1
             self.current_action = ActionEnum.NO_ACTION
 
         elif self.current_action == ActionEnum.RESTING:

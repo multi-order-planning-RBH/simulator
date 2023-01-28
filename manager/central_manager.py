@@ -1,3 +1,5 @@
+from map.map import number_of_fail_findding_path
+
 class CentralManager:
     def __init__(self, rider_simulator, restaurant_simulator, order_simulator, multi_order_suggester):
         self.current_time = 0
@@ -63,13 +65,14 @@ class CentralManager:
             assigned_order_list = self.order_simulator.assigned_order_list
             finished_order_list = self.order_simulator.finished_order_list
 
-            if time % 1000 == 0:
+            if time % 100 == 0:
                 print("Time : ", time)
                 print("Number of available riders :     ", len(rider_list))
                 print("Number of working riders :       ", len(working_rider_list))
                 print("Number of unassigned orders :    ", len(order_list))
                 print("Number of assigned orders :      ", len(assigned_order_list))
                 print("Number of finished orders :      ", len(finished_order_list))
+                print("Number of fail findding path:    ", number_of_fail_findding_path[0])
                 print()
 
             if self.current_time > 0 and self.current_time % time_window == 0:
