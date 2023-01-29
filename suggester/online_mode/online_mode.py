@@ -52,7 +52,14 @@ class OnlineMode:
 
         old_finished_time = self.calculate_finished_time(
             rider.destinations, rider, time)
-        min_cost = np.inf
+
+        # init min_cost and best_destinations
+        best_destinations = rider.destinations + \
+            [order.restaurant_destination, order.customer_destination]
+        new_finished_time = self.calculate_finished_time(
+            best_destinations, rider, time)
+        min_cost = new_finished_time - old_finished_time
+
         for i in range(len(rider.destinations)):
             for j in range(i + 1, len(rider.destinations) + 2):
                 new_destinations = list(rider.destinations)
