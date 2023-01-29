@@ -97,7 +97,7 @@ class RiderSimulator():
             log.extend(rider.log)
 
         df = pd.DataFrame(log, columns=['id', 'time', 'action', 'lat', 'long'])
-        df.to_csv("{}/{}".format(Config.LOG_DIR, Config.RIDER_LOG_FILENAME))
+        df.to_csv("{}/{}".format(Config.LOG_DIR, Config.RIDER_LOG_FILENAME), index=False)
         
             
 rider_simulator = RiderSimulator()
