@@ -65,4 +65,6 @@ class MultiOrderSuggester:
 
         for order in orders:
             best_rider, best_destinations = self.onlinemode.find_best_insertion(order, riders, time)
-            self.rider_simulator.assign_online_mode_order_to_a_rider(order, best_rider, best_destinations)
+            if best_rider is None:
+                continue
+            self.rider_simulator.assign_online_mode_order_to_a_rider(order, best_rider, best_destinations, time)

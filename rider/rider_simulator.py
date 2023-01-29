@@ -34,7 +34,7 @@ class RiderSimulator():
     def assign_online_mode_order_to_a_rider(self, order: Order, rider: Rider, destinations: List[Destination], time) -> bool:
         self.count += 1
 
-        res = rider.add_online_destination(order, destinations)
+        res = rider.add_online_destination(order, destinations, time)
         if res:
             self.success_count += 1
             order_simulator.change_order_status(order.id, OrderEnum.ASSIGNED, time)

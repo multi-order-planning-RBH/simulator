@@ -75,10 +75,13 @@ class CentralManager:
                 print("Number of fail findding path:    ", number_of_fail_findding_path[0])
                 print()
 
-            if self.current_time > 0 and self.current_time % time_window == 0:
-                self.multi_order_suggester.assign_order_to_rider(time)
+            # if self.current_time > 0 and self.current_time % time_window == 0:
+            #     self.multi_order_suggester.assign_order_to_rider(time)
 
                 # for batch mode
                 # self.multi_order_suggester.suggest_batch_mode(time)
+
+            # for online mode
+            self.multi_order_suggester.suggest_online_mode(time)
 
             self.current_time += 1

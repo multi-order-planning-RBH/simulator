@@ -15,7 +15,10 @@ class OnlineMode:
         self.max_order = max_order
 
     def find_best_insertion(self, order: Order, riders: list[Rider], time: int):
+        best_rider = None
+        best_destinations = None
         min_cost = np.inf
+
         for rider in riders:
             num_orders = 0
             if rider.current_destination is not None and rider.current_destination.type == LocationEnum.CUSTOMER:
