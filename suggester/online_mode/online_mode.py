@@ -92,4 +92,4 @@ class OnlineMode:
         return current_time
 
 
-online_mode = OnlineMode()
+onlinemode = OnlineMode()
