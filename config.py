@@ -11,3 +11,6 @@ class Config:
     MAP_SOUTH = 13.738166 
     MAP_EAST = 100.661622
     MAP_WEST = 100.484028
+
+    #central_manager
+    MODE = "online"

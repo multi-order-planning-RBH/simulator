@@ -47,10 +47,10 @@ def project_point(point, line):
 number_of_fail_findding_path = [0]
 def get_geometry_and_length_of_walking_and_riding_path(origin_point, dest_point, path):
   path_linear_string_geometry = []
-  if path == None: 
+  if path == None or len(path)<2: 
     global number_of_fail_findding_path
     number_of_fail_findding_path[0] += 1
-    print("Fail to find path")
+    print("FAIL TO FIND PATH", origin_point, dest_point, path)
     return LineString([origin_point, dest_point])
 
   for i in range(len(path)-1):
@@ -58,7 +58,7 @@ def get_geometry_and_length_of_walking_and_riding_path(origin_point, dest_point,
     node_end = get_shapely_point(path[i+1])
     geometry = LineString([node_start, node_end])
     path_linear_string_geometry.append(geometry)
-
+  
   node_start = get_shapely_point(path[0])#nodes.loc[path[0]]['geometry']
   node_end = get_shapely_point(path[1])#nodes.loc[path[1]]['geometry']
   line = LineString([node_start, node_end])
@@ -83,10 +83,7 @@ def get_geometry_and_length_of_walking_and_riding_path(origin_point, dest_point,
                                   [end_of_path_to_end_projected_point, dest_line_point_to_projected]
   path_linear_string_geometry = MultiLineString(path_linear_string_geometry)
 
-#   a = origin_line_point_to_projected.length
-#   c = dest_line_point_to_projected.length
-#   b = path_linear_string_geometry.length-a-c
-  return path_linear_string_geometry#, a, b, c
+  return path_linear_string_geometry
 
 def get_geometry_of_path(origin, dest) -> MultiLineString:
   origin_closest_node = nearest_nodes(graph, origin.x, origin.y, return_dist=False)

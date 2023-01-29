@@ -15,7 +15,10 @@ class OnlineMode:
         self.max_order = max_order
 
     def find_best_insertion(self, order: Order, riders: list[Rider], time: int):
+        best_rider = None
+        best_destinations = None
         min_cost = np.inf
+
         for rider in riders:
             num_orders = 0
             if rider.current_destination is not None and rider.current_destination.type == LocationEnum.CUSTOMER:
@@ -49,7 +52,14 @@ class OnlineMode:
 
         old_finished_time = self.calculate_finished_time(
             rider.destinations, rider, time)
-        min_cost = np.inf
+
+        # init min_cost and best_destinations
+        best_destinations = rider.destinations + \
+            [order.restaurant_destination, order.customer_destination]
+        new_finished_time = self.calculate_finished_time(
+            best_destinations, rider, time)
+        min_cost = new_finished_time - old_finished_time
+
         for i in range(len(rider.destinations)):
             for j in range(i + 1, len(rider.destinations) + 2):
                 new_destinations = list(rider.destinations)
@@ -92,4 +102,4 @@ class OnlineMode:
         return current_time
 
 
-online_mode = OnlineMode()
+onlinemode = OnlineMode()

@@ -3,7 +3,7 @@ from rider.rider import Rider, Order
 #from order.order_simulator import Order
 from common.order import OrderEnum
 from common.action import ActionEnum
-from order_restaurant.order_restaurant_simulator import order_simulator
+from order_restaurant.order_restaurant_simulator import order_simulator, Destination
 from suggester.types.batch import Batch
 from config import Config
 from map.map import sample_points_on_graph
@@ -30,6 +30,15 @@ class RiderSimulator():
             self.working_riders.append(rider)
             self.unassigned_riders.append(rider)
         return rider
+
+    def assign_online_mode_order_to_a_rider(self, order: Order, rider: Rider, destinations: List[Destination], time) -> bool:
+        self.count += 1
+
+        res = rider.add_online_destination(order, destinations, time)
+        if res:
+            self.success_count += 1
+            order_simulator.change_order_status(order.id, OrderEnum.ASSIGNED, time)
+        return res
 
     # batch mode assignment
     def assign_batch_to_a_rider(self, batch:Batch, rider:Rider, time:int) -> bool:
