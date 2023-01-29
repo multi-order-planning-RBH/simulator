@@ -6,12 +6,14 @@ from rider.rider_simulator import RiderSimulator
 from suggester.types.batch import Batch
 from rider.rider import Rider
 from suggester.batch_mode.batch_mode import batchmode
+from suggester.online_mode.online_mode import onlinemode
 
 class MultiOrderSuggester:
     def __init__(self, rider_simulator: RiderSimulator, order_simulator: OrderSimulator):
         self.rider_simulator = rider_simulator
         self.order_simulator = order_simulator
         self.batchmode = batchmode
+        self.onlinemode = onlinemode
 
     # randomly assign each order to a rider
 
@@ -54,8 +56,13 @@ class MultiOrderSuggester:
             rider = random.choice(available_rider)
             assigned_rider.add(rider)
             self.rider_simulator.assign_batch_to_a_rider(batch, rider, time)
-        
+    
+    def suggest_online_mode(self, time):
+        riders= self.rider_simulator.working_riders
+        orders = self.order_simulator.unassigned_order_list
+        if len(riders)==0 or len(orders)==0:
+            return
 
-
-
-        
+        for order in orders:
+            best_rider, best_destinations = self.onlinemode.find_best_insertion(order, riders, time)
+            self.rider_simulator.assign_online_mode_order_to_a_rider(order, best_rider, best_destinations)
