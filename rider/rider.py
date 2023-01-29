@@ -1,12 +1,9 @@
 import random
-import sys, os
+import pandas as pd
 
-from argparse import Action
-from typing import Dict, List
+from typing import List
 from math import ceil
 from shapely import Point
-
-sys.path.append(os.path.abspath("./"))
 
 from common.location import LocationEnum
 from common.action import ActionEnum
@@ -107,12 +104,12 @@ class Rider:
     def logging(self, time):
         action = self.current_action
         location_x = self.location.x
-        location_y = self.location.x
-        temp = [time, action, location_x, location_y]
-        self.log[time] = temp
+        location_y = self.location.y
+        temp = [self.id, time, action, location_y, location_x]
+        self.log.append(temp)
 
     def simulate(self, time : int) -> ActionEnum:
-        if time % Config.RIDER_LOGGING_PERIOD == 0:
+        if time % Config.RIDER_LOG_PERIOD == 0:
             self.logging(time)
 
         if self.current_action == ActionEnum.NO_ACTION:

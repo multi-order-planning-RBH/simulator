@@ -130,6 +130,9 @@ class CentralManager:
                     self.multi_order_suggester.assign_order_to_rider(time)
 
             self.current_time += 1
+        
+        os.mkdir(Config.LOG_DIR)
+        self.rider_simulator.export_log_file()
 
         os.mkdir(Config.LOG_DIR)
         self.order_simulator.export_log_file()

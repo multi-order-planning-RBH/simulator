@@ -1,6 +1,8 @@
+import pandas as pd
+
 from typing import List
+
 from rider.rider import Rider, Order
-#from order.order_simulator import Order
 from common.order import OrderEnum
 from common.action import ActionEnum
 from order_restaurant.order_restaurant_simulator import order_simulator, Destination
@@ -86,5 +88,16 @@ class RiderSimulator():
                     self.unassigned_riders.remove(rider)
                 
         return True
+
+    def export_log_file(self):
+        print("EXPORT RIDER LOG FILE")
+        log = list()
+
+        for rider in self.riders:
+            log.extend(rider.log)
+
+        df = pd.DataFrame(log, columns=['id', 'time', 'action', 'lat', 'long'])
+        df.to_csv("{}/{}".format(Config.LOG_DIR, Config.RIDER_LOG_FILENAME))
+        
             
 rider_simulator = RiderSimulator()
