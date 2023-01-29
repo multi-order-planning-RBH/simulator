@@ -1,4 +1,5 @@
 from map.map import number_of_fail_findding_path
+from config import Config
 
 class CentralManager:
     def __init__(self, rider_simulator, restaurant_simulator, order_simulator, multi_order_suggester):
@@ -7,6 +8,7 @@ class CentralManager:
         self.restaurant_simulator = restaurant_simulator
         self.order_simulator = order_simulator
         self.multi_order_suggester = multi_order_suggester
+        self.mode = Config.MODE
         
     def calculate_customer_waiting_time(self):
         sum_waiting_time = 0
@@ -75,13 +77,13 @@ class CentralManager:
                 print("Number of fail findding path:    ", number_of_fail_findding_path[0])
                 print()
 
-            # if self.current_time > 0 and self.current_time % time_window == 0:
-            #     self.multi_order_suggester.assign_order_to_rider(time)
-
-                # for batch mode
-                # self.multi_order_suggester.suggest_batch_mode(time)
-
-            # for online mode
-            self.multi_order_suggester.suggest_online_mode(time)
+            if self.mode == "batch":
+                if self.current_time > 0 and self.current_time % time_window == 0:
+                    self.multi_order_suggester.suggest_batch_mode(time)
+            elif self.mode == "online":
+                self.multi_order_suggester.suggest_online_mode(time)
+            else:
+                if self.current_time > 0 and self.current_time % time_window == 0:
+                    self.multi_order_suggester.assign_order_to_rider(time)
 
             self.current_time += 1
