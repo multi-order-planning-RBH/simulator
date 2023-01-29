@@ -81,11 +81,14 @@ class Rider:
         return False
 
     # online mode
-    def add_online_destination(self, batch : Batch, time : int) -> bool:
+    def add_online_destination(self, order: Order, destinations: List[Destination], time : int) -> bool:
         if (self.current_action != ActionEnum.RESTING or \
             self.current_action != ActionEnum.UNAVAILABLE) and \
             self.getoff_time - time > 1800:
-            return False
+
+            self.order_count += 1
+            self.destinations = destinations
+            return True
         return False
 
     # def calculate_speed(self, traveling_time : int):
