@@ -1,5 +1,5 @@
 import time
-
+import os
 from manager.central_manager import CentralManager
 from rider.rider_simulator import rider_simulator
 from order_restaurant.order_restaurant_simulator import order_simulator, restaurant_simulator
@@ -8,6 +8,8 @@ from common.system_logger import SystemLogger
 
 logger = SystemLogger(__name__)
 
+import time
+import pandas as pd
 def main():
     start = time.time()
     order = order_simulator
@@ -15,8 +17,8 @@ def main():
     rider = rider_simulator
     multi_order = MultiOrderSuggester(rider_simulator=rider, order_simulator=order)
 
-    manager = CentralManager(rider_simulator=rider, restaurant_simulator=restaurant, order_simulator=order, multi_order_suggester=multi_order)
-    manager.simulate(10001, 100)
+    manager = CentralManager(rider_simulator=rider, restaurant_simulator=restaurant, order_simulator=order, multi_order_suggester=multi_order,log_step=100)
+    manager.simulate(1001, 100)
 
     logger.info(f"Customer Waiting Time:           {manager.calculate_customer_waiting_time()}")
     logger.info(f"Rider onroad time:               {manager.calculate_rider_utilization_time()}")
@@ -26,6 +28,12 @@ def main():
     logger.info(f"Computation time:                {time.time()-start}")
     logger.info(f"Number of assigning:             {rider_simulator.count}")
     logger.info(f"Number of success assigning:     {rider_simulator.success_count}")
+
+    dir_name = "log"
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
+    order_log_df = pd.DataFrame(manager.order_log)
+    order_log_df.to_csv("log/order_log.csv",index=False)
 
 if __name__ == "__main__":
     main()

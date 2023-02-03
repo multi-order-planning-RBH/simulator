@@ -5,13 +5,18 @@ from common.system_logger import SystemLogger
 logger = SystemLogger(__name__)
 
 class CentralManager:
-    def __init__(self, rider_simulator, restaurant_simulator, order_simulator, multi_order_suggester):
+    def __init__(self, rider_simulator, restaurant_simulator, order_simulator, multi_order_suggester,log_step=1000):
         self.current_time = 0
         self.rider_simulator = rider_simulator
         self.restaurant_simulator = restaurant_simulator
         self.order_simulator = order_simulator
         self.multi_order_suggester = multi_order_suggester
         self.mode = Config.MODE
+        self.log_step = log_step
+        self.order_log = {"timesteps":[],"customer_waiting_time":[],
+                        "rider_onroad_time":[],"rider_order_count":[],
+                        "#cancelled_order":[],"#unassigned_order":[],
+                        "#assigned_order":[],"#finished_order":[]}
         
     def calculate_customer_waiting_time(self):
         sum_waiting_time = 0
@@ -70,6 +75,14 @@ class CentralManager:
             assigned_order_list = self.order_simulator.assigned_order_list
             finished_order_list = self.order_simulator.finished_order_list
 
+            if time % self.log_step == 0:
+                # print("Time : ", time)
+                # print("Number of available riders :     ", len(rider_list))
+                # print("Number of working riders :       ", len(working_rider_list))
+                # print("Number of unassigned orders :    ", len(order_list))
+                # print("Number of assigned orders :      ", len(assigned_order_list))
+                # print("Number of finished orders :      ", len(finished_order_list))
+                # print()
             if time % 100 == 0:
                 logger.info(f"Time : {time}")
                 logger.info(f"Number of available riders :     {len(rider_list)}")
@@ -78,6 +91,15 @@ class CentralManager:
                 logger.info(f"Number of assigned orders :      {len(assigned_order_list)}")
                 logger.info(f"Number of finished orders :      {len(finished_order_list)}")
                 logger.info(f"Number of fail findding path:    {number_of_fail_findding_path[0]}")
+
+                self.order_log["timesteps"].append(time)
+                self.order_log["customer_waiting_time"].append(self.calculate_customer_waiting_time())
+                self.order_log["rider_onroad_time"].append(self.calculate_rider_utilization_time())
+                self.order_log["rider_order_count"].append(self.calculate_rider_order_count())
+                self.order_log["#finished_order"].append(len(finished_order_list))
+                self.order_log["#cancelled_order"].append(len(self.order_simulator.cancelled_order_list))
+                self.order_log["#unassigned_order"].append(len(order_list))
+                self.order_log["#assigned_order"].append(len(assigned_order_list))
 
             if self.mode == "batch":
                 if self.current_time > 0 and self.current_time % time_window == 0:

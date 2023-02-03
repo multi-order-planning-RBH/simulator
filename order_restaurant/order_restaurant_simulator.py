@@ -22,13 +22,14 @@ logger = SystemLogger(__name__)
 
 class Restaurant:
 
-    def __init__(self, location, restaurant_idx, mean=1000, std=300):
+    def __init__(self, location, restaurant_idx, mean=1000, std=300,order_rate=0.003):
         self.id: int = restaurant_idx
         self.location: Point = location
         # queue of orderId
         self.order_id_queue: list[int] = []
         self.mean: int = mean
         self.std: int = std
+        self.order_rate: float = order_rate
 
     def rider_pickup_order(self, pickup_order):
         # check if pickup_order ready if yes
@@ -73,7 +74,8 @@ class RestaurantSimulator:
         self.restaurant_list: list[Restaurant] = []
         self.restaurant_id_list: list[int] = []
         # res_list = pd.read_csv("order_restaurant/restaurant_sample.csv")
-        res_list = pd.read_csv("order_restaurant/restaurant_sample_10000.csv")
+        # res_list = pd.read_csv("order_restaurant/restaurant_sample_10000.csv")
+        res_list = pd.read_csv("order_restaurant/restaurant_sample_10000_w_rate.csv")
         for idx, res in res_list.iterrows():
             new_res = Restaurant(Point(res["Merchant.Lng"], res["Merchant.Lat"]),
                                  self.restaurant_idx, res["mean_preparing_time"], res["std_preparing_time"])
@@ -154,10 +156,17 @@ class OrderSimulator:
         self.unassigned_order_list = [
             o for o in self.unassigned_order_list if o.id not in cancelled_id]
 
-        restaurant_id = random.choice(
-            restaurant_simulator.get_all_restaurant_id())
-        customer_destination = sample_uniform_bangkok_location()
-        self.create_order(customer_destination, restaurant_id, time)
+        restaurant_list = restaurant_simulator.get_all_restaurant_id()
+        for restaurant_id in restaurant_list:
+            restaurant = restaurant_simulator.get_restaurant_by_id(restaurant_id)
+            
+            uniform_value = random.random()
+
+            if uniform_value<restaurant.order_rate:
+
+
+                customer_destination = sample_uniform_bangkok_location()
+                self.create_order(customer_destination, restaurant_id, time)
 
     def create_order(self, customer_destination, restaurant_id, created_time):
 
