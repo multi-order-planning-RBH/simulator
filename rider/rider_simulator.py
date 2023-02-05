@@ -90,14 +90,18 @@ class RiderSimulator():
         return True
 
     def export_log_file(self):
-        print("EXPORT RIDER LOG FILE")
-        log = list()
-
+        print("[LOG] EXPORT RIDER LOCATION LOG FILE")
+        location_log = list()
         for rider in self.riders:
-            log.extend(rider.log)
-
-        df = pd.DataFrame(log, columns=['id', 'time', 'action', 'lat', 'long'])
-        df.to_csv("{}/{}".format(Config.LOG_DIR, Config.RIDER_LOG_FILENAME), index=False)
+            location_log.extend(rider.location_log)
+        location_log_df = pd.DataFrame(location_log, columns=['id', 'time', 'action', 'lat', 'long'])
+        location_log_df.to_csv("{}/{}".format(Config.LOG_DIR, Config.RIDER_LOCATION_LOG_FILENAME), index=False)
         
+        print("[LOG] EXPORT RIDER DESTINATION LOG FILE")
+        destination_log = list()
+        for rider in self.riders:
+            destination_log.extend(rider.destination_log)
+        destination_log_df = pd.DataFrame(destination_log, columns=['id', 'time', 'destination_type', 'lat', 'long', 'order_id'])
+        destination_log_df.to_csv("{}/{}".format(Config.LOG_DIR, Config.RIDER_DESTINATION_LOG_FILENAME), index=False)
             
 rider_simulator = RiderSimulator()

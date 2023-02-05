@@ -106,7 +106,16 @@ class Rider:
         location_x = self.location.x
         location_y = self.location.y
         temp = [self.id, time, action, location_y, location_x]
-        self.log.append(temp)
+        self.location_log.append(temp)
+
+        if self.current_destination:
+            current_destination = self.current_destination
+            temp = [[   self.id, time, current_destination.type, current_destination.location.y,\
+                        current_destination.location.x, current_destination.order.id]]
+            for d in self.destinations:
+                temp_destination_log = [self.id, time, d.type, d.location.y, d.location.x, d.order.id]
+                temp.append(temp_destination_log)
+            self.destination_log.extend(temp)
 
     def simulate(self, time : int) -> ActionEnum:
         if time % Config.RIDER_LOG_PERIOD == 0:

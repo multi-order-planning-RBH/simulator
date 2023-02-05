@@ -5,6 +5,10 @@ from manager.mode import CentralManagerMode
 now = datetime.now()
 date_time = now.strftime("%Y%m%d_%H:%M:%S")
 
+class SuggestionMode:
+    BATCH = "batch"
+    ONLINE = "online"
+
 class Config:
     #simulation time
     CENTRAL_MANAGER_SIMULATION_TIME = 12000
@@ -18,7 +22,10 @@ class Config:
     RIDER_LOGGING_PERIOD = 30
     RIDER_NUMBER = 100
     RIDER_STARTING_TIME = 0
-    RIDER_LOG_FILENAME = "rider.csv"
+    RIDER_GETOFF_TIME = 10000
+    RIDER_LOG_PERIOD = 30
+    RIDER_LOCATION_LOG_FILENAME = "rider_location.csv"
+    RIDER_DESTINATION_LOG_FILENAME = "rider_destination.csv"
 
     #order
     ORDER_LOGGING_PERIOD = RIDER_LOGGING_PERIOD
@@ -46,3 +53,6 @@ class Config:
     
     #log 
     LOG_DIR = "./log/{}".format(date_time)
+    
+    #central_manager
+    MODE = "online"
