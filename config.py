@@ -4,12 +4,18 @@ now = datetime.now()
 date_time = now.strftime("%Y%m%d_%H:%M:%S")
 
 class Config:
+    #simulation time
+    SIMULATION_TIME = 50400
+
     #rider
     RIDER_SPEED = 2.0843974744180143e-05
-    RIDER_LOGGING_PERIOD = 30
+    RIDER_LOGGING_PERIOD = 100
     RIDER_NUMBER = 100
     RIDER_STARTING_TIME = 0
-    RIDER_GETOFF_TIME = 10000
+    RIDER_GETOFF_TIME = SIMULATION_TIME
+
+    #order
+    ORDER_LOGGING_PERIOD = RIDER_LOGGING_PERIOD
 
     #order
     ORDER_LOG_FILENAME = "order.csv"

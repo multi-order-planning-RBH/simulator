@@ -1,15 +1,17 @@
 import time
 import os
+import time
+import pandas as pd
+
 from manager.central_manager import CentralManager
 from rider.rider_simulator import rider_simulator
 from order_restaurant.order_restaurant_simulator import order_simulator, restaurant_simulator
 from suggester.multi_order_suggester import MultiOrderSuggester
 from common.system_logger import SystemLogger
+from config import Config
 
 logger = SystemLogger(__name__)
 
-import time
-import pandas as pd
 def main():
     start = time.time()
     order = order_simulator
@@ -17,8 +19,9 @@ def main():
     rider = rider_simulator
     multi_order = MultiOrderSuggester(rider_simulator=rider, order_simulator=order)
 
-    manager = CentralManager(rider_simulator=rider, restaurant_simulator=restaurant, order_simulator=order, multi_order_suggester=multi_order,log_step=100)
-    manager.simulate(1001, 100)
+    manager = CentralManager(rider_simulator=rider, restaurant_simulator=restaurant, \
+        order_simulator=order, multi_order_suggester=multi_order,log_step=Config.ORDER_LOGGING_PERIOD)
+    manager.simulate(Config.SIMULATION_TIME, 100)
 
     logger.info(f"Customer Waiting Time:           {manager.calculate_customer_waiting_time()}")
     logger.info(f"Rider onroad time:               {manager.calculate_rider_utilization_time()}")

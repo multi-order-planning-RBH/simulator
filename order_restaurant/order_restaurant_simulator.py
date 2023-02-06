@@ -22,7 +22,7 @@ logger = SystemLogger(__name__)
 
 class Restaurant:
 
-    def __init__(self, location, restaurant_idx, mean=1000, std=300,order_rate=0.003):
+    def __init__(self, location, restaurant_idx, mean=1000, std=300, order_rate=0.003):
         self.id: int = restaurant_idx
         self.location: Point = location
         # queue of orderId
@@ -78,7 +78,8 @@ class RestaurantSimulator:
         res_list = pd.read_csv("order_restaurant/restaurant_sample_10000_w_rate.csv")
         for idx, res in res_list.iterrows():
             new_res = Restaurant(Point(res["Merchant.Lng"], res["Merchant.Lat"]),
-                                 self.restaurant_idx, res["mean_preparing_time"], res["std_preparing_time"])
+                                 self.restaurant_idx, res["mean_preparing_time"], res["std_preparing_time"],
+                                 res['num_job_per_sec'])
             self.restaurant_idx += 1
             self.restaurant_list.append(new_res)
             self.restaurant_id_list.append(idx)

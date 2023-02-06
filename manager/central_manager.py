@@ -101,6 +101,14 @@ class CentralManager:
                 self.order_log["#unassigned_order"].append(len(order_list))
                 self.order_log["#assigned_order"].append(len(assigned_order_list))
 
+                print("Time :", time)
+                print("Number of available riders :     ", len(rider_list))
+                print("Number of working riders :       ", len(working_rider_list))
+                print("Number of unassigned orders :    ", len(order_list))
+                print("Number of assigned orders :      ", len(assigned_order_list))
+                print("Number of finished orders :      ", len(finished_order_list))
+                print()
+
             if self.mode == "batch":
                 if self.current_time > 0 and self.current_time % time_window == 0:
                     self.multi_order_suggester.suggest_batch_mode(time)
