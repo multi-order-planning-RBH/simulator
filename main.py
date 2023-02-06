@@ -21,7 +21,7 @@ def main():
 
     manager = CentralManager(rider_simulator=rider, restaurant_simulator=restaurant, \
         order_simulator=order, multi_order_suggester=multi_order,log_step=Config.ORDER_LOGGING_PERIOD)
-    manager.simulate(Config.SIMULATION_TIME, 100)
+    manager.simulate(Config.CENTRAL_MANAGER_SIMULATION_TIME, Config.CENTRAL_MANAGER_TIME_WINDOW)
 
     logger.info(f"Customer Waiting Time:           {manager.calculate_customer_waiting_time()}")
     logger.info(f"Rider onroad time:               {manager.calculate_rider_utilization_time()}")

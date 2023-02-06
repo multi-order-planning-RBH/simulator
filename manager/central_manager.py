@@ -1,4 +1,5 @@
 from map.map import number_of_fail_findding_path
+from manager.mode import CentralManagerMode
 from config import Config
 from common.system_logger import SystemLogger
 
@@ -7,6 +8,7 @@ logger = SystemLogger(__name__)
 class CentralManager:
     def __init__(self, rider_simulator, restaurant_simulator, order_simulator, multi_order_suggester,log_step=1000):
         self.current_time = 0
+        self.failed_mode = 0
         self.rider_simulator = rider_simulator
         self.restaurant_simulator = restaurant_simulator
         self.order_simulator = order_simulator
@@ -106,13 +108,21 @@ class CentralManager:
                 print("Number of working riders :       ", len(working_rider_list))
                 print("Number of unassigned orders :    ", len(order_list))
                 print("Number of assigned orders :      ", len(assigned_order_list))
+                print("Number of cancel orders :      ", self.order_log["#cancelled_order"][-1])
                 print("Number of finished orders :      ", len(finished_order_list))
+                if self.mode == CentralManagerMode.BATCH:  
+                    print("Number of failed assignment  ", self.failed_mode)
                 print()
 
-            if self.mode == "batch":
+            if self.mode == CentralManagerMode.BATCH:
                 if self.current_time > 0 and self.current_time % time_window == 0:
-                    self.multi_order_suggester.suggest_batch_mode(time)
-            elif self.mode == "online":
+                    try:
+                        self.multi_order_suggester.suggest_batch_mode(time)
+                    except Exception as e: 
+                        print(e)
+                        self.failed_mode += 1
+                        self.multi_order_suggester.assign_order_to_rider(time)
+            elif self.mode == CentralManagerMode.ONLINE:
                 self.multi_order_suggester.suggest_online_mode(time)
             else:
                 if self.current_time > 0 and self.current_time % time_window == 0:
