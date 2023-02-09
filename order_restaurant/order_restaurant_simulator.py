@@ -13,6 +13,9 @@ from common.location import LocationEnum
 from ml_estimator.cooking_duration import estimate_cooking_duration
 from map.map import sample_uniform_bangkok_location
 
+from common.system_logger import SystemLogger
+logger = SystemLogger(__name__)
+
 # from type_enum.order_status import OrderStatusEnum
 
 
@@ -103,7 +106,7 @@ class RestaurantSimulator:
             idx = self.restaurant_id_list.index(res_id)
             return self.restaurant_list[idx]
         except:
-            print("Restaurant with Id", res_id, "is not found.")
+            logger.warning(f"Restaurant with Id {res_id} is not found.")
             return None
 
     def get_all_restaurant_id(self):
@@ -201,19 +204,19 @@ class OrderSimulator:
                 self.finished_order_list.append(self.order_dict[order_id])
 
         except:
-            print("Order with Id", order_id, "is not found.")
+            logger.warning(f"Order with Id {order_id} is not found.")
 
     def get_order_by_id(self, order_id):
         try:
             return self.order_dict[order_id]
         except:
-            print("Order with Id", order_id, "is not found.")
+            logger.warning(f"Order with Id {order_id} is not found.")
 
     def assigned_rider_to_order(self, order_id, rider_id):
         try:
             self.order_dict[order_id].rider = rider_id
         except:
-            print("Order with Id", order_id, "is not found.")
+            logger.warning(f"Order with Id {order_id} is not found.")
 
 
 class Destination:

@@ -8,6 +8,10 @@ from random import uniform
 
 from config import Config
 
+import warnings
+from common.system_logger import SystemLogger
+logger = SystemLogger(__name__)
+
 settings.use_cache = True
 
 north, south, east, west = Config.MAP_NORTH, Config.MAP_SOUTH, Config.MAP_EAST, Config.MAP_WEST
@@ -17,10 +21,10 @@ try:
   file = open(MAP_PATH, 'rb')
   graph = pickle.load(file)
   file.close()
-  print('[MAP] load local bkk graph')
+  logger.info('load local bkk graph')
 except:
-  print('[MAP] bkk graph does not exist')
-  print('[MAP] loading bkk graph')
+  logger.info('bkk graph does not exist')
+  logger.info('loading bkk graph')
   graph = graph_from_bbox(north, south, east, west, network_type='drive')
   file = open(MAP_PATH, 'wb')
   pickle.dump(graph, file)
@@ -34,7 +38,14 @@ def sample_uniform_bangkok_location() -> Point:
   return Point(y, x)
 
 def sample_points_on_graph(number):
-    return list(osmnx_sample_points(graph, number))
+    # Catch warning from osmnx_sample_points
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        warnings.simplefilter("always")
+        points = list(osmnx_sample_points(graph, number))
+        for warn in caught_warnings:
+            logger.warning(f'{warn.message} from {warn.filename} lineno {warn.lineno}')
+
+    return points
 
 def get_shapely_point(x, nodes=nodes):
   return nodes.loc[x]['geometry']
@@ -50,7 +61,7 @@ def get_geometry_and_length_of_walking_and_riding_path(origin_point, dest_point,
   if path == None or len(path)<2: 
     global number_of_fail_findding_path
     number_of_fail_findding_path[0] += 1
-    print("FAIL TO FIND PATH", origin_point, dest_point, path)
+    logger.warning(f"Fail to find path {origin_point} {dest_point} {path}")
     return LineString([origin_point, dest_point])
 
   for i in range(len(path)-1):
