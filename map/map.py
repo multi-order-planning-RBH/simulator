@@ -8,6 +8,7 @@ from random import uniform
 
 from config import Config
 
+import warnings
 from common.system_logger import SystemLogger
 logger = SystemLogger(__name__)
 
@@ -37,7 +38,14 @@ def sample_uniform_bangkok_location() -> Point:
   return Point(y, x)
 
 def sample_points_on_graph(number):
-    return list(osmnx_sample_points(graph, number))
+    # Catch warning from osmnx_sample_points
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        warnings.simplefilter("always")
+        points = list(osmnx_sample_points(graph, number))
+        for warn in caught_warnings:
+            logger.warning(f'{warn.message} from {warn.filename} lineno {warn.lineno}')
+
+    return points
 
 def get_shapely_point(x, nodes=nodes):
   return nodes.loc[x]['geometry']
