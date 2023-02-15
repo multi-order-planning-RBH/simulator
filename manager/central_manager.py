@@ -89,3 +89,5 @@ class CentralManager:
                     self.multi_order_suggester.assign_order_to_rider(time)
 
             self.current_time += 1
+
+        self.order_simulator.export_log_file()
