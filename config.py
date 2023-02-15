@@ -7,11 +7,11 @@ date_time = now.strftime("%Y%m%d_%H:%M:%S")
 
 class Config:
     #simulation time
-    CENTRAL_MANAGER_SIMULATION_TIME = 50400
+    CENTRAL_MANAGER_SIMULATION_TIME = 12000
     CENTRAL_MANAGER_TIME_WINDOW = 240
 
     #rider
-    RIDER_SPEED = 5.563781044552085e-05
+    RIDER_SPEED = 2.0843974744180143e-05
     RIDER_LOGGING_PERIOD = 30
     RIDER_NUMBER = 10
     RIDER_STARTING_TIME = 0
@@ -34,7 +34,10 @@ class Config:
     # MAP_WEST = 100.484028
 
     #central_manager
-    MODE = CentralManagerMode.ONLINE
+    MODE = CentralManagerMode.NORMAL
 
+    #random seed
+    SEED = 0
+    
     #log 
     LOG_DIR = "./log/{}".format(date_time)

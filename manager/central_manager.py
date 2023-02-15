@@ -2,6 +2,7 @@ from map.map import number_of_fail_findding_path
 from manager.mode import CentralManagerMode
 from config import Config
 from common.system_logger import SystemLogger
+import numpy as np
 
 logger = SystemLogger(__name__)
 
@@ -47,7 +48,7 @@ class CentralManager:
         sum_order_count = 0
         riders = self.rider_simulator.riders
         for rider in riders:
-            sum_order_count += rider.order_count
+            sum_order_count += rider.cum_order_count
         if len(riders)>0:
             return sum_order_count / len(riders)
         else:
@@ -103,16 +104,16 @@ class CentralManager:
                 self.order_log["#unassigned_order"].append(len(order_list))
                 self.order_log["#assigned_order"].append(len(assigned_order_list))
 
-                print("Time :", time)
-                print("Number of available riders :     ", len(rider_list))
-                print("Number of working riders :       ", len(working_rider_list))
-                print("Number of unassigned orders :    ", len(order_list))
-                print("Number of assigned orders :      ", len(assigned_order_list))
-                print("Number of cancel orders :      ", self.order_log["#cancelled_order"][-1])
-                print("Number of finished orders :      ", len(finished_order_list))
-                if self.mode == CentralManagerMode.BATCH:  
-                    print("Number of failed assignment  ", self.failed_mode)
-                print()
+                # print("Time :", time)
+                # print("Number of available riders :     ", len(rider_list))
+                # print("Number of working riders :       ", len(working_rider_list))
+                # print("Number of unassigned orders :    ", len(order_list))
+                # print("Number of assigned orders :      ", len(assigned_order_list))
+                # print("Number of cancel orders :      ", self.order_log["#cancelled_order"][-1])
+                # print("Number of finished orders :      ", len(finished_order_list))
+                # if self.mode == CentralManagerMode.BATCH:  
+                #     print("Number of failed assignment  ", self.failed_mode)
+                # print()
 
             if self.mode == CentralManagerMode.BATCH:
                 if self.current_time > 0 and self.current_time % time_window == 0:

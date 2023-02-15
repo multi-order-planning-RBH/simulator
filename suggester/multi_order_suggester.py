@@ -15,6 +15,9 @@ class MultiOrderSuggester:
         self.batchmode = batchmode
         self.onlinemode = onlinemode
 
+        self.debug_count = 0 
+        self.assigning_count = 0 
+
     # randomly assign each order to a rider
 
     def assign_order_to_rider(self, time):
@@ -24,6 +27,9 @@ class MultiOrderSuggester:
         if len(rider_list) <= 0 or len(order_list) <= 0:
             return
 
+        if len(rider_list)>=len(order_list):
+            
+            self.debug_count+=1
         for order in order_list:
             # rider = random.choice(rider_list)
             # self.rider_simulator.assign_order_to_a_rider(order, rider, time)
@@ -37,8 +43,11 @@ class MultiOrderSuggester:
     def suggest_batch_mode(self, time) -> Dict[Rider, List[Batch]]:
         riders= self.rider_simulator.unassigned_riders
         orders = self.order_simulator.unassigned_order_list
+
+
         if len(riders)==0 or len(orders)==0:
             return
+
         suggested_rider_batch_graph = self.batchmode.suggest(orders, riders, time)
 
         batch2rider = {}
@@ -47,7 +56,9 @@ class MultiOrderSuggester:
                 if batch not in batch2rider:
                     batch2rider[batch]=[]
                 batch2rider[batch].append(rider)
-
+        if len(riders)>=len(batch2rider):
+            self.debug_count+=1
+        self.assigning_count+=1
         assigned_rider = set()
         for batch in batch2rider:
             available_rider = [rider for rider in batch2rider[batch] if rider not in assigned_rider]

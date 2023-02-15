@@ -46,6 +46,7 @@ class Rider:
         self.current_destination : Destination = None
 
         self.order_count : int = 0
+        self.cum_order_count : int = 0
 
         self.current_traveling_time = 0
         self.current_traveling_time = 0
@@ -58,6 +59,7 @@ class Rider:
             self.getoff_time - time > 1800:
 
             self.order_count += 1
+            self.cum_order_count += 1
             
             # self.destinations.append(Destination(order, order.restaurant_location, LocationEnum.RESTAURANT, order.cooking_duration))
             self.destinations.append(order.restaurant_destination)
@@ -74,6 +76,7 @@ class Rider:
             self.getoff_time - time > 1800:
 
             self.order_count += len(batch.orders)
+            self.cum_order_count += len(batch.orders)
             
             self.destinations+=batch.destinations
 
@@ -87,6 +90,7 @@ class Rider:
             self.getoff_time - time > 1800:
 
             self.order_count += 1
+            self.cum_order_count += 1
             self.destinations = destinations
             return True
         return False

@@ -35,7 +35,7 @@ class Restaurant:
         # check if pickup_order ready if yes
         # Pop pickup_order from order_queue
         #
-        order_simulator.change_status(pickup_order.id, OrderEnum.DELIVERING)
+        order_simulator.change_order_status(pickup_order.id, OrderEnum.DELIVERING)
         self.order_id_queue = [
             o_id for o_id in self.order_id_queue if o_id != pickup_order.id]
 
@@ -62,7 +62,7 @@ class Restaurant:
                                                          (upper_bound -
                                                           self.mean)/self.std,
                                                          loc=self.mean, scale=self.std, size=1)[0])
-        # cooking_duration = int(np.random.normal(self.mean,self.std))
+
         if cooking_duration <= 0:
             cooking_duration = 1000
         return cooking_duration
@@ -132,7 +132,7 @@ class Order:
         self.estimated_cooking_duration: int = None
         self.finished_time: int = None
         self.status: OrderEnum = OrderEnum.CREATED
-        self.rider = None
+        self.rider_id = None
 
 
 class OrderSimulator:
@@ -163,12 +163,13 @@ class OrderSimulator:
             
             uniform_value = random.random()
 
+
             if uniform_value<restaurant.order_rate:
 
 
                 customer_destination = sample_uniform_bangkok_location()
+                
                 self.create_order(customer_destination, restaurant_id, time)
-
     def create_order(self, customer_destination, restaurant_id, created_time):
 
         restaurant = restaurant_simulator.get_restaurant_by_id(restaurant_id)
@@ -192,7 +193,7 @@ class OrderSimulator:
 
         self.order_idx += 1
 
-    def change_order_status(self, order_id, status, time=0):
+    def change_order_status(self, order_id, status, time=0 ,rider_id=None):
 
         try:
             self.order_dict[order_id].status = status
@@ -203,6 +204,9 @@ class OrderSimulator:
                     self.order_dict[order_id].cooking_duration
                 self.unassigned_order_list = [
                     o for o in self.unassigned_order_list if o.id != order_id]
+                
+                self.assigned_rider_to_order(order_id,rider_id)
+
                 self.assigned_order_list.append(self.order_dict[order_id])
 
             elif status == OrderEnum.PICKED_UP:
@@ -225,7 +229,7 @@ class OrderSimulator:
 
     def assigned_rider_to_order(self, order_id, rider_id):
         try:
-            self.order_dict[order_id].rider = rider_id
+            self.order_dict[order_id].rider_id = rider_id
         except:
             logger.warning(f"Order with Id {order_id} is not found.")
 
