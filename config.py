@@ -6,6 +6,9 @@ class Config:
     RIDER_STARTING_TIME = 0
     RIDER_GETOFF_TIME = 10000
 
+    #order
+    ORDER_LOG_FILENAME = "order.csv"
+
     #map
     MAP_NORTH = 13.914579
     MAP_SOUTH = 13.738166 

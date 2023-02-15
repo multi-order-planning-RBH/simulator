@@ -252,6 +252,7 @@ class OrderSimulator:
             order_log['rider_id'].append(order.rider)
 
         order_log_df = pd.DataFrame(data=order_log)
+        order_log_df.to_csv("{}/{}".format(Config.LOG_DIR, Config.ORDER_LOG_FILENAME), index=False)
         logger.info('Exported order log file')
 
 
