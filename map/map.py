@@ -3,7 +3,6 @@ import pickle
 from osmnx import graph_from_bbox, graph_to_gdfs, settings
 from osmnx.distance import nearest_nodes, shortest_path
 from osmnx.utils_geo import sample_points as osmnx_sample_points
-from osmnx import utils_graph
 from shapely.geometry import LineString, Point, MultiLineString
 from random import uniform
 import numpy as np
@@ -98,7 +97,6 @@ def get_geometry_and_length_of_walking_and_riding_path(origin_point, dest_point,
   return path_linear_string_geometry
 
 def get_geometry_of_path(origin, dest) -> MultiLineString:
-
   origin_closest_node = nearest_nodes(graph, origin.x, origin.y, return_dist=False)
   destination_closest_node = nearest_nodes(graph, dest.x, dest.y, return_dist=False)
   path = shortest_path(graph, origin_closest_node, destination_closest_node)

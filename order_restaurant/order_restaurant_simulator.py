@@ -62,7 +62,6 @@ class Restaurant:
                                                          (upper_bound -
                                                           self.mean)/self.std,
                                                          loc=self.mean, scale=self.std, size=1)[0])
-
         if cooking_duration <= 0:
             cooking_duration = 1000
         return cooking_duration
@@ -163,13 +162,12 @@ class OrderSimulator:
             
             uniform_value = random.random()
 
-
             if uniform_value<restaurant.order_rate:
 
 
                 customer_destination = sample_uniform_bangkok_location()
-                
                 self.create_order(customer_destination, restaurant_id, time)
+                
     def create_order(self, customer_destination, restaurant_id, created_time):
 
         restaurant = restaurant_simulator.get_restaurant_by_id(restaurant_id)

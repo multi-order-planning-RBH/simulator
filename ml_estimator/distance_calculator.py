@@ -4,7 +4,6 @@ from networkx import astar_path_length
 import pickle as pkl
 from math import * 
 
-
 class DistanceCalculator: 
 	def __init__(self):
 		self.G = pkl.load(open('graph_fix.pkl', 'rb')) 
