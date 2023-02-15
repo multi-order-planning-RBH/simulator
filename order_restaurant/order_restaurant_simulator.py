@@ -13,6 +13,7 @@ from common.location import LocationEnum
 from ml_estimator.cooking_duration import estimate_cooking_duration
 from map.map import sample_uniform_bangkok_location
 
+from config import Config
 from common.system_logger import SystemLogger
 logger = SystemLogger(__name__)
 
@@ -126,7 +127,7 @@ class Order:
         self.picked_up_time: int = None
         self.cooking_duration: int = None
         self.estimated_cooking_duration: int = None
-        self.finished_time: int = 0
+        self.finished_time: int = None
         self.status: OrderEnum = OrderEnum.CREATED
         self.rider = None
 
@@ -217,6 +218,41 @@ class OrderSimulator:
             self.order_dict[order_id].rider = rider_id
         except:
             logger.warning(f"Order with Id {order_id} is not found.")
+
+    def export_log_file(self):
+        location_log = list()
+        for rider in self.riders:
+            location_log.extend(rider.location_log)
+        location_log_df = pd.DataFrame(location_log, columns=['id', 'time', 'action', 'lat', 'long'])
+        location_log_df.to_csv("{}/{}".format(Config.LOG_DIR, Config.RIDER_LOCATION_LOG_FILENAME), index=False)
+
+        order_log = {
+            'id': [],
+            'restaurant_id': [],
+            'restaurant_location': [],
+            'customer_location': [],
+            'created_time': [],
+            'assigned_time': [],
+            'meal_finished_time': [],
+            'picked_up_time': [],
+            'finished_time': [],
+            'rider_id': [],
+        }
+
+        for order in self.order_dict.values():
+            order_log['id'].append(order.id)
+            order_log['restaurant_id'].append(order.restaurant)
+            order_log['restaurant_location'].append(order.restaurant_destination.location)
+            order_log['customer_location'].append(order.customer_destination.location)
+            order_log['created_time'].append(order.created_time)
+            order_log['assigned_time'].append(order.assigned_time)
+            order_log['meal_finished_time'].append(order.meal_finished_time)
+            order_log['picked_up_time'].append(order.picked_up_time)
+            order_log['finished_time'].append(order.finished_time)
+            order_log['rider_id'].append(order.rider)
+
+        order_log_df = pd.DataFrame(data=order_log)
+        logger.info('Exported order log file')
 
 
 class Destination:
