@@ -1,3 +1,8 @@
+from datetime import datetime
+
+now = datetime.now()
+date_time = now.strftime("%Y%m%d_%H:%M:%S")
+
 class Config:
     #rider
     RIDER_SPEED = 2.0843974744180143e-05
@@ -17,3 +22,6 @@ class Config:
 
     #central_manager
     MODE = "online"
+
+    #log 
+    LOG_DIR = "./log/{}".format(date_time)
