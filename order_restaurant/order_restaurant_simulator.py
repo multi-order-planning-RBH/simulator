@@ -220,12 +220,6 @@ class OrderSimulator:
             logger.warning(f"Order with Id {order_id} is not found.")
 
     def export_log_file(self):
-        location_log = list()
-        for rider in self.riders:
-            location_log.extend(rider.location_log)
-        location_log_df = pd.DataFrame(location_log, columns=['id', 'time', 'action', 'lat', 'long'])
-        location_log_df.to_csv("{}/{}".format(Config.LOG_DIR, Config.RIDER_LOCATION_LOG_FILENAME), index=False)
-
         order_log = {
             'id': [],
             'restaurant_id': [],
