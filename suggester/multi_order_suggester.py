@@ -37,8 +37,10 @@ class MultiOrderSuggester:
     def suggest_batch_mode(self, time) -> Dict[Rider, List[Batch]]:
         riders= self.rider_simulator.unassigned_riders
         orders = self.order_simulator.unassigned_order_list
+
         if len(riders)==0 or len(orders)==0:
             return
+
         suggested_rider_batch_graph = self.batchmode.suggest(orders, riders, time)
 
         batch2rider = {}
@@ -47,7 +49,6 @@ class MultiOrderSuggester:
                 if batch not in batch2rider:
                     batch2rider[batch]=[]
                 batch2rider[batch].append(rider)
-
         assigned_rider = set()
         for batch in batch2rider:
             available_rider = [rider for rider in batch2rider[batch] if rider not in assigned_rider]

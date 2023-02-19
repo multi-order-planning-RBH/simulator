@@ -1,4 +1,9 @@
-scipy==1.9.3
+scipy
 numpy
-heapq
-collections
+pandas
+nbformat
+osmnx
+shapely
+plotly
+jupyter_dash
+dash

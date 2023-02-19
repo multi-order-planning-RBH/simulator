@@ -22,19 +22,20 @@ logger = SystemLogger(__name__)
 
 class Restaurant:
 
-    def __init__(self, location, restaurant_idx, mean=1000, std=300):
+    def __init__(self, location, restaurant_idx, mean=1000, std=300, order_rate=0.003):
         self.id: int = restaurant_idx
         self.location: Point = location
         # queue of orderId
         self.order_id_queue: list[int] = []
         self.mean: int = mean
         self.std: int = std
+        self.order_rate: float = order_rate
 
     def rider_pickup_order(self, pickup_order):
         # check if pickup_order ready if yes
         # Pop pickup_order from order_queue
         #
-        order_simulator.change_status(pickup_order.id, OrderEnum.DELIVERING)
+        order_simulator.change_order_status(pickup_order.id, OrderEnum.DELIVERING)
         self.order_id_queue = [
             o_id for o_id in self.order_id_queue if o_id != pickup_order.id]
 
@@ -61,7 +62,6 @@ class Restaurant:
                                                          (upper_bound -
                                                           self.mean)/self.std,
                                                          loc=self.mean, scale=self.std, size=1)[0])
-        # cooking_duration = int(np.random.normal(self.mean,self.std))
         if cooking_duration <= 0:
             cooking_duration = 1000
         return cooking_duration
@@ -73,10 +73,12 @@ class RestaurantSimulator:
         self.restaurant_list: list[Restaurant] = []
         self.restaurant_id_list: list[int] = []
         # res_list = pd.read_csv("order_restaurant/restaurant_sample.csv")
-        res_list = pd.read_csv("order_restaurant/restaurant_sample_10000.csv")
+        # res_list = pd.read_csv("order_restaurant/restaurant_sample_10000.csv")
+        res_list = pd.read_csv("order_restaurant/restaurant_sample_10000_w_rate.csv")
         for idx, res in res_list.iterrows():
             new_res = Restaurant(Point(res["Merchant.Lng"], res["Merchant.Lat"]),
-                                 self.restaurant_idx, res["mean_preparing_time"], res["std_preparing_time"])
+                                 self.restaurant_idx, res["mean_preparing_time"], res["std_preparing_time"],
+                                 res['num_job_per_sec'])
             self.restaurant_idx += 1
             self.restaurant_list.append(new_res)
             self.restaurant_id_list.append(idx)
@@ -129,7 +131,7 @@ class Order:
         self.estimated_cooking_duration: int = None
         self.finished_time: int = None
         self.status: OrderEnum = OrderEnum.CREATED
-        self.rider = None
+        self.rider_id = None
 
 
 class OrderSimulator:
@@ -154,11 +156,18 @@ class OrderSimulator:
         self.unassigned_order_list = [
             o for o in self.unassigned_order_list if o.id not in cancelled_id]
 
-        restaurant_id = random.choice(
-            restaurant_simulator.get_all_restaurant_id())
-        customer_destination = sample_uniform_bangkok_location()
-        self.create_order(customer_destination, restaurant_id, time)
+        restaurant_list = restaurant_simulator.get_all_restaurant_id()
+        for restaurant_id in restaurant_list:
+            restaurant = restaurant_simulator.get_restaurant_by_id(restaurant_id)
+            
+            uniform_value = random.random()
 
+            if uniform_value<restaurant.order_rate:
+
+
+                customer_destination = sample_uniform_bangkok_location()
+                self.create_order(customer_destination, restaurant_id, time)
+                
     def create_order(self, customer_destination, restaurant_id, created_time):
 
         restaurant = restaurant_simulator.get_restaurant_by_id(restaurant_id)
@@ -182,7 +191,7 @@ class OrderSimulator:
 
         self.order_idx += 1
 
-    def change_order_status(self, order_id, status, time=0):
+    def change_order_status(self, order_id, status, time=0 ,rider_id=None):
 
         try:
             self.order_dict[order_id].status = status
@@ -193,6 +202,9 @@ class OrderSimulator:
                     self.order_dict[order_id].cooking_duration
                 self.unassigned_order_list = [
                     o for o in self.unassigned_order_list if o.id != order_id]
+                
+                self.assigned_rider_to_order(order_id,rider_id)
+
                 self.assigned_order_list.append(self.order_dict[order_id])
 
             elif status == OrderEnum.PICKED_UP:
@@ -215,7 +227,7 @@ class OrderSimulator:
 
     def assigned_rider_to_order(self, order_id, rider_id):
         try:
-            self.order_dict[order_id].rider = rider_id
+            self.order_dict[order_id].rider_id = rider_id
         except:
             logger.warning(f"Order with Id {order_id} is not found.")
 
