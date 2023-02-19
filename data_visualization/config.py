@@ -34,6 +34,9 @@ class ConfigAndShared:
     CUSTOMER_COLOR = "#875f00"
     GOLD_COLOR = "#EFE62F"
 
+    CANCEL_INTERVAL = 600
+    LOGGING_INTERVAL = 30
+
     TIME_UNIQUE = RIDER_LOCAITON_DF['time'].unique()
     NUMBER_OF_TIME_STEP = len(TIME_UNIQUE)
 

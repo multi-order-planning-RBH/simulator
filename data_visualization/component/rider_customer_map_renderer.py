@@ -15,10 +15,13 @@ selected_order_df:pd.DataFrame = None
 selected_riders_df:pd.DataFrame = None
 colors  = ConfigAndShared.COLORS
 gold_color = ConfigAndShared.GOLD_COLOR
+cancel_interval = ConfigAndShared.CANCEL_INTERVAL
+logging_interval = ConfigAndShared.LOGGING_INTERVAL
 
 FILTER_RESTAURANT = "FILTER_RESTAURANT"
 CURRENT_DESTINATION = "CURRENT_DESTINATION"
 ASSIGNED_ORDER = "ASSIGNED_ORDER"
+RECENT_SUGGESTED_ORDER = "RECENT_SUGGESTED_ORDER"
 
 def add_rider(fig:go.Figure, time:int, rider_ids:list):
     global selected_riders_df
@@ -43,14 +46,20 @@ def add_rider(fig:go.Figure, time:int, rider_ids:list):
         )
     return fig
 
-def add_customer(fig:go.Figure, time:int, rider_ids:list, order_id:int, assigned_order:bool):
+def add_customer(fig:go.Figure, time:int, rider_ids:list, \
+    order_id:int, assigned_order:bool, recent_suggested_order:bool):
 
-    selection_clause = (order_df['created_time'] <= time) & (time <= order_df['finished_time']) &\
-        (order_df['rider_id'].isin(rider_ids))
-    if assigned_order:
-        selection_clause = selection_clause & (order_df['assigned_time']<=time)
+    selection_clause = ((order_df['created_time']<=time) & (time <= order_df['finished_time']))|\
+        ((order_df['finished_time'].isna())&(order_df['created_time']<=time)&(time<=order_df['created_time']+cancel_interval))
     global selected_order_df
     selected_order_df = order_df[selection_clause]
+
+    if assigned_order:
+        selection_clause = (selected_order_df['assigned_time']<=time) | (selected_order_df['assigned_time'].notna())
+        selected_order_df = selected_order_df[selection_clause]
+    selected_order_df = selected_order_df[selected_order_df['rider_id'].isin(rider_ids) | selected_order_df['rider_id'].isna()]
+    if recent_suggested_order:
+        selected_order_df = selected_order_df[((time-logging_interval)<=selected_order_df['assigned_time'])&(selected_order_df['assigned_time']<=time)]
 
     n = len(selected_order_df)
     for i in range(n):
@@ -101,7 +110,9 @@ def add_restaurant(fig:go.Figure, filter_time:bool, order_id:int):
         )
     return fig
 
-def add_destination(fig:go.Figure, time:int, rider_ids:list, current_dest:bool):
+def add_destination(fig:go.Figure, time:int, current_dest:bool):
+    global selected_order_df
+    rider_ids = selected_order_df['rider_id'].unique()
     selected_destination_df = destination_df.loc[destination_df['time'] == time]
     selected_destination_df = selected_destination_df.loc[selected_destination_df['id'].isin(rider_ids)]
     selected_df = selected_riders_df.merge(selected_destination_df,suffixes = ['_rider', '_destination'], 
@@ -156,9 +167,10 @@ class RiderCustomerMapRenderer():
             order_id = -1
         fig = go.Figure(figure_state)
         fig = add_rider(fig, time, selected_rider_ids)
-        fig = add_customer(fig, time, selected_rider_ids, order_id, ASSIGNED_ORDER in option_value)
+        fig = add_customer(fig, time, selected_rider_ids, order_id, \
+            ASSIGNED_ORDER in option_value, RECENT_SUGGESTED_ORDER in option_value)
         fig = add_restaurant(fig, FILTER_RESTAURANT in option_value, order_id)
-        fig = add_destination(fig, time, selected_rider_ids, CURRENT_DESTINATION in option_value)
+        fig = add_destination(fig, time, CURRENT_DESTINATION in option_value)
         
         if frame == 0:
             fig.update_layout(

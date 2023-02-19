@@ -45,6 +45,7 @@ app.layout = html.Div([
             {'label': 'Filter restaurant', 'value': FILTER_RESTAURANT},
             {'label': 'Current destination', 'value': CURRENT_DESTINATION},
             {'label': 'Assigned order', 'value': ASSIGNED_ORDER},
+            {'label': 'Recent suggested order', 'value': RECENT_SUGGESTED_ORDER},
         ],
         value=[FILTER_RESTAURANT, CURRENT_DESTINATION, ASSIGNED_ORDER],
         inline=True
@@ -84,7 +85,7 @@ def on_interval(n_intervals):
     State("auto-stepper", "disabled"),)
 def on_click(n_clicks, disabled):
     if disabled:
-        return "Played", False
+        return "Playing", False
     return "Paused", True
 
 @app.callback(
