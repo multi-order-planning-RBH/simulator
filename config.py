@@ -3,7 +3,7 @@ from datetime import datetime
 from manager.mode import CentralManagerMode
 
 now = datetime.now()
-date_time = now.strftime("%Y%m%d_%H:%M:%S")
+date_time = now.strftime("%Y%m%d_%H%M%S")
 
 class SuggestionMode:
     BATCH = "batch"
