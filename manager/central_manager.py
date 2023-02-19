@@ -79,14 +79,7 @@ class CentralManager:
             finished_order_list = self.order_simulator.finished_order_list
 
             if time % self.log_step == 0:
-                # print("Time : ", time)
-                # print("Number of available riders :     ", len(rider_list))
-                # print("Number of working riders :       ", len(working_rider_list))
-                # print("Number of unassigned orders :    ", len(order_list))
-                # print("Number of assigned orders :      ", len(assigned_order_list))
-                # print("Number of finished orders :      ", len(finished_order_list))
-                # print()
-            if time % 100 == 0:
+
                 logger.info(f"Time : {time}")
                 logger.info(f"Number of available riders :     {len(rider_list)}")
                 logger.info(f"Number of working riders :       {len(working_rider_list)}")

@@ -3,7 +3,7 @@ from datetime import datetime
 from manager.mode import CentralManagerMode
 
 now = datetime.now()
-date_time = now.strftime("%Y%m%d_%H:%M:%S")
+date_time = now.strftime("%Y%m%d_%H_%M_%S")
 
 class Config:
     #simulation time
@@ -40,4 +40,4 @@ class Config:
     SEED = 0
     
     #log 
-    LOG_DIR = "./log/{}".format(date_time)
+    LOG_DIR = "log/{}".format(date_time)
