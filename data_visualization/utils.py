@@ -2,7 +2,7 @@ from data_visualization.config import ConfigAndShared
 from dash import html
 
 def get_slider_marker():
-    return {i:str(i*30) for i in range(0, ConfigAndShared.NUMBER_OF_TIME_STEP, 10)}
+    return {i:str(i*30) for i in range(0, ConfigAndShared.NUMBER_OF_TIME_STEP, 100)}
 
 def get_drop_down_option():
     return [{
