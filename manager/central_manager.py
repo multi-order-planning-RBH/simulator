@@ -1,3 +1,4 @@
+import os
 from map.map import number_of_fail_findding_path
 from manager.mode import CentralManagerMode
 from config import Config
@@ -130,4 +131,5 @@ class CentralManager:
 
             self.current_time += 1
 
+        os.mkdir(Config.LOG_DIR)
         self.order_simulator.export_log_file()

@@ -14,7 +14,7 @@ from order_restaurant.order_restaurant_simulator import Order, Destination
 from suggester.types.batch import Batch
 from map.map import get_geometry_of_path
 from config import Config
-
+from pyproj import Geod
 
 class Action : 
     def __init__(self, action : ActionEnum, time : int):
@@ -119,7 +119,9 @@ class Rider:
                 dest = self.current_destination.location
                 self.path = get_geometry_of_path(origin, dest)
 
-                self.current_traveling_time = ceil(self.path.length/self.speed)
+                length_meters = Geod(ellps="WGS84").geometry_length(self.path)
+
+                self.current_traveling_time = ceil(length_meters/self.speed)
                 self.t = 1
 
             elif random.uniform(0, 1)<self.resting_prob: 
