@@ -14,7 +14,8 @@ from order_restaurant.order_restaurant_simulator import Order, Destination
 from suggester.types.batch import Batch
 from map.map import get_geometry_of_path
 from config import Config
-
+from pyproj import Geod
+from scipy.stats import truncnorm
 
 class Action : 
     def __init__(self, action : ActionEnum, time : int):
@@ -40,7 +41,11 @@ class Rider:
             self.done_current_action_time = starting_time
 
         self.log : Dict[int, list] = dict()
-        self.speed : float = Config.RIDER_SPEED
+        self.speed : float = truncnorm.rvs((Config.RIDER_SPEED_LOWER_BOUND - Config.RIDER_SPEED_MEAN) / Config.RIDER_SPEED_STD, 
+                                            (Config.RIDER_SPEED_UPPER_BOUND - Config.RIDER_SPEED_MEAN) / Config.RIDER_SPEED_STD,    
+                                            loc=Config.RIDER_SPEED_MEAN, 
+                                            scale=Config.RIDER_SPEED_STD, 
+                                            size=1)[0]
 
         self.destinations : List[Destination] = list()
         self.current_destination : Destination = None
@@ -119,7 +124,9 @@ class Rider:
                 dest = self.current_destination.location
                 self.path = get_geometry_of_path(origin, dest)
 
-                self.current_traveling_time = ceil(self.path.length/self.speed)
+                length_meters = Geod(ellps="WGS84").geometry_length(self.path)
+
+                self.current_traveling_time = ceil(length_meters/self.speed)
                 self.t = 1
 
             elif random.uniform(0, 1)<self.resting_prob: 

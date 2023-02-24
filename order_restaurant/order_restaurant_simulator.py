@@ -255,7 +255,7 @@ class OrderSimulator:
             order_log['meal_finished_time'].append(order.meal_finished_time)
             order_log['picked_up_time'].append(order.picked_up_time)
             order_log['finished_time'].append(order.finished_time)
-            order_log['rider_id'].append(order.rider)
+            order_log['rider_id'].append(order.rider_id)
 
         order_log_df = pd.DataFrame(data=order_log)
         order_log_df.to_csv("{}/{}".format(Config.LOG_DIR, Config.ORDER_LOG_FILENAME), index=False)
