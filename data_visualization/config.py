@@ -14,7 +14,7 @@ def get_restaurant_df(ORDER_DF:pd.DataFrame):
     return restaurant_df
 
 class ConfigAndShared:
-    SIMULATION_DATE = "20230219_135841"
+    SIMULATION_DATE = "20230226_170219"
 
     LOCATION_LOGGING_PATH = "./log/{}/rider_location.csv".format(SIMULATION_DATE)
     DESTINATION_LOGGING_PATH = "./log/{}/rider_destination.csv".format(SIMULATION_DATE)
