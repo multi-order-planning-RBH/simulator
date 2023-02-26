@@ -7,6 +7,7 @@ from dash import Dash, dcc, html, Input, Output, State
 from data_visualization.config import ConfigAndShared
 from data_visualization.component.rider_customer_map_renderer import *
 from data_visualization.component.order_time_query import *
+from data_visualization.component.speed_click_handler import *
 from data_visualization.utils import *
 
 app = Dash(__name__)
@@ -17,7 +18,46 @@ number_of_riders = ConfigAndShared.NUMBER_OF_RIDERS
 number_of_time_step = ConfigAndShared.NUMBER_OF_TIME_STEP
 
 app.layout = html.Div([
-    html.H4('Multiorder visualization'),
+    html.Div(
+        [
+            html.H4('Multiorder visualization',
+                style = {'height': '40%', 'margin': '0px'}),
+            html.Div(
+            [
+                dcc.Input(
+                    id="order-id-input",
+                    placeholder="Type order id"
+                ),
+                html.Button(
+                    id="move-to-create", 
+                    children="Created time"
+                ),
+                html.Button(
+                    id="move-to-assigned", 
+                    children="Assigned time"
+                ),
+                html.Button(
+                    id="move-to-meal-finished-time", 
+                    children="Meal finished time"
+                ),
+                html.Button(
+                    id="move-to-picked-up", 
+                    children="Picked up time"
+                ),
+                html.Button(
+                    id="move-to-delivered", 
+                    children="Delivered time"
+                ),
+            ], style = {
+                'display': 'flex', 
+                'flex-direction': 'row', 
+                "justify-content": "space-between", 
+                "hight": "40%",
+                "witdh": "70%"}
+            ),
+        ],
+        style={'display': 'flex', 'flex-direction': 'row', "justify-content": "space-between"}
+    ),
     dcc.Dropdown(
         id="multi-dropdown", 
         multi=True, 
@@ -26,37 +66,63 @@ app.layout = html.Div([
     ),
     html.Div(
         [
-            html.H4('Input order id'),
-            dcc.Input(
-                id="order-id-input",
-                placeholder="Type order id",
+            dcc.Checklist(
+                id="checklist",
+                options=[
+                    {'label': 'Filter restaurant', 'value': FILTER_RESTAURANT},
+                    {'label': 'Current destination', 'value': CURRENT_DESTINATION},
+                    {'label': 'Assigned order', 'value': ASSIGNED_ORDER},
+                    {'label': 'Recent suggested order', 'value': RECENT_SUGGESTED_ORDER},
+                ],
+                value=[FILTER_RESTAURANT, CURRENT_DESTINATION, ASSIGNED_ORDER],
+                inline=True
             ),
-            html.Button(id="move-to-create", children="Created time"),
-            html.Button(id="move-to-assigned", children="Assigned time"),
-            html.Button(id="move-to-meal-finished-time", children="Meal finished time"),
-            html.Button(id="move-to-picked-up", children="Picked up time"),
-            html.Button(id="move-to-delivered", children="Delivered time"),
-        ],
+            html.Div(
+                [
+                    html.Button(
+                        id="x_5", 
+                        children="x.5"
+                    ),
+                    html.Button(
+                        id="x1", 
+                        children="x1"
+                    ),
+                    html.Button(
+                        id="x2", 
+                        children="x2"
+                    ),
+                ], style = {
+                    'width': "9vw",
+                    'display': 'flex', 
+                    'flex-direction': 'row', 
+                    "justify-content": "space-between"
+                }
+            )
+        ], 
+        style={'display': 'flex', 'flex-direction': 'row', "justify-content": "space-between"}
+    ),
+    html.Div(
+        [
+            dcc.Graph(
+                id="map", 
+                figure = go.Figure(),
+                style={'width': '95vw', 'height': '90vh'}
+            ),
+        ], 
         style={'display': 'flex', 'flex-direction': 'row'}
     ),
-    dcc.Checklist(
-        id="checklist",
-        options=[
-            {'label': 'Filter restaurant', 'value': FILTER_RESTAURANT},
-            {'label': 'Current destination', 'value': CURRENT_DESTINATION},
-            {'label': 'Assigned order', 'value': ASSIGNED_ORDER},
-            {'label': 'Recent suggested order', 'value': RECENT_SUGGESTED_ORDER},
-        ],
-        value=[FILTER_RESTAURANT, CURRENT_DESTINATION, ASSIGNED_ORDER],
-        inline=True
+    html.Div(
+        [
+            html.Button(id="play-button", children="Playing"),
+            html.Div(
+                [
+                    dcc.Slider(id="dash-slider", min=0, max=number_of_time_step-1, value=0, marks=slider_marker)
+                ],
+            )
+        ], 
+        style={'display': 'grid', "grid-template-columns": "5% 95%"}
     ),
-    html.Div([
-        dcc.Graph(id="map", figure = go.Figure(), style={'width': '100vw', 'height': '90vh'}),
-    ], style={'display': 'flex', 'flex-direction': 'row'}
-    ),
-    dcc.Slider(id="dash-slider", min=0, max=number_of_time_step-1, value=0, marks=slider_marker),
-    html.Button(id="play-button", children="Play"),
-    dcc.Interval(id='auto-stepper',interval=1.5*1000, n_intervals=0, disabled = True, max_intervals = number_of_time_step)
+    dcc.Interval(id='auto-stepper',interval=1*1000, n_intervals=0, disabled = True, max_intervals = number_of_time_step)
 ])
 
 @app.callback(
@@ -70,6 +136,16 @@ app.layout = html.Div([
 def setFrame(frame, selected_rider_ids, option_value, order_id, figure):
     fig = rider_customer_map_renderrer.render(frame, selected_rider_ids, option_value, order_id, figure)
     return fig
+
+@app.callback(
+    Output("auto-stepper", "interval"),
+    Input('x_5', 'n_clicks'),
+    Input('x1', 'n_clicks'),
+    Input('x2', 'n_clicks'),
+)
+def on_interval(n_clicks_5, n_clicks_1, n_clicks_2):
+    return speed_click_handler.speed_click_handler(n_clicks_5, n_clicks_1, n_clicks_2)
+
 
 @app.callback(
     Output("dash-slider", "value"),

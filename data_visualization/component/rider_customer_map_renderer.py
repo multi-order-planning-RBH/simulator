@@ -37,7 +37,7 @@ def add_rider(fig:go.Figure, time:int, rider_ids:list):
                 lon=[lng],
                 mode="markers",
                 marker=go.scattermapbox.Marker(
-                    size=5,
+                    size=6,
                     color=rider_color
                 ),
                 text=['Rider ID: {}\n Current: {}'.format(int(id), action)],
@@ -70,7 +70,7 @@ def add_customer(fig:go.Figure, time:int, rider_ids:list, \
                 lon=[lon],
                 mode="markers",
                 marker=go.scattermapbox.Marker(
-                    size=6,
+                    size=10,
                     color=customer_color if id != order_id else gold_color
                 ),
                 text=['Order ID: {}\n'.format(int(id))],
@@ -101,7 +101,7 @@ def add_restaurant(fig:go.Figure, filter_time:bool, order_id:int):
                 lon=[lon],
                 mode="markers",
                 marker=go.scattermapbox.Marker(
-                    size=7,
+                    size=12,
                     color=restaurant_color if id != selected_restaurant_id else gold_color
                 ),
                 text=['Restaurant ID: {}\n'.format(int(id))],
@@ -138,7 +138,7 @@ def add_destination(fig:go.Figure, time:int, current_dest:bool):
                 mode="lines",
                 line=go.scattermapbox.Line(
                     width=1/count,
-                    color=colors[id],
+                    color=colors[id]
                 ),
                 name='Rider: {} Dest: {}'.format(id, count),
                 text='Destination: {} \nRider: {} Dest: {}'.format(dest_type, id, count)
@@ -176,7 +176,8 @@ class RiderCustomerMapRenderer():
             fig.update_layout(
                 mapbox_style="carto-positron",
                 margin={"r":0,"t":0,"l":0,"b":0},
-                mapbox={'center': go.layout.mapbox.Center(lat=13.8268, lon=100.5683), 'zoom': 12}
+                mapbox={'center': go.layout.mapbox.Center(lat=13.8268, lon=100.5683), 'zoom': 12},
+                showlegend=True
             )
         
         return fig
