@@ -80,13 +80,13 @@ class CentralManager:
 
             if time % self.log_step == 0:
 
-                logger.info(f"Time : {time}")
-                logger.info(f"Number of available riders :     {len(rider_list)}")
-                logger.info(f"Number of working riders :       {len(working_rider_list)}")
-                logger.info(f"Number of unassigned orders :    {len(order_list)}")
-                logger.info(f"Number of assigned orders :      {len(assigned_order_list)}")
-                logger.info(f"Number of finished orders :      {len(finished_order_list)}")
-                logger.info(f"Number of fail findding path:    {number_of_fail_findding_path[0]}")
+                # logger.info(f"Time : {time}")
+                # logger.info(f"Number of available riders :     {len(rider_list)}")
+                # logger.info(f"Number of working riders :       {len(working_rider_list)}")
+                # logger.info(f"Number of unassigned orders :    {len(order_list)}")
+                # logger.info(f"Number of assigned orders :      {len(assigned_order_list)}")
+                # logger.info(f"Number of finished orders :      {len(finished_order_list)}")
+                # logger.info(f"Number of fail findding path:    {number_of_fail_findding_path[0]}")
 
                 self.order_log["timesteps"].append(time)
                 self.order_log["customer_waiting_time"].append(self.calculate_customer_waiting_time())

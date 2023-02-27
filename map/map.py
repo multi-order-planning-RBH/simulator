@@ -12,6 +12,7 @@ import warnings
 from common.system_logger import SystemLogger
 logger = SystemLogger(__name__)
 
+np.random.seed(Config.SEED)
 settings.use_cache = True
 
 north, south, east, west = Config.MAP_NORTH, Config.MAP_SOUTH, Config.MAP_EAST, Config.MAP_WEST

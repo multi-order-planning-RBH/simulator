@@ -5,6 +5,9 @@ import numpy as np
 from math import * 
 from sklearn.ensemble import GradientBoostingRegressor
 from ml_estimator.distance_calculator import DistanceCalculator
+import warnings
+warnings.filterwarnings("ignore")
+
 
 class DeliveryModel: 
     def __init__(self):
