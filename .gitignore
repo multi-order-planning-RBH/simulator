@@ -3,3 +3,4 @@
 cache
 **/map/graph**
 /log/**
+config.yaml

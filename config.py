@@ -1,54 +1,46 @@
+import yaml
 from datetime import datetime
 
 from manager.mode import CentralManagerMode
 
+with open("./config.yaml", 'r') as stream:
+    config_dict = yaml.safe_load(stream)
+
 now = datetime.now()
 date_time = now.strftime("%Y%m%d_%H%M%S")
 
-class SuggestionMode:
-    BATCH = "batch"
-    ONLINE = "online"
-
 class Config:
-    #simulation time
-    CENTRAL_MANAGER_SIMULATION_TIME = 12000
-    CENTRAL_MANAGER_TIME_WINDOW = 240
-
     #rider
-    RIDER_SPEED_MEAN = 5.318089655268194
-    RIDER_SPEED_STD = 1.9188270198967308
-    RIDER_SPEED_LOWER_BOUND = 0.05694768987719012
-    RIDER_SPEED_UPPER_BOUND = 10.847062932978952
-    RIDER_LOGGING_PERIOD = 30
-    RIDER_NUMBER = 5
-    RIDER_STARTING_TIME = 0
-    RIDER_GETOFF_TIME = 10000
-    RIDER_LOG_PERIOD = 30
-    RIDER_LOCATION_LOG_FILENAME = "rider_location.csv"
-    RIDER_DESTINATION_LOG_FILENAME = "rider_destination.csv"
+    RIDER_SPEED_MEAN = config_dict['rider']['speed_mean']
+    RIDER_SPEED_STD = config_dict['rider']['speed_std']
+    RIDER_SPEED_LOWER_BOUND = config_dict['rider']['speed_lower_bound']
+    RIDER_SPEED_UPPER_BOUND = config_dict['rider']['speed_upper_bound']
+    RIDER_NUMBER = config_dict['rider']['number']
+    RIDER_STARTING_TIME = config_dict['rider']['starting_time']
+    RIDER_GETOFF_TIME = config_dict['rider']['getoff_time']
+    RIDER_LOG_PERIOD = config_dict['rider']['log_period']
+    RIDER_LOCATION_LOG_FILENAME = config_dict['rider']['location_log_filename']
+    RIDER_DESTINATION_LOG_FILENAME = config_dict['rider']['destination_log_filename']
 
     #order
-    ORDER_LOGGING_PERIOD = RIDER_LOGGING_PERIOD
+    ORDER_LOG_PERIOD = config_dict['order']['log_period']
 
     #order
-    ORDER_LOG_FILENAME = "order.csv"
+    ORDER_LOG_FILENAME = config_dict['order']['log_filename']
 
     #map
-    MAP_NORTH = 13.864249 
-    MAP_EAST = 100.614548
-    MAP_SOUTH = 13.806425
-    MAP_WEST = 100.530755
+    MAP_NORTH = config_dict['map']['north']
+    MAP_EAST = config_dict['map']['east']
+    MAP_SOUTH = config_dict['map']['south']
+    MAP_WEST = config_dict['map']['west']
 
     #central_manager
-    MODE = CentralManagerMode.BATCH
-    CENTRAL_MANAGER_SIMULATION_TIME  = 54000
-    CENTRAL_MANAGER_TIME_WINDOW = 100
+    MODE = config_dict['central_manager']['mode']
+    CENTRAL_MANAGER_SIMULATION_TIME = config_dict['central_manager']['simulation_time']
+    CENTRAL_MANAGER_TIME_WINDOW = config_dict['central_manager']['time_window']
 
     #random seed
-    SEED = 0
+    SEED = config_dict['seed']
     
     #log 
-    LOG_DIR = "./log/{}".format(date_time)
-    
-    #central_manager
-    MODE = "online"
+    LOG_DIR = "{}{}".format(config_dict['log_dir'], date_time)
