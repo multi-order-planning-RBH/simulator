@@ -24,6 +24,13 @@ class BatchMode:
 
     # Suggest candidated rider by 
     def suggest(self, orders: list[Order], riders: list[Rider], time, for_test: bool = False) -> Dict[Rider, List[Batch]]:
+        
+        riders = [[rider.id,rider] for rider in riders]
+        orders = [[order.id,order] for order in orders]
+
+        riders = [rider for _,rider in riders]
+        orders = [order for _,order in orders]
+
 
         #Construct order graph
         order_graph, edge_list = self.construct_order_graph(orders)

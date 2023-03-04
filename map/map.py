@@ -1,18 +1,19 @@
 import pickle
 
 from osmnx import graph_from_bbox, graph_to_gdfs, settings
+from osmnx.utils_geo import sample_points as osmnx_sample_points 
 from osmnx.distance import nearest_nodes, shortest_path
-from osmnx.utils_geo import sample_points as osmnx_sample_points
 from shapely.geometry import LineString, Point, MultiLineString
-from random import uniform
-import numpy as np
 from config import Config
-
+import numpy as np
 import warnings
 from common.system_logger import SystemLogger
-logger = SystemLogger(__name__)
+import networkx as nx
+from random import uniform
 
 np.random.seed(Config.SEED)
+logger = SystemLogger(__name__)
+
 settings.use_cache = True
 
 north, south, east, west = Config.MAP_NORTH, Config.MAP_SOUTH, Config.MAP_EAST, Config.MAP_WEST
@@ -36,7 +37,19 @@ nodes, streets = graph_to_gdfs(graph)
 def sample_uniform_bangkok_location() -> Point:
   x = uniform(south, north)
   y = uniform(west, east)
+
   return Point(y, x)
+
+# def osmnx_sample_points(G, n):
+#     if nx.is_directed(G):  # pragma: no cover
+#         warnings.warn(
+#             "graph should be undirected to not oversample bidirectional edges", stacklevel=1
+#         )
+#     gdf_edges = utils_graph.graph_to_gdfs(G, nodes=False)[["geometry", "length"]]
+#     weights = gdf_edges["length"] / gdf_edges["length"].sum()
+#     idx = np.random.choice(gdf_edges.index, size=n, p=weights)
+#     lines = gdf_edges.loc[idx, "geometry"]
+#     return lines.interpolate(np.random.rand(n), normalized=True)
 
 def sample_points_on_graph(number):
     # Catch warning from osmnx_sample_points
@@ -45,7 +58,6 @@ def sample_points_on_graph(number):
         points = list(osmnx_sample_points(graph, number))
         for warn in caught_warnings:
             logger.warning(f'{warn.message} from {warn.filename} lineno {warn.lineno}')
-
     return points
 
 def get_shapely_point(x, nodes=nodes):
@@ -98,10 +110,11 @@ def get_geometry_and_length_of_walking_and_riding_path(origin_point, dest_point,
   return path_linear_string_geometry
 
 def get_geometry_of_path(origin, dest) -> MultiLineString:
+
   origin_closest_node = nearest_nodes(graph, origin.x, origin.y, return_dist=False)
   destination_closest_node = nearest_nodes(graph, dest.x, dest.y, return_dist=False)
   path = shortest_path(graph, origin_closest_node, destination_closest_node)
-
+  
   geo = get_geometry_and_length_of_walking_and_riding_path(origin, dest, path)
-
+  
   return geo

@@ -118,7 +118,6 @@ class Rider:
                 origin = self.location
                 dest = self.current_destination.location
                 self.path = get_geometry_of_path(origin, dest)
-
                 self.current_traveling_time = ceil(self.path.length/self.speed)
                 self.t = 1
 
@@ -168,6 +167,9 @@ class Rider:
         #     self.current_action = ActionEnum.GETOFF 
             
         return self.current_action
+
+    def __lt__(self,other):
+        return True
 
         
 

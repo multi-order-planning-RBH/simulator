@@ -7,8 +7,9 @@ date_time = now.strftime("%Y%m%d_%H_%M_%S")
 
 class Config:
     #simulation time
-    CENTRAL_MANAGER_SIMULATION_TIME = 12000
+    CENTRAL_MANAGER_SIMULATION_TIME = 50400
     CENTRAL_MANAGER_TIME_WINDOW = 240
+    SEED_RESET_PERIOD = 1
 
     #rider
     RIDER_SPEED = 5.563781044552085e-05
