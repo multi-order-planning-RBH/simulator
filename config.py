@@ -34,6 +34,30 @@ class Config:
     MAP_SOUTH = config_dict['map']['south']
     MAP_WEST = config_dict['map']['west']
 
+    #restaurant 
+    if 'restaurant_area' not in config_dict:
+        RESTAURANT_AREA_NORTH = MAP_NORTH
+        RESTAURANT_AREA_EAST = MAP_EAST
+        RESTAURANT_AREA_SOUTH = MAP_SOUTH
+        RESTAURANT_AREA_WEST = MAP_WEST
+    else :
+        RESTAURANT_AREA_NORTH = config_dict['restaurant_area']['north']
+        RESTAURANT_AREA_EAST = config_dict['restaurant_area']['east']
+        RESTAURANT_AREA_SOUTH = config_dict['restaurant_area']['south']
+        RESTAURANT_AREA_WEST = config_dict['restaurant_area']['west']
+
+    #customer area 
+    if 'customer_area' not in config_dict:
+        CUSTOMER_AREA_NORTH = MAP_NORTH
+        CUSTOMER_AREA_EAST = MAP_EAST
+        CUSTOMER_AREA_SOUTH = MAP_SOUTH
+        CUSTOMER_AREA_WEST = MAP_WEST
+    else :
+        CUSTOMER_AREA_NORTH = config_dict['customer_area']['north']
+        CUSTOMER_AREA_EAST = config_dict['customer_area']['east']
+        CUSTOMER_AREA_SOUTH = config_dict['customer_area']['south']
+        CUSTOMER_AREA_WEST = config_dict['customer_area']['west']
+
     #central_manager
     MODE = config_dict['central_manager']['mode']
     CENTRAL_MANAGER_SIMULATION_TIME = config_dict['central_manager']['simulation_time']
