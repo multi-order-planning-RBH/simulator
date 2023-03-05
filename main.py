@@ -29,7 +29,7 @@ def main():
     multi_order = MultiOrderSuggester(rider_simulator=rider, order_simulator=order)
 
     manager = CentralManager(rider_simulator=rider, restaurant_simulator=restaurant, \
-        order_simulator=order, multi_order_suggester=multi_order,log_step=Config.ORDER_LOGGING_PERIOD)
+        order_simulator=order, multi_order_suggester=multi_order,log_step=Config.ORDER_LOG_PERIOD)
     manager.simulate(Config.CENTRAL_MANAGER_SIMULATION_TIME, Config.CENTRAL_MANAGER_TIME_WINDOW)
 
     logger.info(f"Customer Waiting Time:           {manager.calculate_customer_waiting_time()}")
