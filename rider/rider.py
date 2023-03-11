@@ -1,18 +1,17 @@
 import random
-import pandas as pd
 
 from typing import List
 from math import ceil
 from shapely import Point
+from pyproj import Geod
+from scipy.stats import truncnorm
 
 from common.location import LocationEnum
 from common.action import ActionEnum
 from order_restaurant.order_restaurant_simulator import Order, Destination
 from suggester.types.batch import Batch
-from map.map import get_geometry_of_path
+from map.map import get_geometry_of_path, sample_uniform_restaurant_area
 from config import Config
-from pyproj import Geod
-from scipy.stats import truncnorm
 
 class Action : 
     def __init__(self, action : ActionEnum, time : int):
@@ -37,12 +36,8 @@ class Rider:
             self.current_action = ActionEnum.UNAVAILABLE
             self.done_current_action_time = starting_time
 
-        self.log : Dict[int, list] = dict()
-        self.speed : float = truncnorm.rvs((Config.RIDER_SPEED_LOWER_BOUND - Config.RIDER_SPEED_MEAN) / Config.RIDER_SPEED_STD, 
-                                            (Config.RIDER_SPEED_UPPER_BOUND - Config.RIDER_SPEED_MEAN) / Config.RIDER_SPEED_STD,    
-                                            loc=Config.RIDER_SPEED_MEAN, 
-                                            scale=Config.RIDER_SPEED_STD, 
-                                            size=1)[0]
+        self.log : dict = dict()
+        self.speed : float = sample_rider_speed()
 
         self.destinations : List[Destination] = list()
         self.current_destination : Destination = None
@@ -50,16 +45,19 @@ class Rider:
         self.order_count : int = 0
         self.cum_order_count : int = 0
 
-        self.current_traveling_time = 0
-        self.current_traveling_time = 0
+        self.traveling_time = 0
         self.utilization_time = 0
         self.t = 0
+
+        self.location_log = list()
+        self.destination_log = list()
 
     def add_order_destination(self, order : Order, time : int) -> bool:
         if (self.current_action != ActionEnum.RESTING or \
             self.current_action != ActionEnum.UNAVAILABLE) and \
             self.getoff_time - time > 1800:
 
+            self.check_riding_back_status_after_assignment()
             self.order_count += 1
             self.cum_order_count += 1
             
@@ -77,6 +75,7 @@ class Rider:
             self.current_action != ActionEnum.UNAVAILABLE) and \
             self.getoff_time - time > 1800:
 
+            self.check_riding_back_status_after_assignment()
             self.order_count += len(batch.orders)
             self.cum_order_count += len(batch.orders)
             
@@ -91,6 +90,7 @@ class Rider:
             self.current_action != ActionEnum.UNAVAILABLE) and \
             self.getoff_time - time > 1800:
 
+            self.check_riding_back_status_after_assignment()
             self.order_count += 1
             self.cum_order_count += 1
             self.destinations = destinations
@@ -100,6 +100,10 @@ class Rider:
     # def calculate_speed(self, traveling_time : int):
     #     destination = self.destinations[0].location
     #     self.speed = (destination - self.location)/traveling_time
+
+    def check_riding_back_status_after_assignment(self):
+        if self.current_action == ActionEnum.RIDING_BACK_TO_RESTAURANT_AREA:
+            self.current_action = ActionEnum.NO_ACTION
 
     def logging(self, time):
         action = self.current_action
@@ -118,7 +122,7 @@ class Rider:
             self.destination_log.extend(temp)
 
     def simulate(self, time : int) -> ActionEnum:
-        if time % Config.RIDER_LOG_PERIOD == 0:
+        if time % Config.RIDER_LOGGING_PERIOD == 0:
             self.logging(time)
 
         if self.current_action == ActionEnum.NO_ACTION:
@@ -128,11 +132,14 @@ class Rider:
 
                 origin = self.location
                 dest = self.current_destination.location
-                self.path = get_geometry_of_path(origin, dest)
+                self.speed = sample_rider_speed()
+                self.traveling_time, self.path = compute_traveling_time_and_path(origin, dest, self.speed)
+                self.done_current_action_time = time + self.traveling_time
 
-                length_meters = Geod(ellps="WGS84").geometry_length(self.path)
+                # self.path = get_geometry_of_path(origin, dest)
+                # length_meters = Geod(ellps="WGS84").geometry_length(self.path)
+                # self.current_traveling_time = ceil(length_meters/self.speed)
 
-                self.current_traveling_time = ceil(length_meters/self.speed)
                 self.t = 1
 
             elif random.uniform(0, 1)<self.resting_prob: 
@@ -141,9 +148,9 @@ class Rider:
 
         elif self.current_action == ActionEnum.RIDING:
             self.utilization_time += 1
-            self.location = self.path.interpolate(self.speed*self.t)
+            self.location = self.path.interpolate(self.t/self.traveling_time, normalized=True)
             self.t += 1
-            if self.t > self.current_traveling_time:
+            if time > self.done_current_action_time:
                 self.current_action = ActionEnum.WAITING
                 destination = self.current_destination
                 if destination:
@@ -163,7 +170,25 @@ class Rider:
                 destination.action(time)
                 if destination.type == LocationEnum.CUSTOMER:
                         self.order_count -= 1
-            self.current_action = ActionEnum.NO_ACTION
+                if len(self.destinations) > 0:
+                    self.current_action = ActionEnum.NO_ACTION
+                else:
+                    self.current_action = ActionEnum.RIDING_BACK_TO_RESTAURANT_AREA
+                    origin = self.location
+                    dest = sample_uniform_restaurant_area()
+                    self.speed = sample_rider_speed()
+                    self.traveling_time, self.path = compute_traveling_time_and_path(origin, dest, self.speed)
+                    self.done_current_action_time = time + self.traveling_time
+                    self.t = 1
+            else:
+                self.current_action = ActionEnum.NO_ACTION
+
+        elif self.current_action == ActionEnum.RIDING_BACK_TO_RESTAURANT_AREA:
+            self.location = self.path.interpolate(self.t/self.traveling_time, normalized=True)
+            self.t += 1
+            if time > self.done_current_action_time:
+                self.current_action = ActionEnum.NO_ACTION
+                self.path = None
 
         elif self.current_action == ActionEnum.RESTING:
             if time > self.done_current_action_time:
@@ -176,11 +201,21 @@ class Rider:
         else:
             pass
 
-        # if time >= self.getoff_time:
-        #     self.current_destination = None
-        #     self.current_action = ActionEnum.GETOFF 
             
         return self.current_action
 
         
 
+def sample_rider_speed():
+    return truncnorm.rvs((Config.RIDER_SPEED_LOWER_BOUND - Config.RIDER_SPEED_MEAN) / Config.RIDER_SPEED_STD, 
+                                            (Config.RIDER_SPEED_UPPER_BOUND - Config.RIDER_SPEED_MEAN) / Config.RIDER_SPEED_STD,    
+                                            loc=Config.RIDER_SPEED_MEAN, 
+                                            scale=Config.RIDER_SPEED_STD, 
+                                            size=1)[0]
+
+def compute_traveling_time_and_path(origin, dest, speed):
+    path = get_geometry_of_path(origin, dest)
+    length_meters = Geod(ellps="WGS84").geometry_length(path)
+    traveling_time = ceil(length_meters/speed)
+
+    return traveling_time, path

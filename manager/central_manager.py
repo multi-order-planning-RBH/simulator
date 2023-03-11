@@ -86,6 +86,7 @@ class CentralManager:
                 logger.info(f"Number of unassigned orders :    {len(order_list)}")
                 logger.info(f"Number of assigned orders :      {len(assigned_order_list)}")
                 logger.info(f"Number of finished orders :      {len(finished_order_list)}")
+                logger.info(f"Number of cancel orders :      {len(self.order_simulator.cancelled_order_list)}")
                 logger.info(f"Number of fail findding path:    {number_of_fail_findding_path[0]}")
                 if self.mode == CentralManagerMode.BATCH:  
                     logger.error("Number of failed assignment  ", self.failed_mode)
@@ -114,9 +115,12 @@ class CentralManager:
                     self.multi_order_suggester.assign_order_to_rider(time)
 
             self.current_time += 1
-        
-        os.mkdir(Config.LOG_DIR)
+            
+        try:
+            os.mkdir(Config.LOG_DIR)
+        except:
+            pass
+
         self.rider_simulator.export_log_file()
 
-        os.mkdir(Config.LOG_DIR)
         self.order_simulator.export_log_file()

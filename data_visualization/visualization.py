@@ -92,7 +92,7 @@ app.layout = html.Div([
                         children="x2"
                     ),
                 ], style = {
-                    'width': "9vw",
+                    'width': "8vw",
                     'display': 'flex', 
                     'flex-direction': 'row', 
                     "justify-content": "space-between"
@@ -106,7 +106,7 @@ app.layout = html.Div([
             dcc.Graph(
                 id="map", 
                 figure = go.Figure(),
-                style={'width': '95vw', 'height': '90vh'}
+                style={'width': '98vw', 'height': '90vh'}
             ),
         ], 
         style={'display': 'flex', 'flex-direction': 'row'}
