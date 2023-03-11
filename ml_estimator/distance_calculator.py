@@ -6,7 +6,7 @@ from math import *
 
 class DistanceCalculator: 
 	def __init__(self):
-		self.G = pkl.load(open('graph_fix.pkl', 'rb')) 
+		self.G = pkl.load(open('ml_estimator/graph_fix.pkl', 'rb')) 
 		self.nodes = self.G.nodes()
 
 	def computeHeuristic(self, u, v):

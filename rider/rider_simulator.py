@@ -22,6 +22,7 @@ class RiderSimulator():
         self.count = 0 
         self.success_count = 0 
         rider_initial_point = sample_points_on_graph(Config.RIDER_NUMBER)
+
         for i in range(Config.RIDER_NUMBER):
             self.create_rider_innitial_location(rider_initial_point[i])        
 

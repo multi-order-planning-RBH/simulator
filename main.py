@@ -20,6 +20,9 @@ random.seed(Config.SEED)
 np.random.seed(Config.SEED)
 
 def main():
+
+    if not os.path.exists(Config.LOG_DIR):
+        os.makedirs(Config.LOG_DIR)
     start = time.time()
 
     order = order_simulator
@@ -41,41 +44,10 @@ def main():
     logger.info(f"Number of assigning:             {rider_simulator.count}")
     logger.info(f"Number of success assigning:     {rider_simulator.success_count}")
     
-    
-
-    dir_name = "log/"
-
-    if not os.path.exists(dir_name):
-        os.makedirs(dir_name)
 
     order_summary_log_df = pd.DataFrame(manager.order_log)
-    order_summary_log_df.to_csv(dir_name+"order_summary_log.csv",index=False)
+    order_summary_log_df.to_csv(Config.LOG_DIR+"/order_summary_log.csv",index=False)
 
-    order_log_df = pd.DataFrame(columns = ["id","restaurant_destination","customer_destination","created_time"
-                        ,"assigned_time","meal_finished_time","picked_up_time","cooking_duration"
-                        ,"estimated_cooking_duration","finished_time","status","rider_id"])
-    
-    all_order_list = []
-    all_order_list+=order.finished_order_list
-    all_order_list+=order.cancelled_order_list
-    all_order_list+=order.assigned_order_list
-    all_order_list+=order.unassigned_order_list
-
-    o_list = []
-    for o in all_order_list:
-        attr_list = []
-
-        for col in order_log_df.columns:
-            attr=getattr(o,col)
-            if col in ["restaurant_destination","customer_destination"]:
-                attr = attr.location
-            if col=="rider" and attr:
-                attr = attr.id
-            attr_list.append(attr)
-
-        o_list.append(attr_list)
-    order_log_df = pd.concat([order_log_df,pd.DataFrame(o_list,columns=order_log_df.columns)])
-    order_log_df.to_csv(dir_name+"order_log.csv",index=False)
 
 if __name__ == "__main__":
     main()

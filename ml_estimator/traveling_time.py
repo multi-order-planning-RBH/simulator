@@ -3,12 +3,12 @@ from shapely.geometry import Point
 import pickle as pkl
 import numpy as np
 from math import * 
-# from distance_calculator import DistanceCalculator
 from sklearn.ensemble import GradientBoostingRegressor
+from ml_estimator.distance_calculator import DistanceCalculator
 
 class DeliveryModel: 
     def __init__(self):
-        self.model = pkl.load(open('food_delivery_best_gbdt_m.pkl', 'rb'))
+        self.model = pkl.load(open('ml_estimator/gbdt_m_delivery.pkl', 'rb'))
         self.distanceCalculator = DistanceCalculator()
         self.dayMap = {"MON":0, "TUE":1, "WED":2, "THU":3, "FRI":4, "SAT":5, "SUN":6}
 
@@ -47,7 +47,6 @@ class DeliveryModel:
         u = np.apply_along_axis(lambda loc_i : loc_i[0], axis=1, arr=locations)
         v = np.apply_along_axis(lambda loc_i : loc_i[1], axis=1, arr=locations)
         
-        
         merchant_lat = np.apply_along_axis(lambda u_i : u_i[0], axis=1, arr=u)
         merchant_long = np.apply_along_axis(lambda u_i : u_i[1], axis=1, arr=u)
         
@@ -70,13 +69,12 @@ class DeliveryModel:
         X = np.column_stack((merchant_lat, merchant_long, customer_lat, customer_long, EucDist, ShortestDist, day_of_week_sin, day_of_week_cos))
         return self.model.predict(X)
     
-# estimator = DistanceCalculator()
+estimator = DeliveryModel()
 
 def estimate_traveling_time(start: Point, stop: Point) -> int:
 
-    # model_input = np.array([[start.y,start.x],[stop.y,stop.x]])
+    model_input = np.array([[[start.y,start.x],[stop.y,stop.x]]])
+    
+    return int(estimator.batch_predict(model_input)[0]*60)
+    # return 600
 
-    # return estimator.batch_predict(model_input)
-    return 600
-
-# print(estimate_traveling_time(Point(100.5645341,13.8270341),Point(100.5663012,13.8236557)))
