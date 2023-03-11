@@ -68,3 +68,8 @@ class Config:
     
     #log 
     LOG_DIR = "{}{}".format(config_dict['log_dir'], date_time)
+
+    #batch_mode
+    ORDER_BATCHER_THRESHOLD = config_dict['batch']['threshold']
+    MAX_ORDER_PER_RIDER = config_dict['batch']['max_order_per_rider']
+    

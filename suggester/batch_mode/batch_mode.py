@@ -14,13 +14,12 @@ from common.location import LocationEnum
 from itertools import permutations
 from rider.rider import Rider
 from ml_estimator.traveling_time import estimate_traveling_time
-
+from config import Config
 
 class BatchMode:
 
     def __init__(self):
-        # this should be params
-        self.max_order_per_batch = 2
+        self.max_order_per_batch = Config.MAX_ORDER_PER_RIDER
 
     # Suggest candidated rider by 
     def suggest(self, orders: list[Order], riders: list[Rider], time, for_test: bool = False) -> Dict[Rider, List[Batch]]:
@@ -84,10 +83,7 @@ class BatchMode:
         all_cost = sum([self.calculate_cost_order_graph(batch.orders,batch.destinations) for batch in orders_graph])
         num_batch = len(orders_graph)
 
-        # default value from paper, should tune this value too
-
-        # this should be params
-        threhold_cost = 600
+        threhold_cost = Config.ORDER_BATCHER_THRESHOLD
 
         while all_cost/num_batch <= threhold_cost and len(edge_heap)>0:
             
