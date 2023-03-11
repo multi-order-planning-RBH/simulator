@@ -1,4 +1,3 @@
-import random
 import pandas as pd
 import numpy as np
 import sys
@@ -7,7 +6,7 @@ sys.path.append(os.path.abspath("..\\simulator"))
 
 import scipy.stats
 from shapely import Point
-
+import random
 from common.order import OrderEnum
 from common.location import LocationEnum
 from ml_estimator.cooking_duration import estimate_cooking_duration

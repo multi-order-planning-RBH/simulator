@@ -4,7 +4,7 @@ from manager.mode import CentralManagerMode
 from config import Config
 from common.system_logger import SystemLogger
 import numpy as np
-
+import hashlib
 logger = SystemLogger(__name__)
 
 class CentralManager:
@@ -17,6 +17,7 @@ class CentralManager:
         self.multi_order_suggester = multi_order_suggester
         self.mode = Config.MODE
         self.log_step = log_step
+        self.log_seed_arr = []
         self.order_log = {"timesteps":[],"customer_waiting_time":[],
                         "rider_onroad_time":[],"rider_order_count":[],
                         "#cancelled_order":[],"#unassigned_order":[],
@@ -80,16 +81,16 @@ class CentralManager:
             finished_order_list = self.order_simulator.finished_order_list
 
             if time % self.log_step == 0:
-                logger.info(f"Time : {time}")
-                logger.info(f"Number of available riders :     {len(rider_list)}")
-                logger.info(f"Number of working riders :       {len(working_rider_list)}")
-                logger.info(f"Number of unassigned orders :    {len(order_list)}")
-                logger.info(f"Number of assigned orders :      {len(assigned_order_list)}")
-                logger.info(f"Number of finished orders :      {len(finished_order_list)}")
-                logger.info(f"Number of cancel orders :      {len(self.order_simulator.cancelled_order_list)}")
-                logger.info(f"Number of fail findding path:    {number_of_fail_findding_path[0]}")
-                if self.mode == CentralManagerMode.BATCH:  
-                    logger.error("Number of failed assignment  ", self.failed_mode)
+                # logger.info(f"Time : {time}")
+                # logger.info(f"Number of available riders :     {len(rider_list)}")
+                # logger.info(f"Number of working riders :       {len(working_rider_list)}")
+                # logger.info(f"Number of unassigned orders :    {len(order_list)}")
+                # logger.info(f"Number of assigned orders :      {len(assigned_order_list)}")
+                # logger.info(f"Number of finished orders :      {len(finished_order_list)}")
+                # logger.info(f"Number of cancel orders :      {len(self.order_simulator.cancelled_order_list)}")
+                # logger.info(f"Number of fail findding path:    {number_of_fail_findding_path[0]}")
+                # if self.mode == CentralManagerMode.BATCH:  
+                #     logger.error("Number of failed assignment  ", self.failed_mode)
 
                 self.order_log["timesteps"].append(time)
                 self.order_log["customer_waiting_time"].append(self.calculate_customer_waiting_time())

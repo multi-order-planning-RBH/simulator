@@ -1,5 +1,4 @@
 from typing import List
-from random import uniform
 from shapely.geometry import Point
 
 LocationType = List[float]

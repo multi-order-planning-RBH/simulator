@@ -5,10 +5,13 @@ import numpy as np
 from math import * 
 from sklearn.ensemble import GradientBoostingRegressor
 from ml_estimator.distance_calculator import DistanceCalculator
+import warnings
+warnings.filterwarnings("ignore")
+
 
 class DeliveryModel: 
     def __init__(self):
-        self.model = pkl.load(open('ml_estimator/gbdt_m_delivery.pkl', 'rb'))
+        self.model = pkl.load(open('ml_estimator/food_delivery_best_gbdt_m.pkl', 'rb'))
         self.distanceCalculator = DistanceCalculator()
         self.dayMap = {"MON":0, "TUE":1, "WED":2, "THU":3, "FRI":4, "SAT":5, "SUN":6}
 
@@ -60,7 +63,8 @@ class DeliveryModel:
             ShortestDist = EucDist.copy()*1.2
         else :
             ShortestDist = [self.distanceCalculator.shortestDistance(u[i],v[i]) for i in range(n)]
-
+        
+        # return ShortestDist
         u,inv = np.unique(day_of_week, return_inverse = True)
         day_inverse = np.array([self.dayMap[x] for x in u])[inv].reshape(day_of_week.shape)
         day_of_week_sin = np.apply_along_axis(lambda day : np.sin(day*(2.*np.pi/7)) , axis=0, arr=day_inverse)
@@ -74,7 +78,9 @@ estimator = DeliveryModel()
 def estimate_traveling_time(start: Point, stop: Point) -> int:
 
     model_input = np.array([[[start.y,start.x],[stop.y,stop.x]]])
-    
+
     return int(estimator.batch_predict(model_input)[0]*60)
+
+    # return int(estimator.batch_predict(model_input)[0]/4.65)
     # return 600
 
