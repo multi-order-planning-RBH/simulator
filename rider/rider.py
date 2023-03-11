@@ -10,7 +10,7 @@ from common.location import LocationEnum
 from common.action import ActionEnum
 from order_restaurant.order_restaurant_simulator import Order, Destination
 from suggester.types.batch import Batch
-from map.map import get_geometry_of_path, sample_uniform_restaurant_area
+from map.map import get_geometry_of_path, sample_uniform_restaurant_location
 from config import Config
 
 class Action : 
@@ -122,7 +122,7 @@ class Rider:
             self.destination_log.extend(temp)
 
     def simulate(self, time : int) -> ActionEnum:
-        if time % Config.RIDER_LOGGING_PERIOD == 0:
+        if time % Config.RIDER_LOG_PERIOD == 0:
             self.logging(time)
 
         if self.current_action == ActionEnum.NO_ACTION:
@@ -175,7 +175,7 @@ class Rider:
                 else:
                     self.current_action = ActionEnum.RIDING_BACK_TO_RESTAURANT_AREA
                     origin = self.location
-                    dest = sample_uniform_restaurant_area()
+                    dest = sample_uniform_restaurant_location()
                     self.speed = sample_rider_speed()
                     self.traveling_time, self.path = compute_traveling_time_and_path(origin, dest, self.speed)
                     self.done_current_action_time = time + self.traveling_time

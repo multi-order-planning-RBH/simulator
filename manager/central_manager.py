@@ -89,7 +89,7 @@ class CentralManager:
                 logger.info(f"Number of cancel orders :      {len(self.order_simulator.cancelled_order_list)}")
                 logger.info(f"Number of fail findding path:    {number_of_fail_findding_path[0]}")
                 if self.mode == CentralManagerMode.BATCH:  
-                    logger.error("Number of failed assignment  ", self.failed_mode)
+                    logger.error(f"Number of failed assignment: {self.failed_mode}")
 
                 self.order_log["timesteps"].append(time)
                 self.order_log["customer_waiting_time"].append(self.calculate_customer_waiting_time())
@@ -99,7 +99,6 @@ class CentralManager:
                 self.order_log["#cancelled_order"].append(len(self.order_simulator.cancelled_order_list))
                 self.order_log["#unassigned_order"].append(len(order_list))
                 self.order_log["#assigned_order"].append(len(assigned_order_list))
-
             if self.mode == CentralManagerMode.BATCH:
                 if self.current_time > 0 and self.current_time % time_window == 0:
                     try:
@@ -122,5 +121,4 @@ class CentralManager:
             pass
 
         self.rider_simulator.export_log_file()
-
         self.order_simulator.export_log_file()

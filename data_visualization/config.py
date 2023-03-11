@@ -2,8 +2,8 @@ import pandas as pd
 import random 
 
 def get_restaurant_df(ORDER_DF:pd.DataFrame):
-    restaurant_id = ORDER_DF['restaurant_id'].unique()
-    restaurant_df = ORDER_DF.loc[restaurant_id][['restaurant_id', 'restaurant_location_lat', 'restaurant_location_lng']]
+    restaurant_df = ORDER_DF[['restaurant_id', 'restaurant_location_lat', 'restaurant_location_lng']]
+    restaurant_df = restaurant_df.drop_duplicates(subset=['restaurant_id'])
     restaurant_df = restaurant_df.rename(
         columns = {
             "restaurant_id":"id",
@@ -14,7 +14,7 @@ def get_restaurant_df(ORDER_DF:pd.DataFrame):
     return restaurant_df
 
 class ConfigAndShared:
-    SIMULATION_DATE = "20230226_170219"
+    SIMULATION_DATE = "20230311_162900"
 
     LOCATION_LOGGING_PATH = "./log/{}/rider_location.csv".format(SIMULATION_DATE)
     DESTINATION_LOGGING_PATH = "./log/{}/rider_destination.csv".format(SIMULATION_DATE)

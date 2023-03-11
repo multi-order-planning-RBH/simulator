@@ -35,14 +35,14 @@ class MultiOrderSuggester:
     
     # Suggest candidated rider with batch mode 
     def suggest_batch_mode(self, time) -> Dict[Rider, List[Batch]]:
-        riders= self.rider_simulator.unassigned_riders
+        riders = self.rider_simulator.unassigned_riders
         orders = self.order_simulator.unassigned_order_list
 
         if len(riders)==0 or len(orders)==0:
             return
-
+        
         suggested_rider_batch_graph = self.batchmode.suggest(orders, riders, time)
-
+        
         batch2rider = {}
         for rider in suggested_rider_batch_graph:
             for batch in suggested_rider_batch_graph[rider]:
