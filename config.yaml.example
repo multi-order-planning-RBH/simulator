@@ -1,5 +1,5 @@
 central_manager:
-    simulation_time: 12000
+    simulation_time: 50400
     time_window: 240
     mode: batch
 rider:
@@ -7,7 +7,7 @@ rider:
     speed_std: 1.9188270198967308
     speed_lower_bound: 0.05694768987719012
     speed_upper_bound: 10.847062932978952
-    number: 5
+    number: 30
     starting_time: 0
     getoff_time: 10000
     log_period: 30 
@@ -21,5 +21,8 @@ map:
     east: 100.614548
     west: 100.530755
     south: 13.806425
+batch:
+    threshold: 600
+    max_order_per_rider: 2
 seed: 0
 log_dir: ./log/
