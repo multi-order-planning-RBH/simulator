@@ -35,7 +35,7 @@ class Config:
     # MAP_WEST = 100.484028
 
     #central_manager
-    MODE = CentralManagerMode.BATCH
+    MODE = CentralManagerMode.ONLINE
 
     #random seed
     SEED = 0
