@@ -163,9 +163,19 @@ class FoodPrepModel:
         X = pd.DataFrame(X, columns=self.col)
         return self.model.predict(X)
 
+foodprep_model = FoodPrepModel()
 
-def estimate_cooking_duration(order) -> int:
+def estimate_cooking_duration(order,location) -> int:
     # tmp wait for ML
+    
+    location = np.array([[[location.y,location.x],[location.y,location.x]]])
+
+    day_of_week = []
+    NationFoodCategory=[order.food_nation]
+    FoodCategory = [order.food_category]
+    # print(location)
+    # print(foodprep_model.batch_predict(location,day_of_week,NationFoodCategory,FoodCategory)[0]*60)
+    # return foodprep_model.batch_predict(location,day_of_week,NationFoodCategory,FoodCategory[0]*60)
     mean =1000
     std=300
 
