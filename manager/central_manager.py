@@ -4,7 +4,7 @@ from manager.mode import CentralManagerMode
 from config import Config
 from common.system_logger import SystemLogger
 import numpy as np
-
+import hashlib
 logger = SystemLogger(__name__)
 
 class CentralManager:
@@ -17,6 +17,7 @@ class CentralManager:
         self.multi_order_suggester = multi_order_suggester
         self.mode = Config.MODE
         self.log_step = log_step
+        self.log_seed_arr = []
         self.order_log = {"timesteps":[],"customer_waiting_time":[],
                         "rider_onroad_time":[],"rider_order_count":[],
                         "#cancelled_order":[],"#unassigned_order":[],

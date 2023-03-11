@@ -2,9 +2,7 @@ import time
 import os
 import time
 import pandas as pd
-import random
 import numpy as np
-
 
 from manager.central_manager import CentralManager
 from rider.rider_simulator import rider_simulator
@@ -12,9 +10,10 @@ from order_restaurant.order_restaurant_simulator import order_simulator, restaur
 from suggester.multi_order_suggester import MultiOrderSuggester
 from common.system_logger import SystemLogger
 from config import Config
+import random
 
 logger = SystemLogger(__name__)
-
+os.environ["PYTHONHASHSEED"] = str(Config.SEED)
 random.seed(Config.SEED)
 np.random.seed(Config.SEED)
 
@@ -44,6 +43,9 @@ def main():
 
     order_summary_log_df = pd.DataFrame(manager.order_log)
     order_summary_log_df.to_csv(Config.LOG_DIR+"/order_summary_log.csv",index=False)
+
+    log_seed_arr = pd.DataFrame({"batch_result":manager.multi_order_suggester.log_batch_result})
+    log_seed_arr.to_csv(Config.LOG_DIR+"/log_batch.csv",index=False)
 
 
 if __name__ == "__main__":

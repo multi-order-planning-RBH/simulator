@@ -204,6 +204,9 @@ class Rider:
             
         return self.current_action
 
+    def __lt__(self,other):
+        return True
+
         
 
 def sample_rider_speed():

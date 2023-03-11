@@ -24,6 +24,13 @@ class BatchMode:
 
     # Suggest candidated rider by 
     def suggest(self, orders: list[Order], riders: list[Rider], time, for_test: bool = False) -> Dict[Rider, List[Batch]]:
+        
+        riders = [[rider.id,rider] for rider in riders]
+        orders = [[order.id,order] for order in orders]
+
+        riders = [rider for _,rider in riders]
+        orders = [order for _,order in orders]
+
 
         #Construct order graph
         order_graph, edge_list = self.construct_order_graph(orders)
@@ -156,7 +163,7 @@ class BatchMode:
 
     # shortest time possible
     def calculate_shortest_delivery_time(self, order: Order) -> int:
-        return order.estimated_cooking_duration+ estimate_traveling_time(order.restaurant_destination, order.customer_destination)
+        return order.estimated_cooking_duration+ estimate_traveling_time(order.restaurant_destination.location, order.customer_destination.location)
 
     # expected - shortest
     def calculate_extra_delivery_time_order_graph(self, order: Order, destinations: list[Destination]) -> int:
