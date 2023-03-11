@@ -17,6 +17,24 @@ logger = SystemLogger(__name__)
 settings.use_cache = True
 
 north, south, east, west = Config.MAP_NORTH, Config.MAP_SOUTH, Config.MAP_EAST, Config.MAP_WEST
+restaurant_area_north, restaurant_area_south, restaurant_area_east, restaurant_area_west = \
+  Config.RESTAURANT_AREA_NORTH, Config.RESTAURANT_AREA_SOUTH, Config.RESTAURANT_AREA_EAST, Config.RESTAURANT_AREA_WEST
+customer_area_north, customer_area_south, customer_area_east, customer_area_west =\
+  Config.CUSTOMER_AREA_NORTH, Config.CUSTOMER_AREA_SOUTH, Config.CUSTOMER_AREA_EAST, Config.CUSTOMER_AREA_WEST
+
+def validate_sub_area(sub_area_north, sub_area_south, sub_area_east, sub_area_west, area):
+  if not (south <= sub_area_north <= north):
+    raise Exception("Invalid {} north".format(area))
+  if not (south <= sub_area_south <= north):
+    raise Exception("Invalid {} south".format(area))
+  if not (west <= sub_area_east <= east):
+    raise Exception("Invalid {} east".format(area))
+  if not (west <= sub_area_west <= east):
+    raise Exception("Invalid {} west".format(area))
+  
+validate_sub_area(restaurant_area_north, restaurant_area_south, restaurant_area_east, restaurant_area_west, "restaurant area")
+validate_sub_area(customer_area_north, customer_area_south, customer_area_east, customer_area_west, "customer area")
+
 MAP_PATH = './map/graph_{}_{}_{}_{}.pkl'.format(north, south, east, west)
 
 try:
@@ -40,16 +58,15 @@ def sample_uniform_bangkok_location() -> Point:
 
   return Point(y, x)
 
-# def osmnx_sample_points(G, n):
-#     if nx.is_directed(G):  # pragma: no cover
-#         warnings.warn(
-#             "graph should be undirected to not oversample bidirectional edges", stacklevel=1
-#         )
-#     gdf_edges = utils_graph.graph_to_gdfs(G, nodes=False)[["geometry", "length"]]
-#     weights = gdf_edges["length"] / gdf_edges["length"].sum()
-#     idx = np.random.choice(gdf_edges.index, size=n, p=weights)
-#     lines = gdf_edges.loc[idx, "geometry"]
-#     return lines.interpolate(np.random.rand(n), normalized=True)
+def sample_uniform_restaurant_location() -> Point:
+  x = uniform(restaurant_area_south, restaurant_area_north)
+  y = uniform(restaurant_area_west, restaurant_area_east)
+  return Point(y, x)
+
+def sample_uniform_customer_location() -> Point:
+  x = uniform(customer_area_south, customer_area_north)
+  y = uniform(customer_area_west, customer_area_east)
+  return Point(y, x)
 
 def sample_points_on_graph(number):
     # Catch warning from osmnx_sample_points

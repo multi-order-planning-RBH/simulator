@@ -1,0 +1,25 @@
+central_manager:
+    simulation_time: 12000
+    time_window: 240
+    mode: batch
+rider:
+    speed_mean: 5.318089655268194
+    speed_std: 1.9188270198967308
+    speed_lower_bound: 0.05694768987719012
+    speed_upper_bound: 10.847062932978952
+    number: 5
+    starting_time: 0
+    getoff_time: 10000
+    log_period: 30 
+    location_log_filename: rider_location.csv
+    destination_log_filename: rider_destination.csv
+order:
+    log_period: 30
+    log_filename: order.csv
+map:
+    north: 13.864249
+    east: 100.614548
+    west: 100.530755
+    south: 13.806425
+seed: 0
+log_dir: ./log/

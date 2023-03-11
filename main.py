@@ -31,7 +31,7 @@ def main():
     multi_order = MultiOrderSuggester(rider_simulator=rider, order_simulator=order)
 
     manager = CentralManager(rider_simulator=rider, restaurant_simulator=restaurant, \
-        order_simulator=order, multi_order_suggester=multi_order,log_step=Config.ORDER_LOGGING_PERIOD)
+        order_simulator=order, multi_order_suggester=multi_order,log_step=Config.ORDER_LOG_PERIOD)
     manager.simulate(Config.CENTRAL_MANAGER_SIMULATION_TIME, Config.CENTRAL_MANAGER_TIME_WINDOW)
 
     logger.info(f"Customer Waiting Time:           {manager.calculate_customer_waiting_time()}")
@@ -42,17 +42,6 @@ def main():
     logger.info(f"Computation time:                {time.time()-start}")
     logger.info(f"Number of assigning:             {rider_simulator.count}")
     logger.info(f"Number of success assigning:     {rider_simulator.success_count}")
-    print("Customer Waiting Time:           ", manager.calculate_customer_waiting_time())
-    print("Number of finished order:           ", len(order.finished_order_list))
-    print("Number of cancelled order:                 ", len(order.cancelled_order_list))
-    print("Number of unassigned orders :    ", len(order.unassigned_order_list))
-    print("Number of assigned orders :      ", len(order.assigned_order_list))
-    print("Rider onroad time:               ", manager.calculate_rider_utilization_time())
-    print("Number of order per rider:                 ", manager.calculate_rider_order_count())
-    print("Count no order rider:                 ", manager.count_no_order_rider())
-    print("Computation time:                ", time.time()-start)
-    print("Number of assigning:             ", rider_simulator.count)
-    print("Number of success assigning:     ", rider_simulator.success_count)
     
 
     order_summary_log_df = pd.DataFrame(manager.order_log)

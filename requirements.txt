@@ -7,3 +7,6 @@ shapely
 plotly
 jupyter_dash
 dash
+sklearn
+scikit-learn
+yaml

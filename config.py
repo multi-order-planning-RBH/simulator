@@ -1,44 +1,70 @@
+import yaml
 from datetime import datetime
 
 from manager.mode import CentralManagerMode
 
+with open("./config.yaml", 'r') as stream:
+    config_dict = yaml.safe_load(stream)
+
 now = datetime.now()
-date_time = now.strftime("%Y%m%d_%H_%M_%S")
+date_time = now.strftime("%Y%m%d_%H%M%S")
 
 class Config:
-    #simulation time
-    CENTRAL_MANAGER_SIMULATION_TIME = 50400
-    CENTRAL_MANAGER_TIME_WINDOW = 240
-    SEED_RESET_PERIOD = 1
-
     #rider
-    RIDER_SPEED = 5.563781044552085e-05
-    RIDER_LOGGING_PERIOD = 30
-    RIDER_NUMBER = 10
-    RIDER_STARTING_TIME = 0
-    RIDER_GETOFF_TIME = CENTRAL_MANAGER_SIMULATION_TIME
+    RIDER_SPEED_MEAN = config_dict['rider']['speed_mean']
+    RIDER_SPEED_STD = config_dict['rider']['speed_std']
+    RIDER_SPEED_LOWER_BOUND = config_dict['rider']['speed_lower_bound']
+    RIDER_SPEED_UPPER_BOUND = config_dict['rider']['speed_upper_bound']
+    RIDER_NUMBER = config_dict['rider']['number']
+    RIDER_STARTING_TIME = config_dict['rider']['starting_time']
+    RIDER_GETOFF_TIME = config_dict['rider']['getoff_time']
+    RIDER_LOG_PERIOD = config_dict['rider']['log_period']
+    RIDER_LOCATION_LOG_FILENAME = config_dict['rider']['location_log_filename']
+    RIDER_DESTINATION_LOG_FILENAME = config_dict['rider']['destination_log_filename']
 
     #order
-    ORDER_LOGGING_PERIOD = RIDER_LOGGING_PERIOD
+    ORDER_LOG_PERIOD = config_dict['order']['log_period']
 
     #order
-    ORDER_LOG_FILENAME = "order.csv"
+    ORDER_LOG_FILENAME = config_dict['order']['log_filename']
 
     #map
-    MAP_NORTH = 13.864249 
-    MAP_EAST = 100.614548
-    MAP_SOUTH = 13.806425
-    MAP_WEST = 100.530755
-    # MAP_NORTH = 13.914579
-    # MAP_SOUTH = 13.738166 
-    # MAP_EAST = 100.661622
-    # MAP_WEST = 100.484028
+    MAP_NORTH = config_dict['map']['north']
+    MAP_EAST = config_dict['map']['east']
+    MAP_SOUTH = config_dict['map']['south']
+    MAP_WEST = config_dict['map']['west']
+
+    #restaurant 
+    if 'restaurant_area' not in config_dict:
+        RESTAURANT_AREA_NORTH = MAP_NORTH
+        RESTAURANT_AREA_EAST = MAP_EAST
+        RESTAURANT_AREA_SOUTH = MAP_SOUTH
+        RESTAURANT_AREA_WEST = MAP_WEST
+    else :
+        RESTAURANT_AREA_NORTH = config_dict['restaurant_area']['north']
+        RESTAURANT_AREA_EAST = config_dict['restaurant_area']['east']
+        RESTAURANT_AREA_SOUTH = config_dict['restaurant_area']['south']
+        RESTAURANT_AREA_WEST = config_dict['restaurant_area']['west']
+
+    #customer area 
+    if 'customer_area' not in config_dict:
+        CUSTOMER_AREA_NORTH = MAP_NORTH
+        CUSTOMER_AREA_EAST = MAP_EAST
+        CUSTOMER_AREA_SOUTH = MAP_SOUTH
+        CUSTOMER_AREA_WEST = MAP_WEST
+    else :
+        CUSTOMER_AREA_NORTH = config_dict['customer_area']['north']
+        CUSTOMER_AREA_EAST = config_dict['customer_area']['east']
+        CUSTOMER_AREA_SOUTH = config_dict['customer_area']['south']
+        CUSTOMER_AREA_WEST = config_dict['customer_area']['west']
 
     #central_manager
-    MODE = CentralManagerMode.ONLINE
+    MODE = config_dict['central_manager']['mode']
+    CENTRAL_MANAGER_SIMULATION_TIME = config_dict['central_manager']['simulation_time']
+    CENTRAL_MANAGER_TIME_WINDOW = config_dict['central_manager']['time_window']
 
     #random seed
-    SEED = 0
+    SEED = config_dict['seed']
     
     #log 
-    LOG_DIR = "log/{}".format(date_time)
+    LOG_DIR = "{}{}".format(config_dict['log_dir'], date_time)

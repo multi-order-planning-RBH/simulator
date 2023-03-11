@@ -234,8 +234,10 @@ class OrderSimulator:
         order_log = {
             'id': [],
             'restaurant_id': [],
-            'restaurant_location': [],
-            'customer_location': [],
+            'restaurant_location_lat': [],
+            'restaurant_location_lng': [],
+            'customer_location_lat': [],
+            'customer_location_lng': [],
             'created_time': [],
             'assigned_time': [],
             'meal_finished_time': [],
@@ -247,8 +249,10 @@ class OrderSimulator:
         for order in self.order_dict.values():
             order_log['id'].append(order.id)
             order_log['restaurant_id'].append(order.restaurant)
-            order_log['restaurant_location'].append(order.restaurant_destination.location)
-            order_log['customer_location'].append(order.customer_destination.location)
+            order_log['restaurant_location_lat'].append(order.restaurant_destination.location.y)
+            order_log['restaurant_location_lng'].append(order.restaurant_destination.location.x)
+            order_log['customer_location_lat'].append(order.customer_destination.location.y)
+            order_log['customer_location_lng'].append(order.customer_destination.location.x)
             order_log['created_time'].append(order.created_time)
             order_log['assigned_time'].append(order.assigned_time)
             order_log['meal_finished_time'].append(order.meal_finished_time)
