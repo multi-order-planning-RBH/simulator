@@ -24,7 +24,7 @@ class RiderSimulator():
         rider_initial_point = sample_points_on_graph(Config.RIDER_NUMBER)
 
         for i in range(Config.RIDER_NUMBER):
-            self.create_rider_innitial_location(rider_initial_point[i])        
+            self.create_rider_innitial_location(rider_initial_point[i])
 
     def create_rider_innitial_location(self, location, starting_time = Config.RIDER_STARTING_TIME, getoff_time = Config.RIDER_GETOFF_TIME):
         rider = Rider(id = len(self.riders), location = location, starting_time = starting_time, getoff_time = getoff_time)
@@ -32,6 +32,7 @@ class RiderSimulator():
         if rider.current_action == ActionEnum.NO_ACTION:
             self.working_riders.append(rider)
             self.unassigned_riders.append(rider)
+
         return rider
 
     def assign_online_mode_order_to_a_rider(self, order: Order, rider: Rider, destinations: List[Destination], time) -> bool:

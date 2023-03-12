@@ -148,7 +148,8 @@ class Rider:
 
         elif self.current_action == ActionEnum.RIDING:
             self.utilization_time += 1
-            self.location = self.path.interpolate(self.t/self.traveling_time, normalized=True)
+            if self.traveling_time!=0:
+                self.location = self.path.interpolate(self.t/self.traveling_time, normalized=True)
             self.t += 1
             if time > self.done_current_action_time:
                 self.current_action = ActionEnum.WAITING
@@ -184,7 +185,8 @@ class Rider:
                 self.current_action = ActionEnum.NO_ACTION
 
         elif self.current_action == ActionEnum.RIDING_BACK_TO_RESTAURANT_AREA:
-            self.location = self.path.interpolate(self.t/self.traveling_time, normalized=True)
+            if self.traveling_time!=0:
+                self.location = self.path.interpolate(self.t/self.traveling_time, normalized=True)
             self.t += 1
             if time > self.done_current_action_time:
                 self.current_action = ActionEnum.NO_ACTION
