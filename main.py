@@ -34,6 +34,7 @@ def main():
         order_simulator=order, multi_order_suggester=multi_order,log_step=Config.ORDER_LOG_PERIOD)
     manager.simulate(Config.CENTRAL_MANAGER_SIMULATION_TIME, Config.CENTRAL_MANAGER_TIME_WINDOW)
 
+    print("Mode :",Config.MODE, "#Riders",Config.RIDER_NUMBER)
     logger.info(f"Customer Waiting Time:           {manager.calculate_customer_waiting_time()}")
     logger.info(f"Rider onroad time:               {manager.calculate_rider_utilization_time()}")
     logger.info(f"Number of order per rider:                 {manager.calculate_rider_order_count()}")
