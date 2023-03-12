@@ -18,8 +18,8 @@ from config import Config
 
 class BatchMode:
 
-    def __init__(self):
-        self.max_order_per_batch = Config.MAX_ORDER_PER_RIDER
+    def __init__(self,max_order):
+        self.max_order_per_batch = max_order
 
     # Suggest candidated rider by 
     def suggest(self, orders: list[Order], riders: list[Rider], time, for_test: bool = False) -> Dict[Rider, List[Batch]]:
@@ -316,4 +316,4 @@ class BatchMode:
 
         return suggested_rider_batch_graph
 
-batchmode = BatchMode()
+batchmode = BatchMode(Config.MAX_ORDER_PER_RIDER)

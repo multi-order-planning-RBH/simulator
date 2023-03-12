@@ -6,6 +6,7 @@ from order_restaurant.order_restaurant_simulator import Order
 import sys
 import os
 import numpy as np
+from config import Config
 
 sys.path.append(os.path.abspath("./"))
 
@@ -102,4 +103,4 @@ class OnlineMode:
         return current_time
 
 
-onlinemode = OnlineMode()
+onlinemode = OnlineMode(Config.MAX_ORDER_PER_RIDER)
