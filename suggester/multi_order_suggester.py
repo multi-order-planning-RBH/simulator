@@ -37,8 +37,13 @@ class MultiOrderSuggester:
     
     # Suggest candidated rider with batch mode 
     def suggest_batch_mode(self, time) -> Dict[Rider, List[Batch]]:
-        riders= self.rider_simulator.unassigned_riders
-        orders = self.order_simulator.unassigned_order_list
+        
+
+        riders = sorted([[r.id,r] for r in self.rider_simulator.unassigned_riders])
+        orders = sorted([[o.id,o] for o in self.order_simulator.unassigned_order_list])
+
+        riders = [r for _,r in riders]
+        orders = [o for _,o in orders]
 
         if len(riders)==0 or len(orders)==0:
             return
@@ -49,8 +54,6 @@ class MultiOrderSuggester:
 
         self.log_batch_result.append([[_,rider.id] for _,__,rider,batches in suggested_rider_batch_graph])
         
-        # print("Batch result",[[_,rider.id] for _,__,rider,batches in suggested_rider_batch_graph])
-
         
         suggested_rider_batch_graph = [[rider,batches] for _,__,rider,batches in suggested_rider_batch_graph]
 
@@ -61,13 +64,23 @@ class MultiOrderSuggester:
                     batch2rider[batch]=[]
                 batch2rider[batch].append(rider)
         assigned_rider = set()
+        unassigned_batch = []
         for batch in batch2rider:
             available_rider = [rider for rider in batch2rider[batch] if rider not in assigned_rider]
             if available_rider == []:
-                break
+                unassigned_batch.append(batch)
+                continue
             rider = random.choice(available_rider)
             assigned_rider.add(rider)
             self.rider_simulator.assign_batch_to_a_rider(batch, rider, time)
+        
+        unassigned_riders = [rider for rider in riders if rider not in assigned_rider]
+
+        for idx in range(min(len(unassigned_batch),len(unassigned_riders))):
+            self.rider_simulator.assign_batch_to_a_rider(unassigned_batch[idx], unassigned_riders[idx], time)
+            
+        
+
     
     def suggest_online_mode(self, time):
         riders= self.rider_simulator.working_riders
