@@ -34,13 +34,15 @@ def main():
         order_simulator=order, multi_order_suggester=multi_order,log_step=Config.ORDER_LOG_PERIOD)
     manager.simulate(Config.CENTRAL_MANAGER_SIMULATION_TIME, Config.CENTRAL_MANAGER_TIME_WINDOW)
 
-    print("Mode :",Config.MODE, "#Riders",Config.RIDER_NUMBER)
     logger.info(f"Customer Waiting Time:           {manager.calculate_customer_waiting_time()}")
     logger.info(f"Rider onroad time:               {manager.calculate_rider_utilization_time()}")
     logger.info(f"Number of order per rider:                 {manager.calculate_rider_order_count()}")
     logger.info(f"Count no order rider:                 {manager.count_no_order_rider()}")
-    logger.info(f"Number of finished order:                 {len(order.finished_order_list)}")
     logger.info(f"Number of cancelled order:                 {len(order.cancelled_order_list)}")
+    logger.info(f"Number of finished order:                 {len(order.finished_order_list)}")
+    logger.info(f"Number of unassigned order:                 {len(order.unassigned_order_list)}")
+    logger.info(f"Number of assigned order:                 {len(order.assigned_order_list)}")
+    
     logger.info(f"Computation time:                {time.time()-start}")
     logger.info(f"Number of assigning:             {rider_simulator.count}")
     logger.info(f"Number of success assigning:     {rider_simulator.success_count}")
