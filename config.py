@@ -21,6 +21,7 @@ class Config:
     RIDER_LOG_PERIOD = config_dict['rider']['log_period']
     RIDER_LOCATION_LOG_FILENAME = config_dict['rider']['location_log_filename']
     RIDER_DESTINATION_LOG_FILENAME = config_dict['rider']['destination_log_filename']
+    MAX_ORDER_PER_RIDER = config_dict['rider']['max_order']
 
     #order
     ORDER_LOG_PERIOD = config_dict['order']['log_period']
@@ -71,5 +72,4 @@ class Config:
 
     #batch_mode
     ORDER_BATCHER_THRESHOLD = config_dict['batch']['threshold']
-    MAX_ORDER_PER_RIDER = config_dict['batch']['max_order_per_rider']
     

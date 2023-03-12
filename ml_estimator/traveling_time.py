@@ -78,7 +78,6 @@ estimator = DeliveryModel()
 def estimate_traveling_time(start: Point, stop: Point) -> int:
 
     model_input = np.array([[[start.y,start.x],[stop.y,stop.x]]])
-
     return int(estimator.batch_predict(model_input)[0]*60)
 
     # return int(estimator.batch_predict(model_input)[0]/4.65)

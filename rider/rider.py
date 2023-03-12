@@ -53,9 +53,11 @@ class Rider:
         self.destination_log = list()
 
     def add_order_destination(self, order : Order, time : int) -> bool:
+        # if (self.current_action != ActionEnum.RESTING or \
+        #     self.current_action != ActionEnum.UNAVAILABLE) and \
+        #     self.getoff_time - time > 1800:
         if (self.current_action != ActionEnum.RESTING or \
-            self.current_action != ActionEnum.UNAVAILABLE) and \
-            self.getoff_time - time > 1800:
+            self.current_action != ActionEnum.UNAVAILABLE) :
 
             self.check_riding_back_status_after_assignment()
             self.order_count += 1
@@ -71,9 +73,11 @@ class Rider:
 
     # batch mode
     def add_batch_destination(self, batch : Batch, time : int) -> bool:
+        # if (self.current_action != ActionEnum.RESTING or \
+        #     self.current_action != ActionEnum.UNAVAILABLE) and \
+        #     self.getoff_time - time > 1800:
         if (self.current_action != ActionEnum.RESTING or \
-            self.current_action != ActionEnum.UNAVAILABLE) and \
-            self.getoff_time - time > 1800:
+            self.current_action != ActionEnum.UNAVAILABLE) :
 
             self.check_riding_back_status_after_assignment()
             self.order_count += len(batch.orders)
@@ -86,9 +90,11 @@ class Rider:
 
     # online mode
     def add_online_destination(self, order: Order, destinations: List[Destination], time : int) -> bool:
+        # if (self.current_action != ActionEnum.RESTING or \
+        #     self.current_action != ActionEnum.UNAVAILABLE) and \
+        #     self.getoff_time - time > 1800:
         if (self.current_action != ActionEnum.RESTING or \
-            self.current_action != ActionEnum.UNAVAILABLE) and \
-            self.getoff_time - time > 1800:
+            self.current_action != ActionEnum.UNAVAILABLE) :
 
             self.check_riding_back_status_after_assignment()
             self.order_count += 1
@@ -148,7 +154,8 @@ class Rider:
 
         elif self.current_action == ActionEnum.RIDING:
             self.utilization_time += 1
-            self.location = self.path.interpolate(self.t/self.traveling_time, normalized=True)
+            if self.traveling_time!=0:
+                self.location = self.path.interpolate(self.t/self.traveling_time, normalized=True)
             self.t += 1
             if time > self.done_current_action_time:
                 self.current_action = ActionEnum.WAITING
@@ -184,7 +191,8 @@ class Rider:
                 self.current_action = ActionEnum.NO_ACTION
 
         elif self.current_action == ActionEnum.RIDING_BACK_TO_RESTAURANT_AREA:
-            self.location = self.path.interpolate(self.t/self.traveling_time, normalized=True)
+            if self.traveling_time!=0:
+                self.location = self.path.interpolate(self.t/self.traveling_time, normalized=True)
             self.t += 1
             if time > self.done_current_action_time:
                 self.current_action = ActionEnum.NO_ACTION

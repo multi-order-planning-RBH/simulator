@@ -21,7 +21,7 @@ logger = SystemLogger(__name__)
 
 class Restaurant:
 
-    def __init__(self, location, restaurant_idx, mean=1000, std=300, order_rate=0.003):
+    def __init__(self, location, restaurant_idx, food_nation,food_category,mean=1000, std=300, order_rate=0.003):
         self.id: int = restaurant_idx
         self.location: Point = location
         # queue of orderId
@@ -29,6 +29,9 @@ class Restaurant:
         self.mean: int = mean
         self.std: int = std
         self.order_rate: float = order_rate
+        self.food_nation = food_nation
+        self.food_category = food_category
+
 
     def rider_pickup_order(self, pickup_order):
         # check if pickup_order ready if yes
@@ -71,12 +74,11 @@ class RestaurantSimulator:
         self.restaurant_idx: int = 0
         self.restaurant_list: list[Restaurant] = []
         self.restaurant_id_list: list[int] = []
-        # res_list = pd.read_csv("order_restaurant/restaurant_sample.csv")
-        # res_list = pd.read_csv("order_restaurant/restaurant_sample_10000.csv")
-        res_list = pd.read_csv("order_restaurant/restaurant_sample_10000_w_rate.csv")
+        res_list = pd.read_csv("order_restaurant/restaurant_sample.csv")
         for idx, res in res_list.iterrows():
             new_res = Restaurant(Point(res["Merchant.Lng"], res["Merchant.Lat"]),
-                                 self.restaurant_idx, res["mean_preparing_time"], res["std_preparing_time"],
+                                 self.restaurant_idx, res["NationFoodCategory"],res["FoodCategory"],
+                                 res["mean_preparing_time"], res["std_preparing_time"],
                                  res['num_job_per_sec'])
             self.restaurant_idx += 1
             self.restaurant_list.append(new_res)
@@ -121,6 +123,8 @@ class Order:
         self.id: int = order_idx
         self.restaurant: int = restaurant_id
         self.restaurant_destination: Destination = None
+        self.food_nation : str = None
+        self.food_category : str = None
         self.customer_destination: Destination = None
         self.created_time: int = created_time
         self.assigned_time: int = None
@@ -131,6 +135,7 @@ class Order:
         self.finished_time: int = None
         self.status: OrderEnum = OrderEnum.CREATED
         self.rider_id = None
+        
 
 
 class OrderSimulator:
@@ -147,6 +152,7 @@ class OrderSimulator:
         # num order should be randomed from some distribution
         cancelled_id = []
         for order in self.unassigned_order_list:
+
             # this can be params too
             if time - order.created_time > 600:
                 self.cancelled_order_list.append(order)
@@ -173,13 +179,18 @@ class OrderSimulator:
         new_order = Order(restaurant_id, self.order_idx, created_time)
         new_order.cooking_duration = restaurant_simulator.real_cooking_duration(
             restaurant_id, new_order)
+        new_order.food_nation = restaurant.food_nation
+        new_order.food_category = restaurant.food_category
+
         new_order.estimated_cooking_duration = estimate_cooking_duration(
-            new_order)
+            new_order,restaurant.location)
 
         new_order.restaurant_destination = Destination(
             new_order, restaurant.location, LocationEnum.RESTAURANT, new_order.cooking_duration, new_order.estimated_cooking_duration)
         new_order.customer_destination = Destination(
             new_order, customer_destination, LocationEnum.CUSTOMER, 5, 0)
+        
+        
 
         self.order_dict[self.order_idx] = new_order
 

@@ -163,18 +163,27 @@ class FoodPrepModel:
         X = pd.DataFrame(X, columns=self.col)
         return self.model.predict(X)
 
+foodprep_model = FoodPrepModel()
 
-def estimate_cooking_duration(order) -> int:
+def estimate_cooking_duration(order,location) -> int:
     # tmp wait for ML
-    mean =1000
-    std=300
+    
+    location = np.array([[[location.y,location.x],[location.y,location.x]]])
 
-    lower_bound = 200
-    upper_bound = 2500
+    day_of_week = []
+    NationFoodCategory=[order.food_nation]
+    FoodCategory = [order.food_category]
 
-    cooking_duration = int(scipy.stats.truncnorm.rvs((lower_bound-mean)/std,
-                                        (upper_bound-mean)/std,
-                                        loc=mean,scale=std,size=1)[0])
-    if cooking_duration<=0:
-        cooking_duration = 1000
-    return cooking_duration
+    return foodprep_model.batch_predict(location,day_of_week,NationFoodCategory,FoodCategory[0]*60)
+    # mean =1000
+    # std=300
+
+    # lower_bound = 200
+    # upper_bound = 2500
+
+    # cooking_duration = int(scipy.stats.truncnorm.rvs((lower_bound-mean)/std,
+    #                                     (upper_bound-mean)/std,
+    #                                     loc=mean,scale=std,size=1)[0])
+    # if cooking_duration<=0:
+    #     cooking_duration = 1000
+    # return cooking_duration

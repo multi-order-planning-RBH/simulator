@@ -103,6 +103,7 @@ class CentralManager:
 
             if self.mode == CentralManagerMode.BATCH:
                 if self.current_time > 0 and self.current_time % time_window == 0:
+                    # print(self.current_time)
                     try:
                         self.multi_order_suggester.suggest_batch_mode(time)
                     except Exception as e: 
