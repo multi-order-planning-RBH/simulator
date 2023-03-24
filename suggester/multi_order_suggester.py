@@ -47,7 +47,7 @@ class MultiOrderSuggester:
 
         if len(riders)==0 or len(orders)==0:
             return
-
+        
         suggested_rider_batch_graph = self.batchmode.suggest(orders, riders, time)
 
         suggested_rider_batch_graph = sorted([[-len(batch),rider.id,rider,batch] for rider,batch in suggested_rider_batch_graph.items()])

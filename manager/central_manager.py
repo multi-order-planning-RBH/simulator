@@ -100,7 +100,6 @@ class CentralManager:
                 self.order_log["#cancelled_order"].append(len(self.order_simulator.cancelled_order_list))
                 self.order_log["#unassigned_order"].append(len(order_list))
                 self.order_log["#assigned_order"].append(len(assigned_order_list))
-
             if self.mode == CentralManagerMode.BATCH:
                 if self.current_time > 0 and self.current_time % time_window == 0:
                     # print(self.current_time)
@@ -124,5 +123,4 @@ class CentralManager:
             pass
 
         self.rider_simulator.export_log_file()
-
         self.order_simulator.export_log_file()

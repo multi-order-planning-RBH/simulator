@@ -9,7 +9,6 @@ from rider.rider_simulator import rider_simulator
 from order_restaurant.order_restaurant_simulator import order_simulator, restaurant_simulator
 from suggester.multi_order_suggester import MultiOrderSuggester
 from common.system_logger import SystemLogger
-from map.map import sample_points_on_graph
 from config import Config
 import random
 
@@ -29,11 +28,9 @@ def main():
     
     rider = rider_simulator
     multi_order = MultiOrderSuggester(rider_simulator=rider, order_simulator=order)
-
     manager = CentralManager(rider_simulator=rider, restaurant_simulator=restaurant, \
         order_simulator=order, multi_order_suggester=multi_order,log_step=Config.ORDER_LOG_PERIOD)
     manager.simulate(Config.CENTRAL_MANAGER_SIMULATION_TIME, Config.CENTRAL_MANAGER_TIME_WINDOW)
-
     logger.info(f"Customer Waiting Time:           {manager.calculate_customer_waiting_time()}")
     logger.info(f"Rider onroad time:               {manager.calculate_rider_utilization_time()}")
     logger.info(f"Number of order per rider:                 {manager.calculate_rider_order_count()}")
