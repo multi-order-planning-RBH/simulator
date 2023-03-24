@@ -23,6 +23,16 @@ map:
     east: 100.614548
     west: 100.530755
     south: 13.806425
+restaurant_area:
+    north: 13.864249
+    east: 100.614548
+    west: 100.530755
+    south: 13.806425
+customer_area:
+    north: 13.864249
+    east: 100.614548
+    west: 100.530755
+    south: 13.806425
 batch:
     threshold: 600
 seed: 0
