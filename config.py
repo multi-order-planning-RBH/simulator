@@ -25,9 +25,8 @@ class Config:
 
     #order
     ORDER_LOG_PERIOD = config_dict['order']['log_period']
-
-    #order
     ORDER_LOG_FILENAME = config_dict['order']['log_filename']
+    ORDER_EXPINARY_TIME = config_dict['order']['expinary_time']
 
     #map
     MAP_NORTH = config_dict['map']['north']

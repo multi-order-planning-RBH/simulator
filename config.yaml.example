@@ -17,6 +17,7 @@ rider:
 order:
     log_period: 30
     log_filename: order.csv
+    expinary_time: 600
 map:
     north: 13.864249
     east: 100.614548

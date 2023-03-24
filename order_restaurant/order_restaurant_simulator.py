@@ -10,7 +10,7 @@ import random
 from common.order import OrderEnum
 from common.location import LocationEnum
 from ml_estimator.cooking_duration import estimate_cooking_duration
-from map.map import sample_uniform_bangkok_location
+from map.map import sample_uniform_customer_location
 
 from config import Config
 from common.system_logger import SystemLogger
@@ -153,8 +153,7 @@ class OrderSimulator:
         cancelled_id = []
         for order in self.unassigned_order_list:
 
-            # this can be params too
-            if time - order.created_time > 600:
+            if time - order.created_time > Config.ORDER_EXPINARY_TIME:
                 self.cancelled_order_list.append(order)
                 cancelled_id.append(order.id)
 
@@ -170,7 +169,7 @@ class OrderSimulator:
             if uniform_value<restaurant.order_rate:
 
 
-                customer_destination = sample_uniform_bangkok_location()
+                customer_destination = sample_uniform_customer_location()
                 self.create_order(customer_destination, restaurant_id, time)
                 
     def create_order(self, customer_destination, restaurant_id, created_time):
