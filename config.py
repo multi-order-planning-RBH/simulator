@@ -27,6 +27,7 @@ class Config:
     ORDER_LOG_PERIOD = config_dict['order']['log_period']
     ORDER_LOG_FILENAME = config_dict['order']['log_filename']
     ORDER_EXPINARY_TIME = config_dict['order']['expinary_time']
+    ORDER_FACTOR = config_dict['order']['factor']
 
     #map
     MAP_NORTH = config_dict['map']['north']
@@ -67,7 +68,7 @@ class Config:
     SEED = config_dict['seed']
     
     #log 
-    LOG_DIR = "{}{}".format(config_dict['log_dir'], date_time)
+    LOG_DIR = "{}/{}_{}_{}_{}".format(config_dict['log_dir'], date_time, MODE, RIDER_NUMBER, CENTRAL_MANAGER_TIME_WINDOW, ORDER_FACTOR)
 
     #batch_mode
     ORDER_BATCHER_THRESHOLD = config_dict['batch']['threshold']

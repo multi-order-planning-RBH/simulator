@@ -28,7 +28,7 @@ class Restaurant:
         self.order_id_queue: list[int] = []
         self.mean: int = mean
         self.std: int = std
-        self.order_rate: float = order_rate
+        self.order_rate: float = order_rate*Config.ORDER_FACTOR
         self.food_nation = food_nation
         self.food_category = food_category
 
