@@ -6,7 +6,7 @@ with open("./config.yaml", 'r') as stream:
     config_dict = yaml.safe_load(stream)
     
 modes = ['batch']
-rider_numebers = [10, 20]
+rider_numebers = [5]
 time_windows = [300]
 order_rate_factors = [1]
 

@@ -6,3 +6,4 @@ cache
 config.yaml
 
 /data_visualization/visconfig.py
+automated_experiment.py

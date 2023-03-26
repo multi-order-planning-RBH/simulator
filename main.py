@@ -11,7 +11,7 @@ from manager.central_manager import CentralManager
 from rider.rider_simulator import rider_simulator
 from order_restaurant.order_restaurant_simulator import order_simulator, restaurant_simulator
 from suggester.multi_order_suggester import MultiOrderSuggester
-from config import Config
+from config import Config, config_dict
 
 logger = SystemLogger(__name__)
 os.environ["PYTHONHASHSEED"] = str(Config.SEED)
@@ -59,6 +59,10 @@ def get_key_metrics(manager, order, rider_simulator, start):
     value = list(key_metrics.values())
     key_metrics_df = pd.DataFrame(data=data).T
     key_metrics_df.to_csv(Config.LOG_DIR+"/key_metrics.csv",index=False)
+
+    data = {'key': config_dict.keys(), 'value': config_dict.values()}
+    config_df = pd.DataFrame(data=data)
+    config_df.to_csv(Config.LOG_DIR+"/config.csv",index=False)
 
     logger.info(f"Customer Waiting Time:           {value[0]}")
     logger.info(f"Rider onroad time:               {value[1]}")
