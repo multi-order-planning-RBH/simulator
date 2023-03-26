@@ -1,4 +1,4 @@
-from data_visualization.config import ConfigAndShared
+from data_visualization.visconfig import ConfigAndShared
 from dash import html
 
 def get_slider_marker():
