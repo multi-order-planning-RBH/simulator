@@ -135,6 +135,7 @@ class BatchMode:
 
     # time it takes to finish an order using a journey(destinations)
     # using destinations[0] as initial localtion
+    # time in this method starts at 0
     def calculate_expected_delivery_time_order_graph(self, order: Order, destinations: list[Destination]) -> int:
         for idx in range(len(destinations)):
             if idx == 0:
@@ -148,7 +149,7 @@ class BatchMode:
                 current_time = max(current_time, destinations[idx].preparing_duration)
 
             if destinations[idx].order == order and destinations[idx].type == LocationEnum.CUSTOMER:
-                return current_time - order.created_time
+                return current_time
 
     # shortest time possible
     def calculate_shortest_delivery_time(self, order: Order) -> int:
