@@ -239,12 +239,15 @@ class BatchMode:
         return self.calculate_expected_delivery_time_food_graph(order, destinations, rider, current_time) - self.calculate_shortest_delivery_time(order)
     
     #Transform food graph to table which its schema is rider batch number cost
-    def get_batch_to_rider(self, food_graph: Dict[Rider, Dict[Batch, int]]) -> np.ndarray:
+    def get_batch_to_rider(self, food_graph: Dict[Rider, Dict[Batch, any]]) -> np.ndarray:
         batch_rider_pair_list = []
         count = 0 
         for k_r, v_r in food_graph.items():
             for k_b, v in v_r.items():
-                batch_rider_pair_list.append([k_r, k_b, count, v])
+                if v is not int:
+                    batch_rider_pair_list.append([k_r, k_b, count, v[0]])
+                else:
+                    batch_rider_pair_list.append([k_r, k_b, count, v])
                 count += 1
         batch_rider_order_time_array = np.array(batch_rider_pair_list)
         return batch_rider_order_time_array
@@ -309,11 +312,14 @@ class BatchMode:
         selected_pair = batch_rider_order_time_array[selected_x][:, :2]
 
         suggested_rider_batch_graph = defaultdict(list)
+
+        if len(selected_pair) == 0:
+            return {}
+        
         for rider in rider_unique:
             selected_batch = selected_pair[selected_pair[:, 0] == rider, :][:, 1]
             for batch in selected_batch:
                 suggested_rider_batch_graph[rider].append(batch)
-
         return suggested_rider_batch_graph
 
 batchmode = BatchMode(Config.MAX_ORDER_PER_RIDER)

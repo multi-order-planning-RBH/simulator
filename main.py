@@ -55,20 +55,22 @@ def get_key_metrics(manager, order, rider_simulator, start):
     key_metrics["NUMBER_OF_ASSIGNING"] = rider_simulator.count
     key_metrics["NUMBER_OF_SUCCESS_ASSIGNING"] = rider_simulator.success_count
 
-    key_metrics_df = pd.DataFrame(data=key_metrics).T
+    data = {'key': key_metrics.keys(), 'value': key_metrics.values()}
+    value = list(key_metrics.values())
+    key_metrics_df = pd.DataFrame(data=data).T
     key_metrics_df.to_csv(Config.LOG_DIR+"/key_metrics.csv",index=False)
 
-    logger.info(f"Customer Waiting Time:           {key_metrics.values()[0]}")
-    logger.info(f"Rider onroad time:               {key_metrics.values()[1]}")
-    logger.info(f"Number of order per rider:                 {key_metrics.values()[2]}")
-    logger.info(f"Count no order rider:                 {key_metrics.values()[3]}")
-    logger.info(f"Number of cancelled order:                 {key_metrics.values()[4]}")
-    logger.info(f"Number of finished order:                 {key_metrics.values()[5]}")
-    logger.info(f"Number of unassigned order:                 {key_metrics.values()[6]}")
-    logger.info(f"Number of assigned order:                 {key_metrics.values()[7]}")
-    logger.info(f"Computation time:                {key_metrics.values()[8]}")
-    logger.info(f"Number of assigning:             {key_metrics.values()[9]}")
-    logger.info(f"Number of success assigning:     {key_metrics.values()[10]}")
+    logger.info(f"Customer Waiting Time:           {value[0]}")
+    logger.info(f"Rider onroad time:               {value[1]}")
+    logger.info(f"Number of order per rider:                 {value[2]}")
+    logger.info(f"Count no order rider:                 {value[3]}")
+    logger.info(f"Number of cancelled order:                 {value[4]}")
+    logger.info(f"Number of finished order:                 {value[5]}")
+    logger.info(f"Number of unassigned order:                 {value[6]}")
+    logger.info(f"Number of assigned order:                 {value[7]}")
+    logger.info(f"Computation time:                {value[8]}")
+    logger.info(f"Number of assigning:             {value[9]}")
+    logger.info(f"Number of success assigning:     {value[10]}")
 
     
 
