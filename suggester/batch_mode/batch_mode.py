@@ -314,12 +314,13 @@ class BatchMode:
         suggested_rider_batch_graph = defaultdict(list)
 
         if len(selected_pair) == 0:
-            return {}
-        
-        for rider in rider_unique:
-            selected_batch = selected_pair[selected_pair[:, 0] == rider, :][:, 1]
-            for batch in selected_batch:
+            for rider, batch, _, _ in batch_rider_order_time_array:
                 suggested_rider_batch_graph[rider].append(batch)
+        else:
+            for rider in rider_unique:
+                selected_batch = selected_pair[selected_pair[:, 0] == rider, :][:, 1]
+                for batch in selected_batch:
+                    suggested_rider_batch_graph[rider].append(batch)
         return suggested_rider_batch_graph
 
 batchmode = BatchMode(Config.MAX_ORDER_PER_RIDER)
