@@ -141,7 +141,7 @@ class BatchMode:
             if idx == 0:
                 current_time = destinations[idx].preparing_duration
                 continue
-
+                    
             current_time += estimate_traveling_time(
                 destinations[idx - 1].location, destinations[idx].location)
 
@@ -153,11 +153,13 @@ class BatchMode:
 
     # shortest time possible
     def calculate_shortest_delivery_time(self, order: Order) -> int:
-        return order.estimated_cooking_duration+ estimate_traveling_time(order.restaurant_destination.location, order.customer_destination.location)
+        return order.estimated_cooking_duration + estimate_traveling_time(order.restaurant_destination.location, order.customer_destination.location)
 
     # expected - shortest
     def calculate_extra_delivery_time_order_graph(self, order: Order, destinations: list[Destination]) -> int:
-        return self.calculate_expected_delivery_time_order_graph(order, destinations) - self.calculate_shortest_delivery_time(order)
+        a = self.calculate_expected_delivery_time_order_graph(order, destinations)
+        b = self.calculate_shortest_delivery_time(order)
+        return a - b
 
     # cost of a journey
     def calculate_cost_order_graph(self, orders: list[Order], destinations: list[Destination]) -> int:
@@ -197,7 +199,6 @@ class BatchMode:
             - self.calculate_cost_order_graph(batch.orders, batch.destinations)\
             - self.calculate_cost_order_graph(
                 neighbor.orders, neighbor.destinations)
-
         return weight, best_destinations
 
     # sum of extra delivery time
@@ -245,10 +246,10 @@ class BatchMode:
         count = 0 
         for k_r, v_r in food_graph.items():
             for k_b, v in v_r.items():
-                if v is not int:
-                    batch_rider_pair_list.append([k_r, k_b, count, v[0]])
-                else:
-                    batch_rider_pair_list.append([k_r, k_b, count, v])
+                try:
+                    batch_rider_pair_list.append([k_r, k_b, count, int(v)])
+                except:
+                    batch_rider_pair_list.append([k_r, k_b, count, int(v[0])])
                 count += 1
         batch_rider_order_time_array = np.array(batch_rider_pair_list)
         return batch_rider_order_time_array

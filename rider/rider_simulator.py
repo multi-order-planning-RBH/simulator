@@ -71,23 +71,30 @@ class RiderSimulator():
         return self.unassigned_riders
 
     def simulate(self, time : int):
+        self.unassigned_riders = []
+        self.working_riders = []
+
         for rider in self.riders:
             old_action = rider.current_action
             new_action = rider.simulate(time)
-            if new_action != old_action:
-                if new_action == ActionEnum.UNAVAILABLE:
-                    if rider in self.unassigned_riders:
-                        self.unassigned_riders.remove(rider)
-                    if rider in self.working_riders:
-                        self.working_riders.remove(rider)
-                elif old_action == ActionEnum.NO_ACTION and rider in self.unassigned_riders:
-                    self.unassigned_riders.remove(rider)
-                elif new_action == ActionEnum.NO_ACTION:
-                    self.unassigned_riders.append(rider)
-                    if old_action == ActionEnum.UNAVAILABLE:
-                        self.working_riders.append(rider)
-                elif new_action == ActionEnum.RESTING and rider in self.unassigned_riders:
-                    self.unassigned_riders.remove(rider)
+            if new_action == ActionEnum.NO_ACTION or new_action == ActionEnum.RIDING_BACK_TO_RESTAURANT_AREA:
+                self.unassigned_riders.append(rider)
+            if new_action != ActionEnum.UNAVAILABLE and new_action != ActionEnum.RESTING and new_action !=ActionEnum.GETOFF:
+                self.working_riders.append(rider)
+            # if new_action != old_action:
+            #     if new_action == ActionEnum.UNAVAILABLE:
+            #         if rider in self.unassigned_riders:
+            #             self.unassigned_riders.remove(rider)
+            #         if rider in self.working_riders:
+            #             self.working_riders.remove(rider)
+            #     elif old_action == ActionEnum.NO_ACTION and rider in self.unassigned_riders:
+            #         self.unassigned_riders.remove(rider)
+            #     elif new_action == ActionEnum.NO_ACTION:
+            #         self.unassigned_riders.append(rider)
+            #         if old_action == ActionEnum.UNAVAILABLE:
+            #             self.working_riders.append(rider)
+            #     elif new_action == ActionEnum.RESTING and rider in self.unassigned_riders:
+            #         self.unassigned_riders.remove(rider)
                 
         return True
 
