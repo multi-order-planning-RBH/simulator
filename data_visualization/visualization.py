@@ -4,7 +4,7 @@ sys.path.append(os.path.abspath("./"))
 import plotly.graph_objects as go
 from dash import Dash, dcc, html, Input, Output, State
 
-from data_visualization.config import ConfigAndShared
+from data_visualization.visconfig import ConfigAndShared
 from data_visualization.component.rider_customer_map_renderer import *
 from data_visualization.component.order_time_query import *
 from data_visualization.component.speed_click_handler import *
@@ -73,6 +73,8 @@ app.layout = html.Div([
                     {'label': 'Current destination', 'value': CURRENT_DESTINATION},
                     {'label': 'Assigned order', 'value': ASSIGNED_ORDER},
                     {'label': 'Recent suggested order', 'value': RECENT_SUGGESTED_ORDER},
+                    {'label': 'Show restaurant area', 'value': SHOW_RESTAURANT_AREA},
+                    {'label': 'Show customer area', 'value': SHOW_CUSTOMER_AREA},
                 ],
                 value=[FILTER_RESTAURANT, CURRENT_DESTINATION, ASSIGNED_ORDER],
                 inline=True

@@ -128,6 +128,7 @@ class Rider:
             self.destination_log.extend(temp)
 
     def simulate(self, time : int) -> ActionEnum:
+        # print(time, self.id, self.current_action, self.done_current_action_time)
         if time % Config.RIDER_LOG_PERIOD == 0:
             self.logging(time)
 
@@ -166,6 +167,8 @@ class Rider:
                         self.done_current_action_time = order.meal_finished_time
                     else : 
                         self.done_current_action_time = time
+                else:
+                    self.done_current_action_time = time
 
         elif self.current_action == ActionEnum.WAITING:
             if time > self.done_current_action_time:

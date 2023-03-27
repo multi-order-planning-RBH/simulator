@@ -17,7 +17,7 @@ class RiderSimulator():
         self.maximum_item_per_rider: int 
         self.riders : List[Rider] = list()
         self.working_riders : List[Rider] = list()
-        self.unassigned_riders : List[Rider] = list() # ว่างงาน และต้อง Working ด้วย
+        self.unassigned_riders : List[Rider] = list() 
         self.time = 0
         self.count = 0 
         self.success_count = 0 

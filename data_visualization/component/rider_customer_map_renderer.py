@@ -1,8 +1,9 @@
 import pandas as pd
+from config import Config
 
 import plotly.graph_objects as go
 
-from data_visualization.config import ConfigAndShared
+from data_visualization.visconfig import ConfigAndShared
 
 rider_df = ConfigAndShared.RIDER_LOCAITON_DF
 rider_color = ConfigAndShared.RIDER_COLOR
@@ -22,6 +23,8 @@ FILTER_RESTAURANT = "FILTER_RESTAURANT"
 CURRENT_DESTINATION = "CURRENT_DESTINATION"
 ASSIGNED_ORDER = "ASSIGNED_ORDER"
 RECENT_SUGGESTED_ORDER = "RECENT_SUGGESTED_ORDER"
+SHOW_RESTAURANT_AREA = "SHOW_RESTAURANT_AREA"
+SHOW_CUSTOMER_AREA = "SHOW_CUSTOMER_AREA"
 
 def add_rider(fig:go.Figure, time:int, rider_ids:list):
     global selected_riders_df
@@ -125,23 +128,56 @@ def add_destination(fig:go.Figure, time:int, current_dest:bool):
         id = selected_df.iloc[i]['id']
         if current_dest and temp_id == id:
             continue
-        count = count+1 if temp_id == id else 1
+        if temp_id != id:
+            origin_lat, origin_lng = selected_df.iloc[i]['lat_rider'], selected_df.iloc[i]['lng_rider']
+            count = 0
+        dest_lat, dest_lng = selected_df.iloc[i]['lat_destination'], selected_df.iloc[i]['lng_destination']
+        count = count+1 
         temp_id = id
         dest_type = selected_df.iloc[i]['destination_type']
-        lat_rider,lng_rider = selected_df.iloc[i]['lat_rider'], selected_df.iloc[i]['lng_rider']
-        lat_dest,lng_dest = selected_df.iloc[i]['lat_destination'], selected_df.iloc[i]['lng_destination']
 
         fig.add_trace(
             go.Scattermapbox(
-                lat=[lat_rider, lat_dest],
-                lon=[lng_rider, lng_dest],
+                lat=[origin_lat, dest_lat],
+                lon=[origin_lng, dest_lng],
                 mode="lines",
                 line=go.scattermapbox.Line(
-                    width=1/count,
+                    width=6/count,
                     color=colors[id]
                 ),
                 name='Rider: {} Dest: {}'.format(id, count),
                 text='Destination: {} \nRider: {} Dest: {}'.format(dest_type, id, count)
+            )
+        )
+        origin_lat, origin_lng = dest_lat, dest_lng 
+
+    return fig
+
+def show_restaurant_area(fig:go.Figure, show_restaurant_area: bool):
+    if show_restaurant_area:
+        fig.add_trace(
+            go.Scattermapbox(
+                lat=[Config.RESTAURANT_AREA_NORTH, Config.RESTAURANT_AREA_NORTH, Config.RESTAURANT_AREA_SOUTH, Config.RESTAURANT_AREA_SOUTH],
+                lon=[Config.RESTAURANT_AREA_WEST, Config.RESTAURANT_AREA_EAST, Config.RESTAURANT_AREA_EAST, Config.RESTAURANT_AREA_WEST],
+                fill = "toself",
+                marker = { 'size': 1, 'color': "#E0B0FF"},
+                opacity=0,
+                showlegend=False
+            )
+        )
+
+    return fig
+
+def show_customer_area(fig:go.Figure, show_customer_area: bool):
+    if show_customer_area:
+        fig.add_trace(
+            go.Scattermapbox(
+                lat=[Config.CUSTOMER_AREA_NORTH, Config.CUSTOMER_AREA_NORTH, Config.CUSTOMER_AREA_SOUTH, Config.CUSTOMER_AREA_SOUTH],
+                lon=[Config.CUSTOMER_AREA_WEST, Config.CUSTOMER_AREA_EAST, Config.CUSTOMER_AREA_EAST, Config.CUSTOMER_AREA_WEST],
+                fill = "toself",
+                marker = { 'size': 1, 'color': "#F9DDB1"},
+                opacity=0,
+                showlegend=False
             )
         )
 
@@ -171,6 +207,8 @@ class RiderCustomerMapRenderer():
             ASSIGNED_ORDER in option_value, RECENT_SUGGESTED_ORDER in option_value)
         fig = add_restaurant(fig, FILTER_RESTAURANT in option_value, order_id)
         fig = add_destination(fig, time, CURRENT_DESTINATION in option_value)
+        fig = show_restaurant_area(fig, SHOW_RESTAURANT_AREA in option_value)
+        fig = show_customer_area(fig, SHOW_CUSTOMER_AREA in option_value)
         
         if frame == 0:
             fig.update_layout(

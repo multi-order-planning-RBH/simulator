@@ -1,4 +1,4 @@
-from data_visualization.config import ConfigAndShared
+from data_visualization.visconfig import ConfigAndShared
 order_df = ConfigAndShared.ORDER_DF
 
 class OrderTimeQuery:
