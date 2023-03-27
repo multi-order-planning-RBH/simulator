@@ -157,9 +157,9 @@ class BatchMode:
 
     # expected - shortest
     def calculate_extra_delivery_time_order_graph(self, order: Order, destinations: list[Destination]) -> int:
-        a = self.calculate_expected_delivery_time_order_graph(order, destinations)
-        b = self.calculate_shortest_delivery_time(order)
-        return a - b
+        expected_time = self.calculate_expected_delivery_time_order_graph(order, destinations)
+        shortest_time = self.calculate_shortest_delivery_time(order)
+        return expected_time - shortest_time
 
     # cost of a journey
     def calculate_cost_order_graph(self, orders: list[Order], destinations: list[Destination]) -> int:
