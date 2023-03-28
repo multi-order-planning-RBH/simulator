@@ -13,6 +13,7 @@ rider:
     log_period: 30 
     location_log_filename: rider_location.csv
     destination_log_filename: rider_destination.csv
+    summary_log_filename: rider_summary.csv
     max_order: 2
 order:
     log_period: 30
