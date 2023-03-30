@@ -254,7 +254,7 @@ def display_color(dummy_input):
 )
 def display_color(dummy_input):
 
-    fig = px.histogram(order_df, range_x=[0,  order_df["Customer Waiting Time (minutes)"].max()+10],x="Customer Waiting Time (minutes)")
+    fig = px.histogram(order_df, range_x=[0,  order_df["Customer Waiting Time (minutes)"].max()+10],x="Customer Waiting Time (minutes)",histnorm='percent')
     
     fig.add_vline(x=waiting_time_upper_bound,line_dash="dash", line_color="red",annotation_text="Upper bound from boxplot",annotation_font_color="red")
     return fig
