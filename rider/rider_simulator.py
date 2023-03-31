@@ -10,6 +10,9 @@ from suggester.types.batch import Batch
 from config import Config
 from map.map import sample_points_on_graph
 
+from common.system_logger import SystemLogger
+logger = SystemLogger(__name__)
+
 class RiderSimulator():
     def __init__(self):
         self.maximum_of_rider: int 
@@ -99,18 +102,29 @@ class RiderSimulator():
         return True
 
     def export_log_file(self):
-        print("[LOG] EXPORT RIDER LOCATION LOG FILE")
         location_log = list()
         for rider in self.riders:
             location_log.extend(rider.location_log)
         location_log_df = pd.DataFrame(location_log, columns=['id', 'time', 'action', 'lat', 'lng'])
         location_log_df.to_csv("{}/{}".format(Config.LOG_DIR, Config.RIDER_LOCATION_LOG_FILENAME), index=False)
-        
-        print("[LOG] EXPORT RIDER DESTINATION LOG FILE")
+        logger.info('Exported rider location log file')
+
         destination_log = list()
         for rider in self.riders:
             destination_log.extend(rider.destination_log)
         destination_log_df = pd.DataFrame(destination_log, columns=['id', 'time', 'destination_type', 'lat', 'lng', 'order_id'])
         destination_log_df.to_csv("{}/{}".format(Config.LOG_DIR, Config.RIDER_DESTINATION_LOG_FILENAME), index=False)
+        logger.info('Exported rider destination log file')
+
+        rider_summary_log = {
+            'utilization_time': [],
+            'cum_order_count': []
+        }
+        for rider in self.riders:
+            rider_summary_log['utilization_time'].append(rider.utilization_time)
+            rider_summary_log['cum_order_count'].append(rider.cum_order_count)
+        rider_summary_log_df = pd.DataFrame(data=rider_summary_log)
+        rider_summary_log_df.to_csv("{}/{}".format(Config.LOG_DIR, Config.RIDER_SUMMARY_LOG_FILENAME), index=False)
+        logger.info('Exported rider summary log file')
             
 rider_simulator = RiderSimulator()

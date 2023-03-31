@@ -14,12 +14,13 @@ def get_restaurant_df(ORDER_DF:pd.DataFrame):
     return restaurant_df
 
 class ConfigAndShared:
-    SIMULATION_DATE = "20230327_154201"
+    SIMULATION_DATE = "20230328_112736_batch_30_240"
 
     LOCATION_LOGGING_PATH = "./log/{}/rider_location.csv".format(SIMULATION_DATE)
     DESTINATION_LOGGING_PATH = "./log/{}/rider_destination.csv".format(SIMULATION_DATE)
     ORDER_LOGGING_PATH = "./log/{}/order.csv".format(SIMULATION_DATE)
     RBH_PATH = "data_visualization/RBH_data.csv"
+    RIDER_SUMMARY_PATH = "./log/{}/rider_summary.csv".format(SIMULATION_DATE)
 
     RIDER_LOCAITON_DF = pd.read_csv(LOCATION_LOGGING_PATH)
     
@@ -27,6 +28,7 @@ class ConfigAndShared:
     ORDER_DF = pd.read_csv(ORDER_LOGGING_PATH)
     RBH_DF= pd.read_csv(RBH_PATH)
     RESTAURANT_DF = get_restaurant_df(ORDER_DF)
+    RIDER_SUMMARY_DF = pd.read_csv(RIDER_SUMMARY_PATH)
 
     NUMBER_OF_RIDERS = len(RIDER_LOCAITON_DF['id'].unique())
     COLORS = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])for i in range(NUMBER_OF_RIDERS)]

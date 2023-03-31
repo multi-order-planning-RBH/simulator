@@ -21,6 +21,7 @@ class Config:
     RIDER_LOG_PERIOD = config_dict['rider']['log_period']
     RIDER_LOCATION_LOG_FILENAME = config_dict['rider']['location_log_filename']
     RIDER_DESTINATION_LOG_FILENAME = config_dict['rider']['destination_log_filename']
+    RIDER_SUMMARY_LOG_FILENAME = config_dict['rider']['summary_log_filename']
     MAX_ORDER_PER_RIDER = config_dict['rider']['max_order']
 
     #order
