@@ -166,6 +166,7 @@ app.layout = html.Div([
             html.Div([
             html.H2(str(round(num_huge_waiting_time/len(order_df)*100,2))+" % of orders take too much time!!",style={"color":"red"})]
             ,style={"display":"flex","justify-content": "center"}),
+
             html.H5('Histogram of rider utilization time',
                 style = {'height': '40%', 'margin-top': '10px','margin-left':'20px'}),
             dcc.Graph(id="rider-utilization-time-hist"),
