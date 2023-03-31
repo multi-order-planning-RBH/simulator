@@ -37,6 +37,9 @@ waiting_time_upper_bound = waiting_time_q3+1.5*waiting_time_iqr
 
 num_huge_waiting_time = sum(order_df["Customer Waiting Time (minutes)"]>waiting_time_upper_bound)
 
+rider_summary_df = ConfigAndShared.RIDER_SUMMARY_DF
+rider_summary_df['Utilization time (minutes)'] = rider_summary_df['utilization_time'] / 60
+
 app.layout = html.Div([
     html.Div(
         [
@@ -165,6 +168,14 @@ app.layout = html.Div([
             ,style={"display":"flex","justify-content": "center"})
 
         ], 
+    ),,
+    html.Div(
+        [
+            html.H5('Histogram of rider utilization time',
+                style = {'height': '40%', 'margin-top': '10px','margin-left':'20px'}),
+            dcc.Graph(id="rider-utilization-time-hist"),
+            html.Div(id="dummy-input-rider-utilization-time")
+        ], 
     ),
 ])
 
@@ -257,6 +268,14 @@ def display_color(dummy_input):
     fig = px.histogram(order_df, range_x=[0,  order_df["Customer Waiting Time (minutes)"].max()+10],x="Customer Waiting Time (minutes)",histnorm='percent')
     
     fig.add_vline(x=waiting_time_upper_bound,line_dash="dash", line_color="red",annotation_text="Upper bound from boxplot",annotation_font_color="red")
+    return fig
+
+@app.callback(
+    Output('rider-utilization-time-hist', 'figure'),
+    Input('dummy-input-rider-utilization-time', 'id')
+)
+def display_color(dummy_input):
+    fig = px.histogram(rider_summary_df, x="Utilization time (minutes)", nbins=5, histnorm='percent')
     return fig
 
 app.run_server(debug=True, use_reloader=True, port=8050)
