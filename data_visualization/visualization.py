@@ -2,6 +2,8 @@ import pandas as pd
 import os, sys
 sys.path.append(os.path.abspath("./"))
 import plotly.graph_objects as go
+import plotly.express as px
+
 from dash import Dash, dcc, html, Input, Output, State
 
 from data_visualization.visconfig import ConfigAndShared
@@ -10,12 +12,30 @@ from data_visualization.component.order_time_query import *
 from data_visualization.component.speed_click_handler import *
 from data_visualization.utils import *
 
+from datetime import datetime
+
+
 app = Dash(__name__)
 
 slider_marker = get_slider_marker()
 drop_down_options = get_drop_down_option()
 number_of_riders = ConfigAndShared.NUMBER_OF_RIDERS
 number_of_time_step = ConfigAndShared.NUMBER_OF_TIME_STEP
+
+order_df = ConfigAndShared.ORDER_DF
+order_df["Customer Waiting Time (minutes)"]=((order_df["finished_time"]-order_df["created_time"])/60)
+
+rbh_df = ConfigAndShared.RBH_DF
+rbh_df["arrivedAtCustLocationTime"]=rbh_df["arrivedAtCustLocationTime"].apply(lambda time_str: datetime.strptime(time_str, '%H:%M:%S'))
+rbh_df["jobAcceptedTime"]=rbh_df["jobAcceptedTime"].apply(lambda time_str: datetime.strptime(time_str, '%H:%M:%S'))
+rbh_df["Customer Waiting Time (minutes)"]=(rbh_df["arrivedAtCustLocationTime"]-rbh_df["jobAcceptedTime"]).apply(lambda x: x.total_seconds())/60
+
+waiting_time_q3=rbh_df["Customer Waiting Time (minutes)"].quantile(0.75)
+waiting_time_q1=rbh_df["Customer Waiting Time (minutes)"].quantile(0.25)
+waiting_time_iqr = waiting_time_q3-waiting_time_q1
+waiting_time_upper_bound = waiting_time_q3+1.5*waiting_time_iqr
+
+num_huge_waiting_time = sum(order_df["Customer Waiting Time (minutes)"]>waiting_time_upper_bound)
 
 app.layout = html.Div([
     html.Div(
@@ -124,7 +144,28 @@ app.layout = html.Div([
         ], 
         style={'display': 'grid', "grid-template-columns": "5% 95%"}
     ),
-    dcc.Interval(id='auto-stepper',interval=1*1000, n_intervals=0, disabled = True, max_intervals = number_of_time_step)
+    dcc.Interval(id='auto-stepper',interval=1*1000, n_intervals=0, disabled = True, max_intervals = number_of_time_step),
+
+    html.Div(
+        [
+            html.H3('Stats visualization',
+                style = {'height': '40%', 'margin-top': '30px'}),
+            html.H4('Customers Waiting Time distribution',
+                style = {'height': '40%', 'margin-top': '10px','margin-left':'10px'}),
+            html.H5('Box plot of RBH original data',
+                style = {'height': '40%', 'margin-top': '10px','margin-left':'20px'}),
+            dcc.Graph(id="rbh-box-plot"),
+            html.Div(id="dummy-boxplot"),
+            html.H5('Histogram of generated data',
+                style = {'height': '40%', 'margin-top': '10px','margin-left':'20px'}),
+            dcc.Graph(id="customer-waiting-time-hist"),
+            html.Div(id="dummy"),
+            html.Div([
+            html.H2(str(round(num_huge_waiting_time/len(order_df)*100,2))+" % of orders take too much time!!",style={"color":"red"})]
+            ,style={"display":"flex","justify-content": "center"})
+
+        ], 
+    ),
 ])
 
 @app.callback(
@@ -194,5 +235,28 @@ def on_click(drag_value, order_id,
     except:
         set_value = 0
     return set_value%number_of_time_step 
+
+
+@app.callback(
+    Output('rbh-box-plot', 'figure'),
+    Input('dummy-boxplot', 'id')
+)
+def display_color(dummy_input):
+
+    fig = px.box(order_df, range_x=[0,  order_df["Customer Waiting Time (minutes)"].max()+10],x="Customer Waiting Time (minutes)")
+    fig.add_vline(x=waiting_time_upper_bound,line_dash="dash", line_color="red",annotation_text="Upper bound of customer waiting time",annotation_font_color="red")
+
+    return fig
+
+@app.callback(
+    Output('customer-waiting-time-hist', 'figure'),
+    Input('dummy', 'id')
+)
+def display_color(dummy_input):
+
+    fig = px.histogram(order_df, range_x=[0,  order_df["Customer Waiting Time (minutes)"].max()+10],x="Customer Waiting Time (minutes)",histnorm='percent')
+    
+    fig.add_vline(x=waiting_time_upper_bound,line_dash="dash", line_color="red",annotation_text="Upper bound from boxplot",annotation_font_color="red")
+    return fig
 
 app.run_server(debug=True, use_reloader=True, port=8050)

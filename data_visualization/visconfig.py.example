@@ -14,16 +14,18 @@ def get_restaurant_df(ORDER_DF:pd.DataFrame):
     return restaurant_df
 
 class ConfigAndShared:
-    SIMULATION_DATE = "20230311_173234"
+    SIMULATION_DATE = "20230327_154201"
 
     LOCATION_LOGGING_PATH = "./log/{}/rider_location.csv".format(SIMULATION_DATE)
     DESTINATION_LOGGING_PATH = "./log/{}/rider_destination.csv".format(SIMULATION_DATE)
     ORDER_LOGGING_PATH = "./log/{}/order.csv".format(SIMULATION_DATE)
+    RBH_PATH = "data_visualization/RBH_data.csv"
 
     RIDER_LOCAITON_DF = pd.read_csv(LOCATION_LOGGING_PATH)
     
     RIDER_DESTINATION_DF = pd.read_csv(DESTINATION_LOGGING_PATH)
     ORDER_DF = pd.read_csv(ORDER_LOGGING_PATH)
+    RBH_DF= pd.read_csv(RBH_PATH)
     RESTAURANT_DF = get_restaurant_df(ORDER_DF)
 
     NUMBER_OF_RIDERS = len(RIDER_LOCAITON_DF['id'].unique())
