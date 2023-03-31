@@ -174,7 +174,7 @@ def estimate_cooking_duration(order,location) -> int:
     NationFoodCategory=[order.food_nation]
     FoodCategory = [order.food_category]
 
-    return foodprep_model.batch_predict(location,day_of_week,NationFoodCategory,FoodCategory[0]*60)
+    return foodprep_model.batch_predict(location,day_of_week,NationFoodCategory,FoodCategory)[0]*60
     # mean =1000
     # std=300
 
