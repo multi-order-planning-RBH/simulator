@@ -148,9 +148,9 @@ class Rider:
 
                 self.t = 1
 
-            elif random.uniform(0, 1)<self.resting_prob: 
-                self.current_action = ActionEnum.RESTING
-                self.done_current_action_time = time + self.resting_time
+            # elif random.uniform(0, 1)<self.resting_prob: 
+            #     self.current_action = ActionEnum.RESTING
+            #     self.done_current_action_time = time + self.resting_time
 
         elif self.current_action == ActionEnum.RIDING:
             self.utilization_time += 1
