@@ -32,7 +32,7 @@ class OnlineMode:
                 continue
 
             cost, destinations = self.plain_insertion(order, rider, time)
-            if cost < min_cost:
+            if cost < min_cost and cost < Config.ORDER_BATCHER_THRESHOLD:
                 min_cost = cost
                 best_rider = rider
                 best_destinations = destinations

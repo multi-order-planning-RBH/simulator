@@ -72,5 +72,5 @@ class Config:
     LOG_DIR = "{}/{}_{}_{}_{}".format(config_dict['log_dir'], date_time, MODE, RIDER_NUMBER, CENTRAL_MANAGER_TIME_WINDOW, ORDER_FACTOR)
 
     #batch_mode
-    ORDER_BATCHER_THRESHOLD = config_dict['batch']['threshold']
+    ORDER_BATCHER_THRESHOLD = config_dict['central_manager']['threshold']
     
