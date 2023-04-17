@@ -2,7 +2,6 @@ central_manager:
     simulation_time: 50400
     time_window: 240
     mode: batch
-    threshold: 600
 rider:
     speed_mean: 5.318089655268194
     speed_std: 1.9188270198967308

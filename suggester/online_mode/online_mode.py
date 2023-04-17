@@ -40,7 +40,7 @@ class OnlineMode:
         return best_rider, best_destinations
 
     def plain_insertion(self, order: Order, rider: Rider, time: int):
-        if rider.current_destination is None or rider.order_count == 0:
+        if rider.order_count == 0:
             # rider has no order
             new_destinations = list(rider.destinations)
             new_destinations.append(order.restaurant_destination)
