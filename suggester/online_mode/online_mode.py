@@ -51,8 +51,8 @@ class OnlineMode:
             cost = new_finished_time - time
             return cost, new_destinations
 
-        old_finished_time = self.calculate_finished_time(
-            rider.destinations, rider, time)
+        # old_finished_time = self.calculate_finished_time(
+        #    rider.destinations, rider, time)
 
         # init min_cost and best_destinations
         best_destinations = rider.destinations + \
