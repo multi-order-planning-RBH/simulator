@@ -32,7 +32,7 @@ class OnlineMode:
                 continue
 
             cost, destinations = self.plain_insertion(order, rider, time)
-            if cost < min_cost and cost < Config.ORDER_BATCHER_THRESHOLD:
+            if cost < min_cost:
                 min_cost = cost
                 best_rider = rider
                 best_destinations = destinations
@@ -40,7 +40,7 @@ class OnlineMode:
         return best_rider, best_destinations
 
     def plain_insertion(self, order: Order, rider: Rider, time: int):
-        if rider.current_destination is None:
+        if rider.current_destination is None or rider.order_count == 0:
             # rider has no order
             new_destinations = list(rider.destinations)
             new_destinations.append(order.restaurant_destination)
@@ -59,7 +59,7 @@ class OnlineMode:
             [order.restaurant_destination, order.customer_destination]
         new_finished_time = self.calculate_finished_time(
             best_destinations, rider, time)
-        min_cost = new_finished_time - old_finished_time
+        min_cost = new_finished_time - time
 
         for i in range(len(rider.destinations)):
             for j in range(i + 1, len(rider.destinations) + 2):
@@ -69,7 +69,7 @@ class OnlineMode:
 
                 new_finished_time = self.calculate_finished_time(
                     new_destinations, rider, time)
-                cost = new_finished_time - old_finished_time
+                cost = new_finished_time - time
                 if min_cost > cost:
                     min_cost = cost
                     best_destinations = new_destinations
