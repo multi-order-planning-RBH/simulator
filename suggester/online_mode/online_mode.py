@@ -40,7 +40,7 @@ class OnlineMode:
         return best_rider, best_destinations
 
     def plain_insertion(self, order: Order, rider: Rider, time: int):
-        if rider.current_destination is None:
+        if rider.order_count == 0:
             # rider has no order
             new_destinations = list(rider.destinations)
             new_destinations.append(order.restaurant_destination)
@@ -51,15 +51,15 @@ class OnlineMode:
             cost = new_finished_time - time
             return cost, new_destinations
 
-        old_finished_time = self.calculate_finished_time(
-            rider.destinations, rider, time)
+        # old_finished_time = self.calculate_finished_time(
+        #    rider.destinations, rider, time)
 
         # init min_cost and best_destinations
         best_destinations = rider.destinations + \
             [order.restaurant_destination, order.customer_destination]
         new_finished_time = self.calculate_finished_time(
             best_destinations, rider, time)
-        min_cost = new_finished_time - old_finished_time
+        min_cost = new_finished_time - time
 
         for i in range(len(rider.destinations)):
             for j in range(i + 1, len(rider.destinations) + 2):
@@ -69,7 +69,7 @@ class OnlineMode:
 
                 new_finished_time = self.calculate_finished_time(
                     new_destinations, rider, time)
-                cost = new_finished_time - old_finished_time
+                cost = new_finished_time - time
                 if min_cost > cost:
                     min_cost = cost
                     best_destinations = new_destinations
