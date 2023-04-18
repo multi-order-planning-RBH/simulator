@@ -33,12 +33,10 @@ class OnlineMode:
                 continue
 
             finish_duration, destinations, extra_cost = self.plain_insertion(order, rider, time)
-            if extra_cost <= min_cost:
-                if finish_duration < min_duration:
-                    min_duration = finish_duration
-                    min_cost = extra_cost
-                    best_rider = rider
-                    best_destinations = destinations
+            if (extra_cost, finish_duration) <= (min_cost, min_duration):
+                min_cost = extra_cost
+                best_rider = rider
+                best_destinations = destinations
 
         return best_rider, best_destinations
 
