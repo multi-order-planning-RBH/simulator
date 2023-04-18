@@ -19,6 +19,7 @@ class OnlineMode:
         best_rider = None
         best_destinations = None
         min_cost = np.inf
+        min_duration = np.inf
 
         for rider in riders:
             num_orders = 0
@@ -31,11 +32,13 @@ class OnlineMode:
             if num_orders >= self.max_order:
                 continue
 
-            cost, destinations = self.plain_insertion(order, rider, time)
-            if cost < min_cost:
-                min_cost = cost
-                best_rider = rider
-                best_destinations = destinations
+            finish_duration, destinations, extra_cost = self.plain_insertion(order, rider, time)
+            if extra_cost <= min_cost:
+                if finish_duration < min_duration:
+                    min_duration = finish_duration
+                    min_cost = extra_cost
+                    best_rider = rider
+                    best_destinations = destinations
 
         return best_rider, best_destinations
 
@@ -48,18 +51,19 @@ class OnlineMode:
 
             new_finished_time = self.calculate_finished_time(
                 new_destinations, rider, time)
-            cost = new_finished_time - time
-            return cost, new_destinations
+            finish_duration = new_finished_time - time
+            return finish_duration, new_destinations, 0
 
-        # old_finished_time = self.calculate_finished_time(
-        #    rider.destinations, rider, time)
+        old_finished_time = self.calculate_finished_time(
+           rider.destinations, rider, time)
 
         # init min_cost and best_destinations
         best_destinations = rider.destinations + \
             [order.restaurant_destination, order.customer_destination]
         new_finished_time = self.calculate_finished_time(
             best_destinations, rider, time)
-        min_cost = new_finished_time - time
+        min_finish_duration = new_finished_time - time
+        extra_cost = new_finished_time - old_finished_time
 
         for i in range(len(rider.destinations)):
             for j in range(i + 1, len(rider.destinations) + 2):
@@ -69,12 +73,13 @@ class OnlineMode:
 
                 new_finished_time = self.calculate_finished_time(
                     new_destinations, rider, time)
-                cost = new_finished_time - time
-                if min_cost > cost:
-                    min_cost = cost
+                finish_duration = new_finished_time - time
+                if min_finish_duration > finish_duration:
+                    min_finish_duration = finish_duration
                     best_destinations = new_destinations
+                    extra_cost = new_finished_time - old_finished_time
 
-        return min_cost, best_destinations
+        return min_finish_duration, best_destinations, extra_cost
 
     def calculate_finished_time(self, destinations: list[Destination], rider: Rider, time: int):
         current_time = time
